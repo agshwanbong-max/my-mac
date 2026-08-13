@@ -20,6 +20,10 @@ struct ContentView: View {
         }
         .sheet(isPresented: $model.isConfirming) { ConfirmSheet() }
         .sheet(isPresented: $model.isShowingResults) { ResultsSheet() }
+        .sheet(item: $model.browsingDirectory) { directory in
+            BrowserSheet(directory: directory.url)
+                .environmentObject(model)
+        }
     }
 
     @ToolbarContentBuilder

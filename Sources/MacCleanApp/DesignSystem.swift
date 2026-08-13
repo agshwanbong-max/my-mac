@@ -95,6 +95,7 @@ extension FindingCategory {
         case .iosBackup: return "externaldrive.badge.icloud"
         case .downloads: return "arrow.down.circle"
         case .largeFiles: return "doc.richtext"
+        case .manualSelection: return "hand.point.up.left"
         }
     }
 
@@ -115,6 +116,7 @@ extension FindingCategory {
         case .iosBackup: return .pink
         case .downloads: return .yellow
         case .largeFiles: return .red
+        case .manualSelection: return .purple
         }
     }
 }

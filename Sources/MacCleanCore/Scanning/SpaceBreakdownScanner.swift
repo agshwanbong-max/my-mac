@@ -67,6 +67,11 @@ public struct SpaceBreakdownScanner: Scanner {
                 truncated = true
                 break
             }
+            // 스캐너 단위 진행률만으로는 이 스캐너가 도는 20~30초 동안 화면이 멈춘 것처럼 보인다.
+            // 파일 수를 흘려보내서 뭔가 돌아가고 있다는 걸 알린다.
+            if visited % 20_000 == 0 {
+                context.progress.note("홈을 훑는 중… \(visited / 1000)천 개 파일")
+            }
 
             guard let values = try? url.resourceValues(forKeys: keys) else { continue }
 

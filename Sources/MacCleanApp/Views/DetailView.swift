@@ -26,14 +26,27 @@ struct DetailView: View {
         } else if let report = model.report {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 0) {
+                    // 다시 검사할 때도 이전 결과를 지우지 않는다. 막대만 위에 얹는다.
+                    if model.phase == .scanning {
+                        ScanProgressBar()
+                            .padding(.horizontal, Design.gutter)
+                            .padding(.top, Design.gutter)
+                    }
+
                     StorageBar(report: report)
                         .padding(Design.gutter)
 
-                    ListHeader(report: report)
-
-                    ForEach(model.visibleFindings) { finding in
-                        FindingRow(finding: finding)
-                        Divider().padding(.leading, 52)
+                    if model.selectedCategory == nil {
+                        // "전체" 는 분류별로 묶어서 보여준다. 평평한 목록으로는 뭐가 뭔지 알 수 없다.
+                        ForEach(report.categoriesInOrder, id: \.self) { category in
+                            CategoryBlock(category: category, findings: report.findings(in: category))
+                        }
+                    } else {
+                        ListHeader(report: report)
+                        ForEach(model.visibleFindings) { finding in
+                            FindingRow(finding: finding)
+                            Divider().padding(.leading, 52)
+                        }
                     }
 
                     if model.visibleFindings.isEmpty {
@@ -51,6 +64,92 @@ struct DetailView: View {
             .scrollContentBackground(.hidden)
         } else {
             ScanningView()
+        }
+    }
+}
+
+// MARK: - 진행 막대
+
+/// 검사 진행 상황.
+///
+/// 스캐너 단위로 센다. 동시에 도는 스캐너들의 "지금 몇 %" 를 정확히 말할 방법이 없어서
+/// **끝난 개수**를 세는 쪽을 택했다 — 거짓 없는 숫자다.
+/// 대신 아래 줄에 오래 걸리는 스캐너가 흘려보내는 상세 진행이 계속 갱신된다.
+struct ScanProgressBar: View {
+    @EnvironmentObject private var model: AppModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 10) {
+                Text("검사 중")
+                    .font(.callout.weight(.medium))
+
+                Text("\(model.scanProgress.completed) / \(model.scanProgress.total)")
+                    .font(.callout.monospacedDigit())
+                    .foregroundStyle(.secondary)
+                    .contentTransition(.numericText())
+
+                Spacer()
+
+                Button("중단") { model.cancelScan() }
+                    .controlSize(.small)
+            }
+
+            ProgressView(value: model.scanProgress.fraction)
+                .progressViewStyle(.linear)
+
+            Text(model.statusText.isEmpty ? "읽기만 합니다. 아무것도 지우지 않습니다." : model.statusText)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+        .padding(14)
+        .background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .animation(.easeInOut(duration: 0.2), value: model.scanProgress)
+    }
+}
+
+// MARK: - 분류 묶음 ("전체" 화면에서만 쓴다)
+
+private struct CategoryBlock: View {
+    @EnvironmentObject private var model: AppModel
+    let category: FindingCategory
+    let findings: [Finding]
+
+    var body: some View {
+        let reclaimable = findings.filter { $0.isSelectable }.reduce(Int64(0)) { $0 + $1.reclaimableBytes }
+
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 8) {
+                Image(systemName: category.symbolName)
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(category.tint)
+                Text(category.localizedTitle)
+                    .font(.headline)
+                Text("\(findings.count)건")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                if reclaimable > 0 {
+                    Text(ByteFormat.string(reclaimable))
+                        .font(.callout.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+
+                Button("이 분류만 보기") { model.sidebarSelection = .category(category) }
+                    .buttonStyle(.link)
+                    .font(.caption)
+            }
+            .padding(.horizontal, Design.gutter)
+            .padding(.top, 18)
+            .padding(.bottom, 8)
+
+            ForEach(findings) { finding in
+                FindingRow(finding: finding)
+                Divider().padding(.leading, 52)
+            }
         }
     }
 }
@@ -117,26 +216,18 @@ private struct EmptyStateView: View {
 // MARK: - 검사 중
 
 private struct ScanningView: View {
-    @EnvironmentObject private var model: AppModel
-
     var body: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 18) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 30))
                 .symbolRenderingMode(.hierarchical)
                 .foregroundStyle(.secondary)
 
-            ProgressView().controlSize(.small)
-
-            Text(model.statusText.isEmpty ? "검사 중입니다…" : model.statusText)
-                .font(.callout)
-                .contentTransition(.opacity)
-
-            Text("이 단계에서는 아무것도 지우지 않습니다. 읽기만 합니다.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            ScanProgressBar()
+                .frame(maxWidth: 420)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(Design.gutter)
     }
 }
 

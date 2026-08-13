@@ -13,6 +13,8 @@ struct ConfirmSheet: View {
 
     private var reversible: [Finding] { model.selectedFindings.filter { $0.removal.isReversible } }
     private var irreversible: [Finding] { model.selectedFindings.filter { !$0.removal.isReversible } }
+    /// 탐색기에서 직접 고른 항목. 규칙이 검증하지 않은 경로라 따로 알려야 한다.
+    private var manual: [Finding] { model.selectedFindings.filter { $0.category == .manualSelection } }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -39,6 +41,16 @@ struct ConfirmSheet: View {
                         tint: .red,
                         title: "완전 삭제 \(irreversible.count)건",
                         subtitle: "\(ByteFormat.string(irreversible.reduce(0) { $0 + $1.reclaimableBytes })) · 되돌릴 수 없습니다."
+                    )
+                }
+
+                if !manual.isEmpty {
+                    summaryRow(
+                        icon: "hand.point.up.left.fill",
+                        tint: .orange,
+                        title: "직접 고른 항목 \(manual.count)건",
+                        subtitle: "\(ByteFormat.string(manual.reduce(0) { $0 + $1.reclaimableBytes })) · "
+                            + "이 앱이 검증한 목록이 아닙니다. 직접 판단하신 항목이라 앱이 안전을 보장하지 않습니다."
                     )
                 }
             }

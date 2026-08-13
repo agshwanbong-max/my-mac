@@ -7,7 +7,7 @@ struct SidebarView: View {
     @EnvironmentObject private var model: AppModel
 
     var body: some View {
-        List(selection: $model.selectedCategory) {
+        List(selection: $model.sidebarSelection) {
             Section {
                 row(
                     title: "전체",
@@ -16,7 +16,7 @@ struct SidebarView: View {
                     bytes: model.report?.totalReclaimable ?? 0,
                     count: model.report?.findings.count ?? 0
                 )
-                .tag(FindingCategory?.none)
+                .tag(AppModel.SidebarItem.all)
             }
 
             if let report = model.report, !report.categoriesInOrder.isEmpty {
@@ -29,7 +29,7 @@ struct SidebarView: View {
                             bytes: report.reclaimable(in: category),
                             count: report.findings(in: category).count
                         )
-                        .tag(FindingCategory?.some(category))
+                        .tag(AppModel.SidebarItem.category(category))
                     }
                 }
             }

@@ -5,9 +5,26 @@ import Foundation
 import MacCleanCore
 import SwiftUI
 
+/// `sheet(item:)` 에 넘기려고 URL 을 감싼 것.
+struct BrowsableDirectory: Identifiable, Hashable {
+    let url: URL
+    var id: String { url.path }
+}
+
 /// UI 상태 전부. 코어는 이 타입을 모른다 (한 방향 의존).
 @MainActor
 final class AppModel: ObservableObject {
+
+    /// 사이드바 항목.
+    ///
+    /// 예전에는 선택 타입이 `FindingCategory?` 였고 "전체" 행의 태그가 `nil` 이었다.
+    /// SwiftUI 는 `nil` 선택을 "아무것도 선택 안 됨" 과 구분하지 못해서,
+    /// **"전체" 를 눌러도 선택 표시가 안 되고 되돌아가지도 않았다.**
+    /// 전용 타입을 쓰면 "전체" 도 어엿한 값이 된다.
+    enum SidebarItem: Hashable {
+        case all
+        case category(FindingCategory)
+    }
 
     enum Phase: Equatable {
         case idle
@@ -21,11 +38,22 @@ final class AppModel: ObservableObject {
     @Published private(set) var report: ScanReport?
     @Published private(set) var outcomes: [CleanupOutcome] = []
     @Published private(set) var hasFullDiskAccess = true
-    /// 지금 무엇을 검사하고 있는지. 진행 표시에 쓴다.
+    /// 지금 무엇을 검사하고 있는지. 진행 표시 아래 줄에 쓴다.
     @Published private(set) var statusText = ""
+    /// 진행 막대에 쓰는 값. 끝난 스캐너 수 / 전체 스캐너 수.
+    @Published private(set) var scanProgress = ScanProgress(completed: 0, total: 1, detail: "")
 
-    /// 사이드바 선택. nil 이면 전체 보기.
-    @Published var selectedCategory: FindingCategory?
+    /// 사이드바 선택.
+    @Published var sidebarSelection: SidebarItem = .all
+
+    /// 탐색기로 열어둔 폴더. nil 이면 안 열려 있다.
+    /// `sheet(item:)` 이 Identifiable 을 요구하는데 URL 은 그걸 갖고 있지 않아 감싼다.
+    @Published var browsingDirectory: BrowsableDirectory?
+
+    var selectedCategory: FindingCategory? {
+        if case .category(let category) = sidebarSelection { return category }
+        return nil
+    }
     /// 사용자가 체크한 항목의 id.
     @Published var selection: Set<String> = []
     /// 홈 전체를 훑어 용량 분포와 대용량 파일까지 찾을지. 가장 무거운 검사라 기본은 꺼둔다.
@@ -78,6 +106,7 @@ final class AppModel: ObservableObject {
 
         phase = .scanning
         statusText = "검사를 시작합니다…"
+        scanProgress = ScanProgress(completed: 0, total: 1, detail: "")
         outcomes = []
         selection = []
 
@@ -94,18 +123,23 @@ final class AppModel: ObservableObject {
             guard let model = self else { return }
 
             let fullDiskAccess = FullDiskAccessProbe.hasAccess(paths: paths)
+
+            // 오래 걸리는 스캐너가 흘려보내는 상세 진행. 막대만으로는 멈춘 것처럼 보인다.
+            let reporter = ScanProgressReporter { message in
+                Task { @MainActor in model.statusText = message }
+            }
             let context = ScanContext(
                 paths: paths,
                 runningBundleIdentifiers: runningIdentifiers,
-                hasFullDiskAccess: fullDiskAccess
+                hasFullDiskAccess: fullDiskAccess,
+                progress: reporter
             )
             let coordinator = ScanCoordinator.standard(paths: paths, deepScan: deepScan)
 
             let result = await coordinator.run(
                 context: context,
-                progress: { identifier in
-                    let text = ScannerLabel.text(for: identifier)
-                    Task { @MainActor in model.statusText = text }
+                progress: { progress in
+                    Task { @MainActor in model.scanProgress = progress }
                 },
                 isCancelled: { Task.isCancelled }
             )
@@ -133,6 +167,41 @@ final class AppModel: ObservableObject {
         scanTask = nil
         statusText = ""
         phase = report == nil ? .idle : .ready
+    }
+
+    // MARK: - 탐색기
+
+    /// 규칙이 없는 폴더를 직접 열어본다.
+    func browse(_ url: URL) {
+        browsingDirectory = BrowsableDirectory(url: url)
+    }
+
+    /// 탐색기에서 고른 항목들을 정리 대상에 얹는다.
+    ///
+    /// 검사 결과를 다시 만들지 않고 목록 뒤에 덧붙인다.
+    /// 사용자가 직접 고른 것이므로 검사가 찾아낸 것과 섞이지 않게 별도 분류로 들어간다.
+    func addManualSelections(_ findings: [Finding]) {
+        guard let existing = report, !findings.isEmpty else { return }
+
+        // 같은 경로를 두 번 담지 않는다.
+        let existingPaths = Set(existing.findings.compactMap { $0.path?.path })
+        let fresh = findings.filter { finding in
+            guard let path = finding.path?.path else { return false }
+            return !existingPaths.contains(path)
+        }
+        guard !fresh.isEmpty else { return }
+
+        report = ScanReport(
+            startedAt: existing.startedAt,
+            finishedAt: existing.finishedAt,
+            volume: existing.volume,
+            findings: existing.findings + fresh,
+            warnings: existing.warnings
+        )
+        // 직접 고른 항목은 자동으로 체크한다 — 이미 고르는 행위를 한 번 했기 때문이다.
+        // 그래도 실행하려면 확인 창을 한 번 더 통과해야 한다.
+        for finding in fresh { selection.insert(finding.id) }
+        sidebarSelection = .category(.manualSelection)
     }
 
     // MARK: - 실행

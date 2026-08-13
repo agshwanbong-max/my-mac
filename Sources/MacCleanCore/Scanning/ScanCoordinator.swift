@@ -8,6 +8,20 @@ public struct ScanReport: Sendable {
     public let findings: [Finding]
     public let warnings: [ScanWarning]
 
+    public init(
+        startedAt: Date,
+        finishedAt: Date,
+        volume: VolumeSnapshot,
+        findings: [Finding],
+        warnings: [ScanWarning]
+    ) {
+        self.startedAt = startedAt
+        self.finishedAt = finishedAt
+        self.volume = volume
+        self.findings = findings
+        self.warnings = warnings
+    }
+
     public var duration: TimeInterval { finishedAt.timeIntervalSince(startedAt) }
 
     /// 앱이 실제로 지울 수 있는 항목의 합계.
@@ -92,6 +106,7 @@ public struct ScanCoordinator: Sendable {
 
     /// 스캐너 하나의 결과를 task group 으로 옮기기 위한 상자.
     private struct ScannerOutput: Sendable {
+        let identifier: String
         let findings: [Finding]
         let warnings: [ScanWarning]
     }
@@ -102,27 +117,39 @@ public struct ScanCoordinator: Sendable {
     /// 순차 실행하면 가장 느린 하나가 전체를 붙잡는다.
     ///
     /// - Parameters:
-    ///   - progress: 시작한 스캐너의 `identifier`. 여러 스레드에서 불린다.
+    ///   - progress: 끝난 스캐너 개수와 방금 끝난 스캐너 이름.
+    ///     동시에 도는 스캐너들의 "지금 몇 %" 를 정확히 말할 방법이 없어서 **끝난 개수**를 센다.
+    ///     세는 건 `for await` 루프 안에서만 하므로 경쟁 상태가 없다.
     ///   - isCancelled: 주기적으로 확인한다. 취소되면 부분 결과를 그대로 돌려준다.
     public func run(
         context: ScanContext,
-        progress: @escaping @Sendable (String) -> Void = { _ in },
+        progress: @escaping @Sendable (ScanProgress) -> Void = { _ in },
         isCancelled: @escaping @Sendable () -> Bool = { false }
     ) async -> ScanReport {
         let startedAt = Date()
+        let total = scanners.count
+        progress(ScanProgress(completed: 0, total: total, detail: "검사를 시작합니다"))
 
         let outputs: [ScannerOutput] = await withTaskGroup(of: ScannerOutput.self) { group in
             for scanner in scanners {
                 group.addTask {
-                    progress(scanner.identifier)
                     let result = scanner.scan(context: context, isCancelled: isCancelled)
-                    return ScannerOutput(findings: result.findings, warnings: result.warnings)
+                    return ScannerOutput(
+                        identifier: scanner.identifier,
+                        findings: result.findings,
+                        warnings: result.warnings
+                    )
                 }
             }
 
             var collected: [ScannerOutput] = []
             for await output in group {
                 collected.append(output)
+                progress(ScanProgress(
+                    completed: collected.count,
+                    total: total,
+                    detail: "\(output.identifier) 완료"
+                ))
             }
             return collected
         }

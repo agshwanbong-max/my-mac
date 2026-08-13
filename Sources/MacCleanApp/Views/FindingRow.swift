@@ -94,7 +94,19 @@ struct FindingRow: View {
             if let command = finding.suggestedCommand {
                 Button("명령어 복사") { model.copyToPasteboard(command) }
             }
+            if canBrowse {
+                Button("열어서 직접 고르기") { model.browse(finding.path!) }
+            }
         }
+    }
+
+    /// 규칙이 다루지 않는 폴더는 열어서 직접 고를 수 있게 한다.
+    /// 규칙에 걸린 항목은 이미 앱이 판단했으므로 열 필요가 없다.
+    private var canBrowse: Bool {
+        guard let path = finding.path, !finding.isSelectable else { return false }
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: path.path, isDirectory: &isDirectory) else { return false }
+        return isDirectory.boolValue
     }
 
     // MARK: - 선택 표시
@@ -153,6 +165,16 @@ struct FindingRow: View {
                     .textSelection(.enabled)
                     .lineLimit(2)
                     .truncationMode(.middle)
+            }
+
+            if canBrowse {
+                Button {
+                    model.browse(finding.path!)
+                } label: {
+                    Label("열어서 직접 고르기", systemImage: "folder.badge.gearshape")
+                }
+                .controlSize(.small)
+                .help("이 폴더를 열어 안의 항목을 직접 고릅니다. 규칙이 검증한 목록이 아니므로 판단은 직접 하셔야 합니다.")
             }
 
             if let command = finding.suggestedCommand {

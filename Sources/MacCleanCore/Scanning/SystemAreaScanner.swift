@@ -50,7 +50,7 @@ public struct SystemAreaScanner: Scanner {
         // ── 설치된 앱 ──────────────────────────────────────────────────
         // macOS 저장 공간 화면의 "응용 프로그램" 칸이 이것이다.
         // 개발자 맥에서는 Xcode 하나가 15~20GB 라 이 칸이 통째로 커 보인다.
-        findings.append(contentsOf: applicationFindings(isCancelled: isCancelled))
+        findings.append(contentsOf: applicationFindings(context: context, isCancelled: isCancelled))
 
         // ── 홈 밖의 시스템 영역 ────────────────────────────────────────
         for entry in SystemAreaScanner.systemPaths {
@@ -58,6 +58,7 @@ public struct SystemAreaScanner: Scanner {
 
             let url = URL(fileURLWithPath: entry.path)
             guard FileManager.default.fileExists(atPath: url.path) else { continue }
+            context.progress.note("\(entry.title) 재는 중…")
 
             let measurement = usage.measure(url, limit: SystemAreaScanner.nodeLimit, isCancelled: isCancelled)
             guard measurement.allocatedBytes >= 500_000_000 else { continue }
@@ -89,7 +90,7 @@ public struct SystemAreaScanner: Scanner {
 
     // MARK: -
 
-    private func applicationFindings(isCancelled: () -> Bool) -> [Finding] {
+    private func applicationFindings(context: ScanContext, isCancelled: () -> Bool) -> [Finding] {
         let root = URL(fileURLWithPath: "/Applications")
         guard let children = try? FileManager.default.contentsOfDirectory(
             at: root, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]
@@ -100,6 +101,7 @@ public struct SystemAreaScanner: Scanner {
         var sized: [(url: URL, bytes: Int64)] = []
         for child in children {
             if isCancelled() { break }
+            context.progress.note("앱 크기 확인 중… \(child.deletingPathExtension().lastPathComponent)")
             let measurement = usage.measure(child, limit: SystemAreaScanner.nodeLimit, isCancelled: isCancelled)
             if measurement.allocatedBytes >= 500_000_000 {
                 sized.append((child, measurement.allocatedBytes))

@@ -17,18 +17,24 @@ public struct ScanContext: Sendable {
     /// node_modules 를 찾을 때 뒤질 디렉터리.
     public let projectSearchRoots: [URL]
 
+    /// 오래 걸리는 스캐너가 진행 상황을 흘려보내는 통로.
+    /// 스캐너 단위 진행률만으로는 화면이 멈춘 것처럼 보이기 때문에 필요하다.
+    public let progress: ScanProgressReporter
+
     public init(
         paths: UserPaths,
         now: Date = Date(),
         runningBundleIdentifiers: Set<String> = [],
         hasFullDiskAccess: Bool = true,
-        projectSearchRoots: [URL]? = nil
+        projectSearchRoots: [URL]? = nil,
+        progress: ScanProgressReporter = .silent
     ) {
         self.paths = paths
         self.now = now
         self.runningBundleIdentifiers = runningBundleIdentifiers
         self.hasFullDiskAccess = hasFullDiskAccess
         self.projectSearchRoots = projectSearchRoots ?? ScanContext.defaultProjectRoots(paths: paths)
+        self.progress = progress
     }
 
     static func defaultProjectRoots(paths: UserPaths) -> [URL] {

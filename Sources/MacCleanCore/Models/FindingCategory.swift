@@ -16,6 +16,7 @@ public enum FindingCategory: String, Codable, Sendable, CaseIterable {
     case iosBackup
     case downloads
     case largeFiles
+    case manualSelection       // 사용자가 탐색기에서 직접 고른 것
 
     public var localizedTitle: String {
         switch self {
@@ -33,6 +34,7 @@ public enum FindingCategory: String, Codable, Sendable, CaseIterable {
         case .iosBackup: return "iPhone · iPad 백업"
         case .downloads: return "다운로드 폴더"
         case .largeFiles: return "대용량 파일"
+        case .manualSelection: return "직접 고른 항목"
         }
     }
 
@@ -53,6 +55,7 @@ public enum FindingCategory: String, Codable, Sendable, CaseIterable {
         case .mail: return 11
         case .downloads: return 12
         case .largeFiles: return 13
+        case .manualSelection: return 14
         }
     }
 }
