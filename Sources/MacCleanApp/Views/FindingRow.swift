@@ -15,7 +15,6 @@ struct FindingRow: View {
     /// 안내 전용 항목은 규칙이 판정을 갖고 있지 않다. 펼칠 때 그 경로를 실제로 조사해서 답한다.
     /// 검사할 때 전부 미리 돌리지 않는 이유는, 그러면 검사가 느려지기 때문이다.
     @State private var assessment: ImportanceAssessment?
-    @State private var isAssessing = false
 
     private var isSelected: Bool { model.isSelected(finding) }
 
@@ -33,8 +32,6 @@ struct FindingRow: View {
                         // 판정이 제목 바로 옆에 온다. 사용자가 알고 싶은 건 이것 하나다.
                         if let verdict = finding.presetVerdict ?? assessment?.verdict {
                             VerdictBadge(verdict: verdict)
-                        } else if isAssessing {
-                            VerdictPlaceholder()
                         }
 
                         if !finding.removal.isReversible && finding.isSelectable {
@@ -203,17 +200,13 @@ struct FindingRow: View {
     }
 
     /// 판정이 없는 항목만 조사한다. 한 번 조사하면 다시 하지 않는다.
+    ///
+    /// 일부러 동기로 부른다. 조사는 stat 몇 번과 `.git/config` 한 번 읽기가 전부라 1ms 도 안 걸린다.
+    /// 백그라운드로 넘기면 View 구조체를 `@Sendable` 클로저에 캡처하게 되는데,
+    /// 그건 Swift 6 에서 오류다. 얻는 것 없이 위험만 늘어난다.
     private func assessIfNeeded() {
-        guard assessment == nil, !isAssessing, let path = finding.path else { return }
-        isAssessing = true
-
-        Task.detached(priority: .userInitiated) {
-            let result = ImportanceAssessor(paths: UserPaths.current()).assess(path)
-            await MainActor.run {
-                assessment = result
-                isAssessing = false
-            }
-        }
+        guard assessment == nil, let path = finding.path else { return }
+        assessment = ImportanceAssessor(paths: UserPaths.current()).assess(path)
     }
 
     private func infoLine(label: String, value: String, tint: Color) -> some View {

@@ -26,17 +26,6 @@ struct VerdictBadge: View {
     }
 }
 
-/// 판정을 아직 계산하지 않은 상태.
-struct VerdictPlaceholder: View {
-    var body: some View {
-        Text("판정 중…")
-            .font(.caption2)
-            .foregroundStyle(.tertiary)
-            .padding(.horizontal, 7)
-            .padding(.vertical, 3)
-    }
-}
-
 /// 펼쳤을 때 보여주는 전체 판단 — 결론, 대가, 근거 순서.
 struct AssessmentPanel: View {
     let assessment: ImportanceAssessment
