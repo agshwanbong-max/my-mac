@@ -45,34 +45,43 @@ public struct SimulatorScanner: Scanner {
             return (findings, warnings)
         }
 
-        let devicesRootDepth = devicesRoot.standardizedFileURL.pathComponents.count - 1
-        let constraints = RuleConstraints(allowedRoots: [devicesRoot], minimumDepth: devicesRootDepth + 1)
-        let guardian = PathGuard(paths: context.paths)
+        // 기기마다 후보를 하나씩 만들면 목록이 10줄씩 늘어난다 (실제로 그랬다).
+        // `simctl delete unavailable` 한 번이면 전부 정리되므로 후보도 하나로 묶는다.
+        var totalBytes: Int64 = 0
+        var totalFiles = 0
+        var newest: Date?
+        var counted = 0
 
         for udid in unavailable {
             if isCancelled() { break }
             let deviceDirectory = devicesRoot.appendingPathComponent(udid)
             guard FileManager.default.fileExists(atPath: deviceDirectory.path) else { continue }
-            guard guardian.evaluate(deviceDirectory, constraints: constraints).allowed else { continue }
 
             let measurement = usage.measure(deviceDirectory, isCancelled: isCancelled)
-            guard measurement.allocatedBytes >= 10_000_000 else { continue }
+            totalBytes += measurement.allocatedBytes
+            totalFiles += measurement.fileCount
+            counted += 1
+            if let modified = measurement.newestModification, newest == nil || modified > newest! {
+                newest = modified
+            }
+        }
 
+        if counted > 0 {
             findings.append(Finding(
-                id: "simulator.unavailable|\(udid)",
+                id: "simulator.unavailable",
                 ruleID: "simulator.unavailable",
                 category: .simulators,
                 risk: .safe,
-                title: "사용할 수 없는 시뮬레이터 기기",
-                detail: "UDID \(udid) — 이 기기가 쓰던 런타임이 더 이상 설치돼 있지 않습니다. Xcode 에서 실행할 수 없는 상태입니다.",
-                consequence: "`xcrun simctl delete` 로 정상 삭제됩니다. 필요하면 Xcode 에서 같은 기기를 새로 만들 수 있습니다.",
-                path: deviceDirectory,
-                reclaimableBytes: measurement.allocatedBytes,
-                itemCount: measurement.fileCount,
-                lastModified: measurement.newestModification,
+                title: "사용할 수 없는 시뮬레이터 기기 \(counted)대",
+                detail: "쓰던 런타임이 더 이상 설치돼 있지 않아 Xcode 에서 실행할 수 없는 기기들입니다.",
+                consequence: "`xcrun simctl delete unavailable` 로 한 번에 정상 삭제됩니다. "
+                    + "필요하면 Xcode 에서 같은 기기를 새로 만들 수 있습니다.",
+                path: devicesRoot,
+                reclaimableBytes: totalBytes,
+                itemCount: totalFiles,
+                lastModified: newest,
                 removal: .toolCommand,
-                toolCommand: ToolCommand(executable: "/usr/bin/xcrun", arguments: ["simctl", "delete", udid]),
-                constraints: constraints
+                toolCommand: ToolCommand(executable: "/usr/bin/xcrun", arguments: ["simctl", "delete", "unavailable"])
             ))
         }
 

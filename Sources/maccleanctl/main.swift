@@ -39,7 +39,7 @@ func printReport(_ report: ScanReport) {
     for category in report.categoriesInOrder {
         let items = report.findings(in: category)
         let subtotal = items.filter { $0.isSelectable }.reduce(Int64(0)) { $0 + $1.reclaimableBytes }
-        print("\n■ \(category.localizedTitle)  (\(items.count)건, \(ByteFormat.string(subtotal)))")
+        print("\n■ \(category.localizedTitle)  (\(items.count)건, \(ByteFormat.stringOrDash(subtotal)))")
         line()
 
         for finding in items.prefix(15) {
@@ -79,7 +79,7 @@ extension String {
 switch command {
 case "scan":
     if !hasFullDiskAccess {
-        print("⚠ 전체 디스크 접근 권한이 없습니다. 일부 항목을 찾지 못합니다.\n\(FullDiskAccessProbe.instructions)\n")
+        print("⚠ 전체 디스크 접근 권한이 없습니다. 일부 항목을 찾지 못합니다.\n\(FullDiskAccessProbe.terminalInstructions)\n")
     }
     printReport(await runScan(includeLargeFiles: flags.contains("--large-files")))
 

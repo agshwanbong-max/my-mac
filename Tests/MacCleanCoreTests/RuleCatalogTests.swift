@@ -73,10 +73,46 @@ final class RuleCatalogTests: XCTestCase {
     }
 }
 
+/// 자식 이름 매칭. 실제 검사에서 `Adobe Camera Raw 2` 가 차단 목록을 빠져나간 적이 있다.
+final class ChildNameMatchingTests: XCTestCase {
+
+    func testMatchesVersionedFolderNames() {
+        XCTAssertTrue(RuleScanner.matches("Adobe Camera Raw 2", ["Adobe"]))
+        XCTAssertTrue(RuleScanner.matches("Adobe Camera Raw", ["Adobe Camera Raw"]))
+        XCTAssertTrue(RuleScanner.matches("com.adobe.lightroomCC", ["com.adobe.lightroom"]))
+    }
+
+    func testDoesNotMatchUnrelatedNames() {
+        XCTAssertFalse(RuleScanner.matches("com.adobe.Photoshop", ["Adobe"]))
+        XCTAssertFalse(RuleScanner.matches("SiriTT", ["SiriTTS"]))
+        XCTAssertFalse(RuleScanner.matches("anything", []))
+    }
+
+    /// 비용이 큰 캐시는 전용 규칙이 있는 항목과 겹치면 안 된다.
+    /// 겹치면 전용 규칙의 등급 판단이 중복 정리 과정에서 조용히 뒤집힌다.
+    func testCostlyListDoesNotCollideWithDedicatedRules() {
+        let paths = UserPaths(home: URL(fileURLWithPath: "/Users/tester"))
+        let dedicatedPaths = Set(RuleCatalog.all(paths: paths).map { $0.path })
+
+        for name in RuleCatalog.costlyCacheDirectories {
+            let candidate = "Library/Caches/\(name)"
+            // ms-playwright 는 전용 규칙도 .review 라 등급이 어긋나지 않는다. 나머지는 겹치면 안 된다.
+            if name == "ms-playwright" { continue }
+            XCTAssertFalse(dedicatedPaths.contains(candidate),
+                           "'\(name)' 은 전용 규칙이 있는데 비용 목록에도 들어 있습니다")
+        }
+    }
+}
+
 final class ToolCommandTests: XCTestCase {
 
     func testAllowsSimctlDelete() {
         let command = ToolCommand(executable: "/usr/bin/xcrun", arguments: ["simctl", "delete", "ABC-123"])
+        XCTAssertTrue(command.isAllowed)
+    }
+
+    func testAllowsSimctlDeleteUnavailable() {
+        let command = ToolCommand(executable: "/usr/bin/xcrun", arguments: ["simctl", "delete", "unavailable"])
         XCTAssertTrue(command.isAllowed)
     }
 

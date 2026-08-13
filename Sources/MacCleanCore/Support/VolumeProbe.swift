@@ -104,11 +104,18 @@ public struct VolumeProbe: Sendable {
 
 /// 바이트 수를 사람이 읽는 문자열로.
 public enum ByteFormat {
+    /// 0 이면 대시. 합계 표에서 "0 bytes" 가 줄줄이 찍히는 걸 막는다.
+    public static func stringOrDash(_ bytes: Int64) -> String {
+        bytes > 0 ? string(bytes) : "-"
+    }
+
     public static func string(_ bytes: Int64) -> String {
         let formatter = ByteCountFormatter()
         formatter.countStyle = .file
         formatter.allowedUnits = [.useGB, .useMB, .useKB]
         formatter.zeroPadsFractionDigits = false
+        // 기본값이면 0 을 "Zero KB" 로 쓴다. 표에서 읽기 나쁘다.
+        formatter.allowsNonnumericFormatting = false
         return formatter.string(fromByteCount: bytes)
     }
 }

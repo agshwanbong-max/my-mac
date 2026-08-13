@@ -32,8 +32,20 @@ public enum FullDiskAccessProbe {
         return !anyExists
     }
 
+    /// GUI 앱용 안내.
     public static let instructions = """
     시스템 설정 → 개인정보 보호 및 보안 → 전체 디스크 접근 에서 MacClean 을 켜주세요.
+    이 권한이 없으면 iPhone 백업, 메일 첨부 임시본, 샌드박스 앱 캐시를 찾지 못합니다.
+    """
+
+    /// CLI 용 안내.
+    ///
+    /// 터미널에서 돌릴 때는 권한이 **실행 파일이 아니라 터미널 앱**에 붙는다.
+    /// "MacClean 을 켜주세요" 라고 안내하면 목록에서 찾을 수 없어 헤매게 된다.
+    public static let terminalInstructions = """
+    터미널에서 실행할 때는 권한이 실행 파일이 아니라 터미널 앱에 붙습니다.
+    시스템 설정 → 개인정보 보호 및 보안 → 전체 디스크 접근 에서
+    사용 중인 터미널 앱(터미널 / iTerm 등)을 켜고, 그 앱을 완전히 종료했다 다시 여세요.
     이 권한이 없으면 iPhone 백업, 메일 첨부 임시본, 샌드박스 앱 캐시를 찾지 못합니다.
     """
 }

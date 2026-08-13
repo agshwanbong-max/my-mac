@@ -53,6 +53,18 @@ public struct RuleScanner: Scanner {
         return (findings, warnings)
     }
 
+    /// 자식 이름 비교. **접두사로 맞춘다.**
+    ///
+    /// 앱들이 `Adobe Camera Raw 2` 처럼 폴더 이름에 버전을 붙인다.
+    /// 정확히 일치로 비교하면 그런 것들이 차단 목록을 그대로 빠져나간다 (실제로 그랬다).
+    /// 과하게 걸리는 쪽이 안전한 방향이라 접두사를 쓴다.
+    static func matches(_ name: String, _ entries: Set<String>) -> Bool {
+        for entry in entries where name == entry || name.hasPrefix(entry) {
+            return true
+        }
+        return false
+    }
+
     // MARK: - 경로에 들어 있는 단일 `*` 확장
 
     /// `Library/Containers/*/Data/Library/Caches` 처럼 `*` 가 하나 들어간 경로를 실제 경로 목록으로 편다.
@@ -104,7 +116,7 @@ public struct RuleScanner: Scanner {
         case .wholeDirectory:
             guard let finding = makeFinding(
                 rule: rule, target: root, constraints: constraints,
-                context: context, guardian: guardian, isCancelled: isCancelled
+                context: context, guardian: guardian, isCostly: false, isCancelled: isCancelled
             ) else { return [] }
             return [finding]
 
@@ -122,8 +134,9 @@ public struct RuleScanner: Scanner {
                 if isCancelled() { break }
 
                 let name = child.lastPathComponent
-                if rule.deniedChildNames.contains(name) { continue }
+                if RuleScanner.matches(name, rule.deniedChildNames) { continue }
                 if !rule.allowedChildNames.isEmpty && !rule.allowedChildNames.contains(name) { continue }
+                let isCostly = RuleScanner.matches(name, rule.costlyChildNames)
 
                 if rule.mode == .filesOnly {
                     let isDirectory = (try? child.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
@@ -137,7 +150,7 @@ public struct RuleScanner: Scanner {
 
                 if let finding = makeFinding(
                     rule: rule, target: child, constraints: constraints,
-                    context: context, guardian: guardian, isCancelled: isCancelled
+                    context: context, guardian: guardian, isCostly: isCostly, isCancelled: isCancelled
                 ) {
                     results.append(finding)
                 }
@@ -152,6 +165,7 @@ public struct RuleScanner: Scanner {
         constraints: RuleConstraints,
         context: ScanContext,
         guardian: PathGuard,
+        isCostly: Bool,
         isCancelled: () -> Bool
     ) -> Finding? {
         // 관문을 못 지나면 조용히 버린다. 후보 목록에 아예 올리지 않는다.
@@ -172,14 +186,20 @@ public struct RuleScanner: Scanner {
             detail += " (일부 항목을 읽지 못해 실제 크기는 이보다 클 수 있습니다.)"
         }
 
+        // 재생성 비용이 큰 항목은 등급을 낮춰 기본 선택에서 빼고, 결과 설명도 덧붙인다.
+        let risk = isCostly ? max(rule.risk, RiskLevel.review) : rule.risk
+        let consequence = isCostly
+            ? rule.consequence + " 이 항목은 다시 만드는 데 시간이 오래 걸리거나 수백 MB 를 다시 내려받아야 합니다."
+            : rule.consequence
+
         return Finding(
             id: "\(rule.id)|\(target.path)",
             ruleID: rule.id,
             category: rule.category,
-            risk: rule.risk,
+            risk: risk,
             title: rule.mode == .wholeDirectory ? rule.title : target.lastPathComponent,
             detail: detail,
-            consequence: rule.consequence,
+            consequence: consequence,
             path: target,
             reclaimableBytes: measurement.allocatedBytes,
             itemCount: measurement.fileCount,

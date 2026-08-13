@@ -22,7 +22,23 @@ public enum RuleCatalog {
         "com.apple.nsurlsessiond",     // 진행 중인 백그라운드 다운로드
         "com.apple.appstore",          // 다운로드 중인 앱
         "com.apple.commerce",
-        "Adobe Camera Raw",            // 재생성 비용이 매우 큼
+    ]
+
+    /// 지워도 되지만 **다시 만드는 비용이 큰** 캐시들. 위험 등급을 `.review` 로 낮춰
+    /// 기본 선택에서 빼고, 사용자가 알고 고르게 한다.
+    ///
+    /// 접두사로 비교하므로 `Adobe Camera Raw 2` 같은 버전 붙은 이름도 잡힌다.
+    /// 실제 검사에서 `Adobe Camera Raw 2` 가 정확히-일치 차단을 빠져나가
+    /// '안전' 등급으로 기본 선택됐던 적이 있다.
+    static let costlyCacheDirectories: Set<String> = [
+        "Adobe",                       // Camera Raw 미리보기 등 — 재생성이 매우 느리다
+        "com.adobe.lightroom",         // 라이트룸 미리보기
+        "SiriTTS",                     // Siri 음성 데이터 — 수백 MB 재다운로드
+        "com.apple.siri",
+        "ms-playwright",               // 자동화용 브라우저 빌드 — 수백 MB 재다운로드
+        // 주의: 전용 규칙이 이미 있는 항목(Homebrew, Yarn, Xcode 등)은 여기 넣지 않는다.
+        // 전용 규칙은 .safe 인데 일반 규칙이 .review 를 내면, 중복 정리가 더 조심스러운 쪽을
+        // 남기면서 전용 규칙의 판단이 조용히 뒤집힌다.
     ]
 
     public static func all(paths: UserPaths) -> [CleanupRule] {
@@ -261,9 +277,13 @@ public enum RuleCatalog {
             consequence: "해당 도구를 다시 쓸 때 다시 받습니다.",
             category: .developerTooling,
             risk: .review,
+            // 전에는 `.eachChild` 로 버전별 하위 폴더를 겨냥했는데,
+            // 하위 폴더가 조건에 안 걸리면 상위 폴더를 잡은 일반 캐시 규칙이 살아남아
+            // 560MB 짜리 브라우저 빌드가 '안전' 등급으로 기본 선택됐다.
+            // 같은 경로를 겨냥해 겹치게 하고, 중복 정리에서 더 조심스러운 등급이 남게 한다.
             path: "Library/Caches/ms-playwright",
-            mode: .eachChild,
-            minimumAgeDays: 60,
+            mode: .wholeDirectory,
+            minimumAgeDays: 30,
             minimumBytes: 50_000_000
         ))
 
@@ -281,7 +301,8 @@ public enum RuleCatalog {
             mode: .eachChild,
             minimumAgeDays: 3,
             minimumBytes: 20_000_000,
-            deniedChildNames: dataBearingCacheDirectories
+            deniedChildNames: dataBearingCacheDirectories,
+            costlyChildNames: costlyCacheDirectories
         ))
 
         // 주의: 경로에 `*` 가 하나 들어간다. `Library/Containers/<앱>` 자체를 지우면

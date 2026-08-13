@@ -45,7 +45,16 @@ public struct CleanupRule: Identifiable, Codable, Sendable {
 
     /// 이 규칙 안에서도 예외적으로 건너뛸 자식 이름들.
     /// (캐시 폴더인 척하면서 실제 데이터를 담는 악명 높은 앱들)
+    ///
+    /// **접두사로 비교한다.** 앱들이 `Adobe Camera Raw 2` 처럼 버전 번호를 붙여
+    /// 폴더 이름을 바꾸기 때문이다. 실제로 정확히 일치로 비교하다가
+    /// `Adobe Camera Raw 2` 가 차단 목록을 그대로 빠져나간 적이 있다.
     public let deniedChildNames: Set<String>
+
+    /// 지워도 되지만 **다시 만드는 비용이 큰** 자식들. 위험 등급을 `.review` 로 낮춘다.
+    /// (수백 MB 재다운로드 같은 것들 — 지울지 말지는 사용자가 알고 결정해야 한다)
+    /// 여기도 접두사로 비교한다.
+    public let costlyChildNames: Set<String>
 
     /// 이 이름의 자식만 처리한다. 비어 있으면 전부.
     public let allowedChildNames: Set<String>
@@ -76,6 +85,7 @@ public struct CleanupRule: Identifiable, Codable, Sendable {
         minimumAgeDays: Int = 1,
         minimumBytes: Int64 = 1_000_000,
         deniedChildNames: Set<String> = [],
+        costlyChildNames: Set<String> = [],
         allowedChildNames: Set<String> = [],
         allowedExtensions: Set<String> = [],
         requiresFullDiskAccess: Bool = false,
@@ -94,6 +104,7 @@ public struct CleanupRule: Identifiable, Codable, Sendable {
         self.minimumAgeDays = minimumAgeDays
         self.minimumBytes = minimumBytes
         self.deniedChildNames = deniedChildNames
+        self.costlyChildNames = costlyChildNames
         self.allowedChildNames = allowedChildNames
         self.allowedExtensions = allowedExtensions
         self.requiresFullDiskAccess = requiresFullDiskAccess
