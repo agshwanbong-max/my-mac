@@ -195,6 +195,32 @@ final class PathGuardTests: XCTestCase {
             exemptProtectedPrefix: backupRoot
         )
         // 접두사 예외는 이름 기반 차단(.git)까지 열어주지 않는다.
-        XCTAssertFalse(guardian.evaluate(gitInsideBackup, constraints: with).allowed)
+        let decision = guardian.evaluate(gitInsideBackup, constraints: with)
+        XCTAssertFalse(decision.allowed)
+        XCTAssertTrue(decision.reason.contains(".git"), "실제 거부 사유: \(decision.reason)")
+    }
+
+    /// 번들 차단도 예외로 열리면 안 된다.
+    func testExemptionCannotOpenBundleDenials() throws {
+        let backupRoot = try makeDirectory("Library/Application Support/MobileSync/Backup")
+        let library = try makeDirectory("Library/Application Support/MobileSync/Backup/Old.photoslibrary")
+
+        let with = RuleConstraints(
+            allowedRoots: [backupRoot],
+            minimumDepth: 0,
+            exemptProtectedPrefix: backupRoot
+        )
+        XCTAssertFalse(guardian.evaluate(library, constraints: with).allowed)
+    }
+
+    /// 예외를 아예 지정하지 않으면 접두사 차단이 그대로 살아 있어야 한다.
+    func testPrefixDenialSurvivesWithoutExemption() throws {
+        let backupRoot = try makeDirectory("Library/Application Support/MobileSync/Backup")
+        let device = try makeDirectory("Library/Application Support/MobileSync/Backup/UDID-1")
+
+        let without = RuleConstraints(allowedRoots: [backupRoot], minimumDepth: 0)
+        let decision = guardian.evaluate(device, constraints: without)
+        XCTAssertFalse(decision.allowed)
+        XCTAssertEqual(decision.gate, "G3")
     }
 }

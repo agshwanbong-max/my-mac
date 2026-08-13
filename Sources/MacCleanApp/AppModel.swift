@@ -89,6 +89,10 @@ final class AppModel: ObservableObject {
         // 그러면 아래 동기 호출들이 메인 스레드에서 돌아 UI 가 멈춘다.
         // `Task.detached` 로 액터 밖에서 실행한다.
         scanTask = Task.detached(priority: .userInitiated) { [weak self] in
+            // 캡처한 `self` 를 안쪽 클로저에서 다시 캡처하면 Swift 6 에서 오류다.
+            // 여기서 한 번만 풀어 지역 상수로 넘긴다.
+            guard let model = self else { return }
+
             let fullDiskAccess = FullDiskAccessProbe.hasAccess(paths: paths)
             let context = ScanContext(
                 paths: paths,
@@ -100,28 +104,26 @@ final class AppModel: ObservableObject {
             let result = await coordinator.run(
                 context: context,
                 progress: { identifier in
-                    Task { @MainActor [weak self] in
-                        self?.statusText = ScannerLabel.text(for: identifier)
-                    }
+                    let text = ScannerLabel.text(for: identifier)
+                    Task { @MainActor in model.statusText = text }
                 },
                 isCancelled: { Task.isCancelled }
             )
 
             guard !Task.isCancelled else { return }
 
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                self.hasFullDiskAccess = fullDiskAccess
-                self.report = result
-                self.statusText = ""
+            await MainActor.run {
+                model.hasFullDiskAccess = fullDiskAccess
+                model.report = result
+                model.statusText = ""
                 // 보수적 정책: 안전 등급이면서 되돌릴 수 있는 항목만 기본 체크.
                 // 그마저도 확인 창을 한 번 더 통과해야 실행된다.
-                self.selection = Set(
+                model.selection = Set(
                     result.findings
                         .filter { $0.isSelectable && $0.risk.defaultsToSelected && $0.removal.isReversible }
                         .map { $0.id }
                 )
-                self.phase = .ready
+                model.phase = .ready
             }
         }
     }
@@ -152,22 +154,21 @@ final class AppModel: ObservableObject {
         let paths = self.paths
         // 삭제는 동기 작업이다. 메인 액터에서 돌리면 진행률 표시가 멈춘다.
         cleanupTask = Task.detached(priority: .userInitiated) { [weak self] in
+            guard let model = self else { return }
+
             let executor = CleanupExecutor(paths: paths, dryRun: dryRun)
             let results = executor.execute(
                 targets,
                 progress: { current, total in
-                    Task { @MainActor [weak self] in
-                        self?.phase = .executing(current: current, total: total)
-                    }
+                    Task { @MainActor in model.phase = .executing(current: current, total: total) }
                 },
                 isCancelled: { Task.isCancelled }
             )
 
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                self.outcomes = results
-                self.phase = .finished
-                self.isShowingResults = true
+            await MainActor.run {
+                model.outcomes = results
+                model.phase = .finished
+                model.isShowingResults = true
             }
         }
     }

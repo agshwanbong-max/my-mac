@@ -142,16 +142,18 @@ public struct ProtectedPaths: Sendable {
         self.absoluteDenyPrefixes = prefixes
     }
 
-    /// 해당 경로가 보호 대상인지. 보호 경로 **자신과 그 하위 전부**가 대상이다.
-    public func matchedDenyRule(for url: URL) -> String? {
-        let path = url.standardizedFileURL.path
+    /// 차단 사유는 두 종류이고, **예외를 적용할 수 있는지가 다르다.** 그래서 검사도 나눠져 있다.
+    ///
+    /// 처음에는 하나의 함수가 접두사부터 검사하고 첫 매치에서 바로 반환했다.
+    /// 그러다 보니 `…/MobileSync/Backup/dev/.git` 이 접두사(`…/Backup`)에 먼저 걸려
+    /// 그 사유만 반환했고, 그 접두사가 예외로 열려 있으면 **이름 기반 검사에 도달조차 못 한 채
+    /// `.git` 이 통과했다.** 테스트가 이걸 잡아냈다. 그래서 두 검사를 분리했다.
 
-        for prefix in absoluteDenyPrefixes {
-            if path == prefix || path.hasPrefix(prefix + "/") {
-                return prefix
-            }
-        }
-
+    /// **어떤 예외로도 열 수 없는** 차단. 이름 기반·번들 기반.
+    ///
+    /// 이건 "이 위치가 보호 대상"이 아니라 "이 종류의 것은 어디 있든 건드리지 않는다"는 규칙이라
+    /// 예외의 대상이 될 수 없다.
+    public func matchedUnwaivableRule(for url: URL) -> String? {
         for component in url.pathComponents {
             if ProtectedPaths.forbiddenComponents.contains(component) {
                 return "경로에 보호 대상 이름 '\(component)' 포함"
@@ -161,7 +163,22 @@ public struct ProtectedPaths: Sendable {
                 return "보호 대상 번들 '\(component)' 내부"
             }
         }
-
         return nil
+    }
+
+    /// 경로 접두사 기반 차단. **매치되는 것을 전부** 돌려준다.
+    ///
+    /// 첫 매치만 돌려주면, 여러 접두사에 걸리는 경로에서 그중 하나가 예외로 열려 있을 때
+    /// 나머지 차단이 조용히 무시된다. 전부 돌려주고 호출측이 "전부 예외인가"를 따지게 한다.
+    public func matchedPrefixRules(for url: URL) -> [String] {
+        let path = url.standardizedFileURL.path
+        return absoluteDenyPrefixes.filter { prefix in
+            path == prefix || path.hasPrefix(prefix + "/")
+        }
+    }
+
+    /// 두 검사를 합친 것. 예외를 따지지 않는 곳(링크 해석 결과 검사 등)에서 쓴다.
+    public func matchedDenyRule(for url: URL) -> String? {
+        matchedUnwaivableRule(for: url) ?? matchedPrefixRules(for: url).first
     }
 }

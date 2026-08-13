@@ -92,13 +92,21 @@ public struct PathGuard: @unchecked Sendable {
         }
 
         // ── G3. 보호 경로 (덮어쓸 수 없는 거부 목록) ───────────────────
-        if let hit = protected.matchedDenyRule(for: target) {
-            // 규칙이 명시적으로 연 예외인지 확인한다.
-            // 예외는 "이 접두사 때문에 막혔다"는 경우에만 통한다.
-            // 이름 기반·번들 기반 차단은 예외로 못 연다 — `hit` 이 접두사와 다르기 때문이다.
+        //
+        // 순서가 중요하다. 예외로 **못 여는** 차단부터 본다.
+        // 이 둘을 한 검사로 합쳐두면, 접두사에 먼저 걸린 경로가 예외로 통과하면서
+        // 이름 기반 차단(.git 등)을 건너뛰게 된다. 실제로 그 구멍이 있었다.
+        if let hit = protected.matchedUnwaivableRule(for: target) {
+            return .deny("G3", "보호 대상: \(hit)")
+        }
+
+        // 접두사 차단. 규칙이 명시한 예외 **하나만** 열 수 있다.
+        // 여러 접두사에 걸렸다면 그 전부가 예외여야 통과한다.
+        let prefixHits = protected.matchedPrefixRules(for: target)
+        if !prefixHits.isEmpty {
             let exempt = constraints.exemptProtectedPrefix?.standardizedFileURL.path
-            if exempt == nil || hit != exempt! {
-                return .deny("G3", "보호 경로: \(hit)")
+            if let blocked = prefixHits.first(where: { $0 != exempt }) {
+                return .deny("G3", "보호 경로: \(blocked)")
             }
         }
 
