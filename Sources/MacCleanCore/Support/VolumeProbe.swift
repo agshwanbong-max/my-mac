@@ -70,6 +70,14 @@ public struct VolumeProbe: Sendable {
     }
 
     /// `tmutil listlocalsnapshots /` 로 로컬 스냅샷 목록을 읽는다. 읽기 전용이다.
+    ///
+    /// 스냅샷은 두 종류가 나온다. **둘 다 공간을 잡는다.**
+    /// - `com.apple.TimeMachine.…`  Time Machine 로컬 스냅샷
+    /// - `com.apple.os.update-…`    macOS 업데이트 전후로 만들어지는 스냅샷.
+    ///   특히 `MSUPrepareUpdate` 는 다운로드해서 준비하다 만 업데이트라 몇 GB 를 그냥 붙잡고 있다.
+    ///
+    /// 처음에는 Time Machine 것만 셌는데, 실제 기기에서 업데이트 스냅샷만 남아 있는 경우가 확인돼
+    /// 둘 다 세도록 고쳤다.
     public func localSnapshotNames() -> [String] {
         guard let result = try? runner.run(
             executable: "/usr/bin/tmutil",
@@ -81,7 +89,16 @@ public struct VolumeProbe: Sendable {
         return result.standardOutput
             .split(separator: "\n")
             .map { $0.trimmingCharacters(in: .whitespaces) }
-            .filter { $0.hasPrefix("com.apple.TimeMachine.") }
+            .filter { $0.hasPrefix("com.apple.TimeMachine.") || $0.hasPrefix("com.apple.os.update-") }
+    }
+
+    /// 스냅샷을 종류별로 나눈다.
+    public func classifiedSnapshots() -> (timeMachine: [String], osUpdate: [String]) {
+        let all = localSnapshotNames()
+        return (
+            all.filter { $0.hasPrefix("com.apple.TimeMachine.") },
+            all.filter { $0.hasPrefix("com.apple.os.update-") }
+        )
     }
 }
 

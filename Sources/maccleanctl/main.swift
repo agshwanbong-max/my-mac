@@ -21,10 +21,10 @@ func line(_ character: String = "─", _ count: Int = 72) {
     print(String(repeating: character, count: count))
 }
 
-func runScan() -> ScanReport {
+func runScan(includeLargeFiles: Bool) async -> ScanReport {
     let context = ScanContext(paths: paths, hasFullDiskAccess: hasFullDiskAccess)
-    let coordinator = ScanCoordinator.standard(paths: paths)
-    return coordinator.run(context: context)
+    let coordinator = ScanCoordinator.standard(paths: paths, includeLargeFiles: includeLargeFiles)
+    return await coordinator.run(context: context)
 }
 
 func printReport(_ report: ScanReport) {
@@ -81,7 +81,7 @@ case "scan":
     if !hasFullDiskAccess {
         print("⚠ 전체 디스크 접근 권한이 없습니다. 일부 항목을 찾지 못합니다.\n\(FullDiskAccessProbe.instructions)\n")
     }
-    printReport(runScan())
+    printReport(await runScan(includeLargeFiles: flags.contains("--large-files")))
 
 case "rules":
     let rules = RuleCatalog.all(paths: paths)
@@ -95,7 +95,7 @@ case "rules":
     }
 
 case "plan", "clean":
-    let report = runScan()
+    let report = await runScan(includeLargeFiles: false)
     let wantsSafeOnly = flags.contains("--safe")
     let confirmed = flags.contains("--confirm")
 
@@ -149,6 +149,7 @@ default:
     사용법: maccleanctl <명령>
 
       scan                       검사해서 결과를 보여준다 (아무것도 지우지 않음)
+        --large-files            홈 전체를 훑어 대용량 파일까지 찾는다 (느림)
       rules                      등록된 정리 규칙 전부 출력
       plan                       지울 항목 미리보기 (아무것도 지우지 않음)
       clean --confirm            실제로 정리 (기본은 휴지통으로 이동)

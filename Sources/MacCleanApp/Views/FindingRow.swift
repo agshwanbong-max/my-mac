@@ -2,37 +2,42 @@
 import MacCleanCore
 import SwiftUI
 
+/// 항목 한 줄.
+///
+/// 기본 상태는 최대한 조용하게 — 이름, 크기, 등급 점 하나.
+/// "지우면 어떻게 되는지"는 펼쳤을 때만 나온다. 목록이 설명으로 뒤덮이지 않게 하려는 것이다.
 struct FindingRow: View {
     @EnvironmentObject private var model: AppModel
     let finding: Finding
 
     @State private var isExpanded = false
+    @State private var isHovering = false
 
-    private var isSelected: Bool { model.selection.contains(finding.id) }
+    private var isSelected: Bool { model.isSelected(finding) }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .top, spacing: 12) {
-                checkbox
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .center, spacing: 12) {
+                marker
 
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
                         Text(finding.title)
-                            .font(.body.weight(.medium))
+                            .font(.body)
                             .lineLimit(1)
-                        RiskBadge(risk: finding.risk)
+
                         if !finding.removal.isReversible && finding.isSelectable {
-                            Label("복구 불가", systemImage: "exclamationmark.triangle.fill")
+                            Image(systemName: "exclamationmark.triangle.fill")
                                 .font(.caption2)
                                 .foregroundStyle(.red)
+                                .help("복구할 수 없습니다")
                         }
                     }
 
                     Text(finding.detail)
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                        .lineLimit(isExpanded ? nil : 2)
-                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(1)
                 }
 
                 Spacer(minLength: 8)
@@ -44,22 +49,30 @@ struct FindingRow: View {
                 }
 
                 Button {
-                    withAnimation(.easeInOut(duration: 0.15)) { isExpanded.toggle() }
+                    withAnimation(.smooth(duration: 0.2)) { isExpanded.toggle() }
                 } label: {
-                    Image(systemName: isExpanded ? "chevron.up" : "info.circle")
+                    Image(systemName: "chevron.down")
+                        .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
+                        .rotationEffect(.degrees(isExpanded ? 0 : -90))
+                        .frame(width: 16, height: 16)
                 }
                 .buttonStyle(.plain)
-                .help("지우면 무슨 일이 생기는지 보기")
+                .opacity(isHovering || isExpanded ? 1 : 0.35)
+                .help("자세히 보기")
             }
+            .padding(.horizontal, Design.gutter)
+            .padding(.vertical, 10)
 
             if isExpanded {
                 details
+                    .padding(.horizontal, Design.gutter)
+                    .padding(.bottom, 12)
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 9)
+        .background(isHovering ? Color.primary.opacity(0.04) : .clear)
         .contentShape(Rectangle())
+        .onHover { isHovering = $0 }
         .onTapGesture { model.toggle(finding) }
         .contextMenu {
             if finding.path != nil {
@@ -72,94 +85,102 @@ struct FindingRow: View {
         }
     }
 
+    // MARK: - 선택 표시
+
     @ViewBuilder
-    private var checkbox: some View {
+    private var marker: some View {
         if finding.isSelectable {
-            Image(systemName: isSelected ? "checkmark.square.fill" : "square")
-                .font(.system(size: 15))
-                .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
-                .onTapGesture { model.toggle(finding) }
+            ZStack {
+                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                    .fill(isSelected ? Color.accentColor : Color.clear)
+                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                    .strokeBorder(isSelected ? Color.accentColor : Color.secondary.opacity(0.5), lineWidth: 1.5)
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.white)
+                }
+            }
+            .frame(width: 18, height: 18)
+            .animation(.smooth(duration: 0.12), value: isSelected)
+            .onTapGesture { model.toggle(finding) }
         } else {
+            // 안내 전용 — 체크박스 자리에 등급 아이콘만 둔다. 애초에 고를 수 없다는 뜻이다.
             Image(systemName: "info.circle")
                 .font(.system(size: 15))
                 .foregroundStyle(.secondary)
+                .frame(width: 18, height: 18)
                 .help("안내 전용 — 이 앱은 이 항목을 건드리지 않습니다")
         }
     }
 
-    @ViewBuilder
+    // MARK: - 펼친 내용
+
     private var details: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
+            infoLine(label: "지우면", value: finding.consequence, tint: finding.risk.tint)
+
+            HStack(spacing: 20) {
+                infoChip(label: "등급", value: finding.risk.localizedTitle, tint: finding.risk.tint)
+                infoChip(label: "처리", value: finding.removal.localizedTitle, tint: .secondary)
+                if finding.itemCount > 0 {
+                    infoChip(label: "항목", value: "\(finding.itemCount)개", tint: .secondary)
+                }
+            }
+
             if let path = finding.path {
-                LabeledContent("경로") {
-                    Text(path.path)
-                        .font(.caption.monospaced())
-                        .textSelection(.enabled)
-                }
-            }
-
-            LabeledContent("지우면") {
-                Text(finding.consequence)
-                    .font(.caption)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            LabeledContent("처리 방식") {
-                Text(finding.removal.localizedTitle)
-                    .font(.caption)
-            }
-
-            if finding.itemCount > 0 {
-                LabeledContent("포함 항목") {
-                    Text("\(finding.itemCount)개")
-                        .font(.caption)
-                }
+                Text(path.path)
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
+                    .lineLimit(2)
+                    .truncationMode(.middle)
             }
 
             if let command = finding.suggestedCommand {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("직접 실행할 명령")
-                        .font(.caption.weight(.semibold))
-                    HStack(alignment: .top) {
-                        Text(command)
-                            .font(.caption.monospaced())
-                            .textSelection(.enabled)
-                            .padding(8)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.secondary.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                        Button("복사") { model.copyToPasteboard(command) }
-                            .font(.caption)
+                HStack(alignment: .top, spacing: 8) {
+                    Text(command)
+                        .font(.caption.monospaced())
+                        .textSelection(.enabled)
+                        .padding(8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+                    Button {
+                        model.copyToPasteboard(command)
+                    } label: {
+                        Image(systemName: "doc.on.doc")
                     }
+                    .buttonStyle(.plain)
+                    .help("명령어 복사")
                 }
             }
         }
-        .padding(.leading, 32)
-        .padding(.top, 2)
-        .foregroundStyle(.secondary)
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .padding(.leading, 30)
     }
-}
 
-struct RiskBadge: View {
-    let risk: RiskLevel
-
-    private var color: Color {
-        switch risk {
-        case .safe: return .green
-        case .review: return .orange
-        case .advisory: return .secondary
+    private func infoLine(label: String, value: String, tint: Color) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(label)
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(tint)
+            Text(value)
+                .font(.callout)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
-    var body: some View {
-        Text(risk.localizedTitle)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(color.opacity(0.15))
-            .foregroundStyle(color)
-            .clipShape(Capsule())
-            .help(risk.localizedExplanation)
+    private func infoChip(label: String, value: String, tint: Color) -> some View {
+        HStack(spacing: 4) {
+            Text(label)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .foregroundStyle(tint)
+        }
+        .font(.caption)
     }
 }
 #endif

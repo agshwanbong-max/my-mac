@@ -21,20 +21,31 @@ final class AppModel: ObservableObject {
     @Published private(set) var report: ScanReport?
     @Published private(set) var outcomes: [CleanupOutcome] = []
     @Published private(set) var hasFullDiskAccess = true
+    /// 지금 무엇을 검사하고 있는지. 진행 표시에 쓴다.
+    @Published private(set) var statusText = ""
 
+    /// 사이드바 선택. nil 이면 전체 보기.
+    @Published var selectedCategory: FindingCategory?
     /// 사용자가 체크한 항목의 id.
     @Published var selection: Set<String> = []
-    /// 확인 시트 표시 여부.
+    /// 홈 전체를 훑어 대용량 파일까지 찾을지. 가장 무거운 검사라 기본은 꺼둔다.
+    @Published var includeLargeFiles = false
+
     @Published var isConfirming = false
-    /// 결과 시트 표시 여부.
     @Published var isShowingResults = false
-    /// 접힌 카테고리.
-    @Published var collapsedCategories: Set<FindingCategory> = []
 
     private let paths = UserPaths.current()
-    private var cancelRequested = false
+    private var scanTask: Task<Void, Never>?
+    private var cleanupTask: Task<Void, Never>?
 
     // MARK: - 파생 상태
+
+    /// 현재 화면에 보여줄 항목.
+    var visibleFindings: [Finding] {
+        guard let report else { return [] }
+        guard let category = selectedCategory else { return report.findings }
+        return report.findings(in: category)
+    }
 
     var selectedFindings: [Finding] {
         guard let report else { return [] }
@@ -45,7 +56,6 @@ final class AppModel: ObservableObject {
         selectedFindings.reduce(0) { $0 + $1.reclaimableBytes }
     }
 
-    /// 되돌릴 수 없는 항목이 선택에 포함돼 있는가. 확인 창에서 크게 경고한다.
     var selectionIncludesIrreversible: Bool {
         selectedFindings.contains { !$0.removal.isReversible }
     }
@@ -57,34 +67,52 @@ final class AppModel: ObservableObject {
         }
     }
 
+    var canClean: Bool {
+        !selectedFindings.isEmpty && !isBusy
+    }
+
     // MARK: - 검사
 
     func startScan() {
-        guard !isBusy else { return }
-        cancelRequested = false
+        scanTask?.cancel()
+
         phase = .scanning
+        statusText = "검사를 시작합니다…"
         outcomes = []
         selection = []
 
         let paths = self.paths
+        let includeLargeFiles = self.includeLargeFiles
         let runningIdentifiers = Set(NSWorkspace.shared.runningApplications.compactMap { $0.bundleIdentifier })
 
-        Task.detached(priority: .userInitiated) {
+        scanTask = Task { [weak self] in
             let fullDiskAccess = FullDiskAccessProbe.hasAccess(paths: paths)
             let context = ScanContext(
                 paths: paths,
                 runningBundleIdentifiers: runningIdentifiers,
                 hasFullDiskAccess: fullDiskAccess
             )
-            let coordinator = ScanCoordinator.standard(paths: paths)
-            let result = coordinator.run(context: context)
+            let coordinator = ScanCoordinator.standard(paths: paths, includeLargeFiles: includeLargeFiles)
+
+            let result = await coordinator.run(
+                context: context,
+                progress: { identifier in
+                    Task { @MainActor [weak self] in
+                        self?.statusText = ScannerLabel.text(for: identifier)
+                    }
+                },
+                isCancelled: { Task.isCancelled }
+            )
+
+            guard !Task.isCancelled else { return }
 
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 self.hasFullDiskAccess = fullDiskAccess
                 self.report = result
-                // 보수적 정책: 안전 등급만 기본으로 체크한다.
-                // 그마저도 '정리 실행' 을 누르고 확인 창을 한 번 더 통과해야 한다.
+                self.statusText = ""
+                // 보수적 정책: 안전 등급이면서 되돌릴 수 있는 항목만 기본 체크.
+                // 그마저도 확인 창을 한 번 더 통과해야 실행된다.
                 self.selection = Set(
                     result.findings
                         .filter { $0.isSelectable && $0.risk.defaultsToSelected && $0.removal.isReversible }
@@ -95,14 +123,20 @@ final class AppModel: ObservableObject {
         }
     }
 
+    func cancelScan() {
+        scanTask?.cancel()
+        scanTask = nil
+        statusText = ""
+        phase = report == nil ? .idle : .ready
+    }
+
     // MARK: - 실행
 
     func requestCleanup() {
-        guard !selectedFindings.isEmpty else { return }
+        guard canClean else { return }
         isConfirming = true
     }
 
-    /// 실제 실행. 확인 창에서만 호출된다.
     func performCleanup(dryRun: Bool) {
         isConfirming = false
         guard !isBusy else { return }
@@ -110,20 +144,19 @@ final class AppModel: ObservableObject {
         let targets = selectedFindings
         guard !targets.isEmpty else { return }
 
-        cancelRequested = false
         phase = .executing(current: 0, total: targets.count)
 
         let paths = self.paths
-        Task.detached(priority: .userInitiated) { [weak self] in
+        cleanupTask = Task { [weak self] in
             let executor = CleanupExecutor(paths: paths, dryRun: dryRun)
             let results = executor.execute(
                 targets,
                 progress: { current, total in
-                    Task { @MainActor in
+                    Task { @MainActor [weak self] in
                         self?.phase = .executing(current: current, total: total)
                     }
                 },
-                isCancelled: { false }
+                isCancelled: { Task.isCancelled }
             )
 
             await MainActor.run { [weak self] in
@@ -135,6 +168,8 @@ final class AppModel: ObservableObject {
         }
     }
 
+    // MARK: - 선택
+
     func toggle(_ finding: Finding) {
         guard finding.isSelectable else { return }
         if selection.contains(finding.id) {
@@ -144,9 +179,13 @@ final class AppModel: ObservableObject {
         }
     }
 
-    func setSelection(for category: FindingCategory, selected: Bool) {
-        guard let report else { return }
-        for finding in report.findings(in: category) where finding.isSelectable {
+    func isSelected(_ finding: Finding) -> Bool {
+        selection.contains(finding.id)
+    }
+
+    /// 지금 보이는 항목 전체를 켜거나 끈다.
+    func setSelectionForVisible(_ selected: Bool) {
+        for finding in visibleFindings where finding.isSelectable {
             if selected {
                 selection.insert(finding.id)
             } else {
@@ -155,16 +194,19 @@ final class AppModel: ObservableObject {
         }
     }
 
-    func toggleCollapse(_ category: FindingCategory) {
-        if collapsedCategories.contains(category) {
-            collapsedCategories.remove(category)
-        } else {
-            collapsedCategories.insert(category)
-        }
+    var visibleSelectableCount: Int {
+        visibleFindings.filter { $0.isSelectable }.count
     }
 
+    var allVisibleSelected: Bool {
+        let selectable = visibleFindings.filter { $0.isSelectable }
+        return !selectable.isEmpty && selectable.allSatisfy { selection.contains($0.id) }
+    }
+
+    // MARK: - 시스템 연동
+
     func openFullDiskAccessSettings() {
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")!
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") else { return }
         NSWorkspace.shared.open(url)
     }
 

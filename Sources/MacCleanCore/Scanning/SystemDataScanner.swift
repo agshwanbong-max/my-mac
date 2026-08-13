@@ -24,10 +24,14 @@ public struct SystemDataScanner: Scanner {
     public func scan(context: ScanContext, isCancelled: () -> Bool) -> (findings: [Finding], warnings: [ScanWarning]) {
         var findings: [Finding] = []
         let snapshot = probe.snapshot(home: context.paths.home)
-        let snapshotNames = probe.localSnapshotNames()
+        let classified = probe.classifiedSnapshots()
+        let snapshotNames = classified.timeMachine + classified.osUpdate
 
-        if !snapshotNames.isEmpty {
-            findings.append(snapshotFinding(names: snapshotNames, volume: snapshot))
+        if !classified.timeMachine.isEmpty {
+            findings.append(snapshotFinding(names: classified.timeMachine, volume: snapshot))
+        }
+        if !classified.osUpdate.isEmpty {
+            findings.append(osUpdateSnapshotFinding(names: classified.osUpdate))
         }
 
         if snapshot.purgeableEstimate > 5_000_000_000 {
@@ -74,6 +78,49 @@ public struct SystemDataScanner: Scanner {
             lastModified: nil,
             removal: .adviseOnly,
             suggestedCommand: "tmutil listlocalsnapshots /\nsudo tmutil thinlocalsnapshots / 21474836480 4"
+        )
+    }
+
+    /// macOS 업데이트 스냅샷.
+    ///
+    /// Time Machine 을 한 번도 안 켠 맥에도 이건 생긴다.
+    /// `MSUPrepareUpdate` 는 받아서 준비하다 만 업데이트라, 설치도 안 되고 공간만 잡고 있는 상태다.
+    private func osUpdateSnapshotFinding(names: [String]) -> Finding {
+        let hasStalledUpdate = names.contains { $0.contains("MSUPrepareUpdate") }
+
+        var detail = """
+        macOS 업데이트 과정에서 만들어진 스냅샷 \(names.count)개가 남아 있습니다.
+        Time Machine 을 쓰지 않아도 생기며, 지운 파일의 블록을 붙잡고 있어서
+        정리를 해도 여유 공간이 늘지 않게 만듭니다. '시스템 데이터'로 집계되는 부분입니다.
+        """
+        if hasStalledUpdate {
+            detail += """
+
+
+            ⚠️ 준비하다 만 업데이트(MSUPrepareUpdate)가 있습니다.
+            받아놓고 설치하지 않은 상태라 몇 GB 를 그냥 잡고 있을 수 있습니다.
+            시스템 설정 → 일반 → 소프트웨어 업데이트 에서 설치를 끝내는 게 가장 확실한 정리입니다.
+            """
+        }
+
+        return Finding(
+            id: "systemData.osUpdateSnapshots",
+            ruleID: "systemData.osUpdateSnapshots",
+            category: .systemDataDiagnosis,
+            risk: .advisory,
+            title: "macOS 업데이트 스냅샷 \(names.count)개",
+            detail: detail,
+            consequence: """
+            업데이트를 끝내면 대부분 저절로 정리됩니다.
+            그래도 남아 있고 공간이 급하면 아래 명령으로 직접 지울 수 있습니다.
+            이 앱은 관리자 권한을 쓰지 않으므로 직접 실행하지 않습니다.
+            """,
+            path: nil,
+            reclaimableBytes: 0,
+            itemCount: names.count,
+            lastModified: nil,
+            removal: .adviseOnly,
+            suggestedCommand: "tmutil listlocalsnapshots /\nsudo tmutil deletelocalsnapshots <스냅샷이름>"
         )
     }
 

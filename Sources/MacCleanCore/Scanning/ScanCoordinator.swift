@@ -19,11 +19,42 @@ public struct ScanReport: Sendable {
         findings.filter { $0.category == category }
     }
 
+    /// 해당 카테고리에서 앱이 실제로 회수할 수 있는 양.
+    public func reclaimable(in category: FindingCategory) -> Int64 {
+        findings
+            .filter { $0.category == category && $0.isSelectable }
+            .reduce(0) { $0 + $1.reclaimableBytes }
+    }
+
+    /// 저장 공간 막대와 사이드바에서 쓰는, 카테고리별 회수 가능량 (큰 순서).
+    ///
+    /// 튜플이 아니라 이름 있는 타입인 이유: Swift 는 튜플 원소로 가는 키패스를 지원하지 않아
+    /// `ForEach(..., id: \.category)` 가 성립하지 않는다.
+    public var categoryTotals: [CategoryTotal] {
+        categoriesInOrder
+            .map { CategoryTotal(category: $0, bytes: reclaimable(in: $0)) }
+            .filter { $0.bytes > 0 }
+            .sorted { $0.bytes > $1.bytes }
+    }
+
     public var categoriesInOrder: [FindingCategory] {
         let present = Set(findings.map { $0.category })
         return FindingCategory.allCases
             .filter { present.contains($0) }
             .sorted { $0.sortOrder < $1.sortOrder }
+    }
+}
+
+/// 카테고리 하나의 회수 가능량.
+public struct CategoryTotal: Identifiable, Sendable, Hashable {
+    public let category: FindingCategory
+    public let bytes: Int64
+
+    public var id: FindingCategory { category }
+
+    public init(category: FindingCategory, bytes: Int64) {
+        self.category = category
+        self.bytes = bytes
     }
 }
 
@@ -39,35 +70,66 @@ public struct ScanCoordinator: Sendable {
     }
 
     /// 기본 구성. 규칙 기반 스캐너 + 전용 스캐너들.
-    public static func standard(paths: UserPaths) -> ScanCoordinator {
-        ScanCoordinator(scanners: [
+    ///
+    /// - Parameter includeLargeFiles: 홈 전체를 훑어 대용량 파일을 찾는다.
+    ///   가장 무거운 스캐너라 기본은 꺼져 있다. 검사가 몇 초 안에 끝나야 하기 때문이다.
+    public static func standard(paths: UserPaths, includeLargeFiles: Bool = false) -> ScanCoordinator {
+        var scanners: [Scanner] = [
             SystemDataScanner(),
             RuleScanner(rules: RuleCatalog.all(paths: paths)),
             SimulatorScanner(),
             IOSBackupScanner(),
             NodeModulesScanner(),
-            LargeFileScanner(),
-        ])
+        ]
+        if includeLargeFiles {
+            scanners.append(LargeFileScanner())
+        }
+        return ScanCoordinator(scanners: scanners)
     }
 
-    public func run(context: ScanContext, isCancelled: () -> Bool = { false }) -> ScanReport {
-        let startedAt = Date()
-        var findings: [Finding] = []
-        var warnings: [ScanWarning] = []
+    /// 스캐너 하나의 결과를 task group 으로 옮기기 위한 상자.
+    private struct ScannerOutput: Sendable {
+        let findings: [Finding]
+        let warnings: [ScanWarning]
+    }
 
-        for scanner in scanners {
-            if isCancelled() { break }
-            let result = scanner.scan(context: context, isCancelled: isCancelled)
-            findings.append(contentsOf: result.findings)
-            warnings.append(contentsOf: result.warnings)
+    /// 모든 스캐너를 **동시에** 돌린다.
+    ///
+    /// 스캐너들은 서로 독립적이고 대부분의 시간을 디스크 대기로 보낸다.
+    /// 순차 실행하면 가장 느린 하나가 전체를 붙잡는다.
+    ///
+    /// - Parameters:
+    ///   - progress: 시작한 스캐너의 `identifier`. 여러 스레드에서 불린다.
+    ///   - isCancelled: 주기적으로 확인한다. 취소되면 부분 결과를 그대로 돌려준다.
+    public func run(
+        context: ScanContext,
+        progress: @escaping @Sendable (String) -> Void = { _ in },
+        isCancelled: @escaping @Sendable () -> Bool = { false }
+    ) async -> ScanReport {
+        let startedAt = Date()
+
+        let outputs: [ScannerOutput] = await withTaskGroup(of: ScannerOutput.self) { group in
+            for scanner in scanners {
+                group.addTask {
+                    progress(scanner.identifier)
+                    let result = scanner.scan(context: context, isCancelled: isCancelled)
+                    return ScannerOutput(findings: result.findings, warnings: result.warnings)
+                }
+            }
+
+            var collected: [ScannerOutput] = []
+            for await output in group {
+                collected.append(output)
+            }
+            return collected
         }
 
         return ScanReport(
             startedAt: startedAt,
             finishedAt: Date(),
             volume: probe.snapshot(home: context.paths.home),
-            findings: ScanCoordinator.deduplicate(findings),
-            warnings: warnings
+            findings: ScanCoordinator.deduplicate(outputs.flatMap { $0.findings }),
+            warnings: outputs.flatMap { $0.warnings }
         )
     }
 

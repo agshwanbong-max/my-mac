@@ -16,8 +16,14 @@ struct ConfirmSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("정리를 실행할까요?")
-                .font(.title2.weight(.semibold))
+            HStack(spacing: 10) {
+                Image(systemName: "sparkles")
+                    .font(.title2)
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(.tint)
+                Text("정리를 실행할까요?")
+                    .font(.title2.weight(.semibold))
+            }
 
             VStack(alignment: .leading, spacing: 10) {
                 summaryRow(
@@ -64,10 +70,13 @@ struct ConfirmSheet: View {
 
             HStack {
                 Button("미리보기만") { model.performCleanup(dryRun: true) }
+                    .secondaryAction()
                 Spacer()
                 Button("취소") { model.isConfirming = false }
+                    .secondaryAction()
                     .keyboardShortcut(.cancelAction)
                 Button("실행") { model.performCleanup(dryRun: false) }
+                    .primaryAction()
                     .keyboardShortcut(.defaultAction)
             }
         }
@@ -76,16 +85,22 @@ struct ConfirmSheet: View {
     }
 
     private func summaryRow(icon: String, tint: Color, title: String, subtitle: String) -> some View {
-        HStack(alignment: .top, spacing: 10) {
+        HStack(alignment: .top, spacing: 12) {
             Image(systemName: icon)
+                .font(.title3)
+                .symbolRenderingMode(.hierarchical)
                 .foregroundStyle(tint)
-                .frame(width: 20)
+                .frame(width: 24)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.callout.weight(.medium))
                 Text(subtitle).font(.caption).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
         }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(tint.opacity(0.08), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
 
@@ -151,7 +166,9 @@ struct ResultsSheet: View {
                     model.isShowingResults = false
                     model.startScan()
                 }
+                .secondaryAction()
                 Button("닫기") { model.isShowingResults = false }
+                    .primaryAction()
                     .keyboardShortcut(.defaultAction)
             }
         }
