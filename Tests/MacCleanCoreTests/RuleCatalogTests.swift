@@ -77,7 +77,15 @@ final class RuleCatalogTests: XCTestCase {
             "Local Storage", "IndexedDB", "Session Storage", "Preferences", "Cookies",
         ]
 
+        // 캐시 폴더가 아닌데도 겨냥해도 되는 규칙은 여기 적고, 왜 괜찮은지 남긴다.
+        // 목록에 없으면 테스트가 막는다 — 실수로 앱 데이터 폴더를 겨냥하는 걸 방지한다.
+        let reviewedExceptions: Set<String> = [
+            // 동영상 배경화면 .mov 파일만 겨냥한다. 다시 받을 수 있고 휴지통으로 간다.
+            "wallpaper.aerialVideos",
+        ]
+
         for rule in rules where rule.path.hasPrefix("Library/Application Support") {
+            if reviewedExceptions.contains(rule.id) { continue }
             let leaf = String(rule.path.split(separator: "/").last ?? "")
             XCTAssertFalse(forbiddenLeaves.contains(leaf),
                            "'\(rule.id)' 이 앱 데이터 폴더를 겨냥합니다: \(leaf)")
@@ -238,8 +246,14 @@ final class SpaceBreakdownBucketTests: XCTestCase {
         XCTAssertEqual(bucket("/Users/tester/Library/Developer/loose.txt"), "Library/Developer")
     }
 
+    /// 묶음은 폴더여야 한다. 파일 이름이 묶음 이름이 되면 안 된다.
     func testFileDirectlyInLibraryFallsBackToLibrary() {
         XCTAssertEqual(bucket("/Users/tester/Library/loose.txt"), "Library")
+    }
+
+    /// 홈 바로 아래 파일은 묶을 폴더가 없다.
+    func testFileDirectlyInHomeHasNoBucket() {
+        XCTAssertNil(bucket("/Users/tester/loose.txt"))
     }
 
     func testPathsOutsideHomeAreIgnored() {

@@ -89,10 +89,13 @@ public enum RuleCatalog {
             risk: .review,
             path: "Library/Developer/Xcode/iOS DeviceSupport",
             mode: .eachChild,
-            // 30일이었는데, 실제 맥에서 17GB 가 전부 이 필터에 걸려 목록에 한 줄도 안 나왔다.
-            // 어차피 확인 등급이라 사용자가 항목마다 직접 골라야 하므로,
-            // 여기서 한 번 더 조이는 건 안전이 아니라 그냥 숨기는 것이었다.
-            minimumAgeDays: 7,
+            // 나이 조건을 아예 뺀다.
+            // 처음엔 30일이었는데 실제 맥에서 17GB 가 전부 여기 걸려 한 줄도 안 나왔다. 7일로 낮춰도 마찬가지였다.
+            // 애초에 이 폴더에 나이 기준이 안 맞는다. 중요한 건 "최근에 건드렸나" 가 아니라
+            // "그 iOS 버전을 아직 쓰나" 인데, 그건 수정 시각으로 알 수 없다.
+            // 폴더 이름이 곧 iOS 버전이라 사용자는 보면 안다. 확인 등급이라 직접 골라야 하고,
+            // 휴지통으로 가므로 되돌릴 수도 있다. 판단은 사용자에게 넘긴다.
+            minimumAgeDays: 0,
             minimumBytes: 10_000_000,
             ownerBundleIdentifier: "com.apple.dt.Xcode"
         ))
@@ -106,7 +109,7 @@ public enum RuleCatalog {
             risk: .review,
             path: "Library/Developer/Xcode/watchOS DeviceSupport",
             mode: .eachChild,
-            minimumAgeDays: 7,
+            minimumAgeDays: 0,
             minimumBytes: 10_000_000
         ))
 
@@ -119,7 +122,7 @@ public enum RuleCatalog {
             risk: .review,
             path: "Library/Developer/Xcode/tvOS DeviceSupport",
             mode: .eachChild,
-            minimumAgeDays: 7,
+            minimumAgeDays: 0,
             minimumBytes: 10_000_000
         ))
 
@@ -374,6 +377,75 @@ public enum RuleCatalog {
                 minimumBytes: 50_000_000
             ))
         }
+
+
+        // ─────────────────────────────────────────────────────────────
+        // 동영상 배경화면 에셋
+        //
+        // 실제 맥에서 14GB 였다. 한 편에 600~900MB 짜리 .mov 가 스무 편 넘게 쌓인다.
+        // 한 번 미리보기만 해도 받아지고, 그 뒤로는 안 써도 계속 남는다.
+        //
+        // 디렉터리를 통째로 지우지 않고 **.mov 파일만** 겨냥한다.
+        // 옆에 있는 설정 파일까지 날려서 배경화면 설정이 깨지는 걸 피하려는 것이다.
+        // ─────────────────────────────────────────────────────────────
+        rules.append(CleanupRule(
+            id: "wallpaper.aerialVideos",
+            title: "동영상 배경화면 · 화면 보호기 영상",
+            explanation: "macOS 가 받아둔 항공 영상 배경화면입니다. 한 편에 600~900MB 씩 하고, "
+                + "한 번 골라보기만 해도 받아진 뒤 계속 남습니다.",
+            consequence: "그 배경화면을 다시 고르면 macOS 가 다시 받습니다. "
+                + "⚠️ 지금 쓰는 배경화면이 여기 있으면 다시 받을 때까지 정지 화면으로 보일 수 있습니다. "
+                + "휴지통으로 가므로 이상하면 되돌리면 됩니다.",
+            category: .largeFiles,
+            risk: .review,
+            path: "Library/Application Support/com.apple.wallpaper/aerials/videos",
+            mode: .filesOnly,
+            minimumAgeDays: 0,
+            minimumBytes: 100_000_000,
+            allowedExtensions: ["mov"]
+        ))
+
+        // ─────────────────────────────────────────────────────────────
+        // Flutter · Dart · Android
+        // ─────────────────────────────────────────────────────────────
+        rules.append(CleanupRule(
+            id: "dev.pubCache",
+            title: "Dart · Flutter 패키지 캐시 (.pub-cache)",
+            explanation: "pub 이 받아둔 Dart/Flutter 패키지입니다.",
+            consequence: "다음 `flutter pub get` 때 다시 받습니다. 프로젝트 소스는 그대로입니다.",
+            category: .developerTooling,
+            risk: .review,
+            path: ".pub-cache",
+            mode: .wholeDirectory,
+            minimumAgeDays: 30,
+            minimumBytes: 200_000_000
+        ))
+
+        rules.append(CleanupRule(
+            id: "dev.gradleCache",
+            title: "Gradle 캐시",
+            explanation: "안드로이드 빌드에 쓰는 Gradle 의 의존성·빌드 캐시입니다.",
+            consequence: "다음 빌드 때 다시 받고 다시 만듭니다. 그 빌드가 오래 걸립니다.",
+            category: .developerTooling,
+            risk: .review,
+            path: ".gradle/caches",
+            mode: .wholeDirectory,
+            minimumAgeDays: 30,
+            minimumBytes: 200_000_000
+        ))
+
+        rules.append(CleanupRule(
+            id: "dev.flutterEngineCache",
+            title: "Flutter 엔진 캐시",
+            explanation: "Flutter SDK 가 버전별로 받아둔 엔진 바이너리입니다.",
+            consequence: "다음 빌드 때 다시 받습니다.",
+            category: .developerTooling,
+            risk: .review,
+            path: "Library/Caches/flutter_engine",
+            mode: .wholeDirectory,
+            minimumAgeDays: 30,
+            minimumBytes: 100_000_000
+        ))
 
         // ─────────────────────────────────────────────────────────────
         // 로그

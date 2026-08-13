@@ -167,8 +167,13 @@ public struct SpaceBreakdownScanner: Scanner {
         guard path.hasPrefix(homePath + "/") else { return nil }
 
         let relative = String(path.dropFirst(homePath.count + 1))
-        let parts = relative.split(separator: "/", omittingEmptySubsequences: true)
-        guard let first = parts.first else { return nil }
+        let all = relative.split(separator: "/", omittingEmptySubsequences: true)
+
+        // 마지막 요소는 파일 이름이다. 묶음은 **폴더**여야 하므로 떼어낸다.
+        // 이걸 안 떼서 `~/Library/loose.txt` 가 "Library/loose.txt" 라는
+        // 묶음이 되고 있었다 (테스트가 잡았다).
+        let parts = all.dropLast()
+        guard let first = parts.first else { return nil }   // 홈 바로 아래 파일
 
         if first == "Library", parts.count >= 2 {
             let second = String(parts[1])
@@ -198,12 +203,17 @@ public struct SpaceBreakdownScanner: Scanner {
             return "macOS 의 동영상 배경화면·화면 보호기 에셋입니다. 하나에 수 GB 씩 하고, 한 번 쓴 것도 계속 남습니다. "
                 + "시스템 설정 → 배경화면 에서 정지 이미지 배경으로 바꾸면 macOS 가 스스로 정리합니다. "
                 + "시스템이 관리하는 영역이라 이 앱은 직접 지우지 않습니다."
-        case "Library/Application Support/Claude", "Library/Application Support/Notion",
-             "Library/Application Support/Slack", "Library/Application Support/Code":
+        case "Library/Application Support/Claude":
+            return "대부분이 vm_bundles 안의 가상머신 이미지(rootfs.img)입니다. 캐시가 아니라 앱이 쓰는 실제 이미지라 "
+                + "이 앱은 건드리지 않습니다. 필요 없다면 Claude 앱 설정에서 해당 기능을 끄고 앱이 스스로 정리하게 하세요. "
+                + "안의 Cache / Code Cache / GPUCache 는 이 앱이 정리 대상으로 다룹니다."
+        case "Library/Application Support/Notion", "Library/Application Support/Slack",
+             "Library/Application Support/Code":
             return "Electron 앱의 데이터 폴더입니다. 안의 Cache / Code Cache / GPUCache 는 이 앱이 정리 대상으로 다룹니다. "
                 + "나머지는 로그인 상태와 로컬 데이터라 건드리지 않습니다."
         case "Library/Application Support/Google":
             return "Chrome 프로필입니다. 방문 기록·북마크·비밀번호·확장 프로그램이 들어 있어 이 앱은 건드리지 않습니다. "
+                + "덩치가 크면 보통 OptGuideOnDeviceModel(기기 내 AI 모델, 수 GB)과 업데이터 캐시 때문입니다. "
                 + "크롬에서 직접 정리하세요: 설정 → 개인정보 보호 → 인터넷 사용 기록 삭제 → 캐시된 이미지 및 파일."
         case "Library/Developer/Xcode":
             return "Xcode 가 쓰는 곳입니다. DerivedData, iOS 기기 지원 파일, 아카이브가 여기 들어갑니다. "
