@@ -88,7 +88,13 @@ public struct ScanCoordinator: Sendable {
     /// - Parameter deepScan: 홈 전체를 훑어 **용량이 어디에 있는지**와 대용량 파일을 찾는다.
     ///   가장 무거운 스캐너라 기본은 꺼져 있다 (파일 수에 따라 수십 초).
     ///   대신 "정리 후보는 5GB 인데 227GB 는 어디 갔나" 라는 질문에 답할 수 있는 유일한 경로다.
-    public static func standard(paths: UserPaths, deepScan: Bool = false) -> ScanCoordinator {
+    /// - Parameter findDuplicates: 사용자 폴더에서 내용이 같은 파일을 찾는다.
+    ///   파일을 전부 해시해야 해서 가장 느리다. 별도 스위치로 둔 이유다.
+    public static func standard(
+        paths: UserPaths,
+        deepScan: Bool = false,
+        findDuplicates: Bool = false
+    ) -> ScanCoordinator {
         var scanners: [Scanner] = [
             SystemDataScanner(),
             RuleScanner(rules: RuleCatalog.all(paths: paths)),
@@ -100,6 +106,9 @@ public struct ScanCoordinator: Sendable {
             scanners.append(SpaceBreakdownScanner())
             // 홈 밖도 재야 macOS 저장 공간 화면의 '시스템 데이터' 숫자와 이어붙일 수 있다.
             scanners.append(SystemAreaScanner())
+        }
+        if findDuplicates {
+            scanners.append(DuplicateScanner())
         }
         return ScanCoordinator(scanners: scanners)
     }

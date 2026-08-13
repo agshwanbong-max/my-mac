@@ -58,6 +58,11 @@ final class AppModel: ObservableObject {
     @Published var selection: Set<String> = []
     /// 홈 전체를 훑어 용량 분포와 대용량 파일까지 찾을지. 가장 무거운 검사라 기본은 꺼둔다.
     @Published var includeDeepScan = false
+    /// 내용이 같은 파일을 찾을지. 파일을 전부 해시해야 해서 제일 느리다.
+    @Published var includeDuplicates = false
+
+    /// 되돌리기 창을 띄울지.
+    @Published var isShowingRestore = false
 
     @Published var isConfirming = false
     @Published var isShowingResults = false
@@ -112,6 +117,7 @@ final class AppModel: ObservableObject {
 
         let paths = self.paths
         let deepScan = self.includeDeepScan
+        let findDuplicates = self.includeDuplicates
         let runningIdentifiers = Set(NSWorkspace.shared.runningApplications.compactMap { $0.bundleIdentifier })
 
         // `Task {}` 는 이 클래스의 @MainActor 를 물려받는다.
@@ -134,7 +140,7 @@ final class AppModel: ObservableObject {
                 hasFullDiskAccess: fullDiskAccess,
                 progress: reporter
             )
-            let coordinator = ScanCoordinator.standard(paths: paths, deepScan: deepScan)
+            let coordinator = ScanCoordinator.standard(paths: paths, deepScan: deepScan, findDuplicates: findDuplicates)
 
             let result = await coordinator.run(
                 context: context,
@@ -287,6 +293,20 @@ final class AppModel: ObservableObject {
     func revealInFinder(_ finding: Finding) {
         guard let path = finding.path else { return }
         NSWorkspace.shared.activateFileViewerSelecting([path])
+    }
+
+    // MARK: - 되돌리기
+
+    func restorableEntries() -> [RestoreService.Entry] {
+        RestoreService(paths: paths).restorable()
+    }
+
+    /// 되돌린 뒤에는 목록이 바뀌었으므로 화면을 새로 그려야 한다.
+    @discardableResult
+    func restore(_ entry: RestoreService.Entry) -> RestoreService.Outcome {
+        let outcome = RestoreService(paths: paths).restore(entry)
+        objectWillChange.send()
+        return outcome
     }
 
     func copyToPasteboard(_ text: String) {

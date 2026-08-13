@@ -96,6 +96,7 @@ extension FindingCategory {
         case .iosBackup: return "externaldrive.badge.icloud"
         case .downloads: return "arrow.down.circle"
         case .largeFiles: return "doc.richtext"
+        case .duplicates: return "doc.on.doc"
         case .manualSelection: return "hand.point.up.left"
         }
     }
@@ -118,6 +119,7 @@ extension FindingCategory {
         case .iosBackup: return .pink
         case .downloads: return .yellow
         case .largeFiles: return .red
+        case .duplicates: return .pink
         case .manualSelection: return .purple
         }
     }
@@ -163,6 +165,7 @@ enum ScannerLabel {
         case "nodeModules": return "프로젝트 폴더를 살펴보는 중…"
         case "spaceBreakdown": return "홈 전체를 훑는 중… (수십 초 걸립니다)"
         case "systemArea": return "홈 밖(앱·시스템 폴더)을 재는 중…"
+        case "duplicates": return "중복 파일을 찾는 중… (파일을 해시하므로 오래 걸립니다)"
         default: return "검사 중…"
         }
     }

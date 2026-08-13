@@ -176,3 +176,97 @@ final class ImportanceAssessorTests: XCTestCase {
         XCTAssertFalse(assessor.assess(url).signals.isEmpty)
     }
 }
+
+/// 중복 파일 판정.
+///
+/// 중복 삭제는 이 앱에서 가장 위험한 동작이다 — 사용자 문서를 건드린다.
+/// 안전의 근거는 "지워도 되는 파일이라서" 가 아니라 **"똑같은 사본이 남아서"** 다.
+/// 그 근거가 실제로 성립하는지를 여기서 확인한다.
+final class DuplicateKeeperTests: XCTestCase {
+
+    private let paths = UserPaths(home: URL(fileURLWithPath: "/Users/tester"))
+
+    private func url(_ relative: String) -> URL {
+        paths.resolve(relative)
+    }
+
+    /// 다운로드 폴더는 받은 사본이 쌓이는 곳이다. 원본일 가능성이 낮다.
+    func testPrefersCopyOutsideDownloads() {
+        let keeper = DuplicateScanner.chooseKeeper(
+            from: [url("Downloads/보고서.pdf"), url("Documents/보고서.pdf")],
+            paths: paths
+        )
+        XCTAssertEqual(keeper, url("Documents/보고서.pdf"))
+    }
+
+    /// 둘 다 같은 조건이면 얕은 쪽. 깊이 묻힌 건 사본일 확률이 높다.
+    func testPrefersShallowerPath() {
+        let keeper = DuplicateScanner.chooseKeeper(
+            from: [url("Documents/보관/2024/오래된/파일.zip"), url("Documents/파일.zip")],
+            paths: paths
+        )
+        XCTAssertEqual(keeper, url("Documents/파일.zip"))
+    }
+
+    func testAlwaysReturnsOneOfTheInputs() {
+        let candidates = [url("Downloads/a.bin"), url("Downloads/b.bin")]
+        XCTAssertTrue(candidates.contains(DuplicateScanner.chooseKeeper(from: candidates, paths: paths)))
+    }
+
+    /// 검색 대상 폴더 밖의 파일은 후보가 되지 않는다.
+    func testUserRootOnlyMatchesSearchedFolders() {
+        XCTAssertEqual(DuplicateScanner.userRoot(of: url("Documents/a/b.pdf"), paths: paths),
+                       url("Documents"))
+        XCTAssertNil(DuplicateScanner.userRoot(of: url("Library/Caches/x.bin"), paths: paths))
+        XCTAssertNil(DuplicateScanner.userRoot(of: URL(fileURLWithPath: "/tmp/x.bin"), paths: paths))
+    }
+}
+
+/// 파일 해시.
+final class FileHashTests: XCTestCase {
+
+    private var directory: URL!
+
+    override func setUpWithError() throws {
+        directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("macclean-hash-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    }
+
+    override func tearDownWithError() throws {
+        try? FileManager.default.removeItem(at: directory)
+    }
+
+    private func write(_ name: String, _ contents: String) throws -> URL {
+        let url = directory.appendingPathComponent(name)
+        try contents.write(to: url, atomically: true, encoding: .utf8)
+        return url
+    }
+
+    func testIdenticalContentHashesTheSame() throws {
+        let a = try write("a.txt", "같은 내용")
+        let b = try write("b.txt", "같은 내용")
+        XCTAssertEqual(FileHash.sha256(of: a), FileHash.sha256(of: b))
+    }
+
+    func testDifferentContentHashesDifferently() throws {
+        let a = try write("a.txt", "내용 하나")
+        let b = try write("b.txt", "내용 둘")
+        XCTAssertNotEqual(FileHash.sha256(of: a), FileHash.sha256(of: b))
+    }
+
+    /// 앞부분만 같고 뒤가 다른 파일. 1차 통과는 통과하지만 전체 해시에서 갈려야 한다.
+    func testPrefixHashCanCollideWhileFullHashDoesNot() throws {
+        let shared = String(repeating: "동", count: 5000)
+        let a = try write("a.txt", shared + "끝A")
+        let b = try write("b.txt", shared + "끝B")
+
+        XCTAssertEqual(FileHash.sha256(of: a, prefixBytes: 4096),
+                       FileHash.sha256(of: b, prefixBytes: 4096))
+        XCTAssertNotEqual(FileHash.sha256(of: a), FileHash.sha256(of: b))
+    }
+
+    func testMissingFileReturnsNil() {
+        XCTAssertNil(FileHash.sha256(of: directory.appendingPathComponent("없음.txt")))
+    }
+}

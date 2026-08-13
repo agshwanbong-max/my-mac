@@ -66,6 +66,27 @@ public struct ToolCommand: Codable, Sendable, Hashable {
     }
 }
 
+/// "이걸 지우려면 저게 반드시 살아 있어야 한다" 는 조건.
+///
+/// 중복 파일 때문에 생겼다. 중복을 지우는 건 이 앱에서 가장 위험한 동작이다 —
+/// 사용자 문서를 건드리기 때문이다. 그런데 **똑같은 사본이 남아 있다면 잃는 게 없다.**
+/// 그 "똑같은 사본이 남아 있다" 를 실행 직전에 증명할 수 있어야 안전하다고 말할 수 있다.
+///
+/// 그래서 지울 파일과 남길 파일의 해시를 둘 다 들고 다닌다.
+/// 실행기는 지우기 직전에 두 파일을 다시 해시해서 셋이 모두 일치할 때만 진행한다.
+/// 하나라도 어긋나면 지우지 않는다.
+public struct MustSurvive: Codable, Sendable, Hashable {
+    /// 반드시 남아 있어야 하는 사본.
+    public let path: URL
+    /// 두 파일이 공유하는 SHA-256. 실행 직전에 양쪽 다 이 값이 나와야 한다.
+    public let sha256: String
+
+    public init(path: URL, sha256: String) {
+        self.path = path
+        self.sha256 = sha256
+    }
+}
+
 /// 스캔이 찾아낸 정리 후보 하나.
 public struct Finding: Identifiable, Codable, Sendable, Hashable {
     public var id: String
@@ -95,6 +116,10 @@ public struct Finding: Identifiable, Codable, Sendable, Hashable {
     /// `.adviseOnly` 일 때 사용자에게 보여줄 복사용 명령어. 앱은 실행하지 않는다.
     public var suggestedCommand: String?
 
+    /// 이 항목을 지우려면 반드시 살아 있어야 하는 다른 파일.
+    /// 있으면 실행기가 지우기 직전에 양쪽을 다시 해시해서 확인한다.
+    public var mustSurvive: MustSurvive?
+
     /// 이 후보를 만들어낼 때 통과시킨 관문 제약.
     /// 실행 직전 재검사에서 **똑같은 제약**으로 다시 검사하기 위해 들고 다닌다.
     /// 없으면 실행기가 삭제를 거부한다 (안내 전용 항목은 애초에 실행 대상이 아니다).
@@ -115,6 +140,7 @@ public struct Finding: Identifiable, Codable, Sendable, Hashable {
         removal: RemovalMode,
         toolCommand: ToolCommand? = nil,
         suggestedCommand: String? = nil,
+        mustSurvive: MustSurvive? = nil,
         constraints: RuleConstraints? = nil
     ) {
         self.id = id
@@ -131,6 +157,7 @@ public struct Finding: Identifiable, Codable, Sendable, Hashable {
         self.removal = removal
         self.toolCommand = toolCommand
         self.suggestedCommand = suggestedCommand
+        self.mustSurvive = mustSurvive
         self.constraints = constraints
     }
 

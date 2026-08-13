@@ -117,7 +117,25 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
             return skip(finding, "자격 증명이나 유일본으로 보여 삭제하지 않았습니다: \(assessment.headline)")
         }
 
-        // ── 6. 스캔 이후 변경되지 않았는가 ───────────────────────────
+        // ── 6. 남아야 할 사본이 정말 남아 있는가 ─────────────────────
+        // 중복 파일 삭제에만 해당한다. 지울 파일과 남길 파일을 **둘 다 다시 해시해서**
+        // 기록된 값과 셋이 일치할 때만 진행한다.
+        //
+        // 스캔과 실행 사이에 사본이 사라졌거나 내용이 바뀌었으면, 지금 지우는 건
+        // 마지막 하나를 지우는 것일 수 있다. 그 경우 아무것도 하지 않는다.
+        if let requirement = finding.mustSurvive {
+            guard FileManager.default.fileExists(atPath: requirement.path.path) else {
+                return skip(finding, "남아 있어야 할 사본이 사라졌습니다. 이걸 지우면 마지막 하나가 없어집니다.")
+            }
+            guard FileHash.sha256(of: requirement.path) == requirement.sha256 else {
+                return skip(finding, "남아 있어야 할 사본의 내용이 검사 이후 바뀌었습니다. 이제 같은 파일이 아닙니다.")
+            }
+            guard FileHash.sha256(of: path) == requirement.sha256 else {
+                return skip(finding, "이 파일의 내용이 검사 이후 바뀌었습니다. 더 이상 중복이 아닙니다.")
+            }
+        }
+
+        // ── 7. 스캔 이후 변경되지 않았는가 ───────────────────────────
         let measurement = usage.measure(path)
         if let scanned = finding.lastModified, let current = measurement.newestModification {
             // 1초 오차는 파일시스템 타임스탬프 정밀도 문제로 흔하다.
@@ -129,7 +147,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
         // 실제 회수량은 지금 다시 잰 값을 쓴다.
         let bytes = measurement.allocatedBytes
 
-        // ── 7. 미리보기 ──────────────────────────────────────────────
+        // ── 8. 미리보기 ──────────────────────────────────────────────
         if dryRun {
             return CleanupOutcome(
                 finding: finding,
@@ -140,7 +158,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
             )
         }
 
-        // ── 8. 실행 ──────────────────────────────────────────────────
+        // ── 9. 실행 ──────────────────────────────────────────────────
         switch finding.removal {
         case .trashItem:
             return moveToTrash(finding, path: path, bytes: bytes)

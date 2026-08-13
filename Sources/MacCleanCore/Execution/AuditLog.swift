@@ -37,6 +37,7 @@ public struct AuditLog: @unchecked Sendable {   // FileManager 보관 — PathGu
         return directory.appendingPathComponent("audit-\(formatter.string(from: Date())).jsonl")
     }
 
+    /// 기록 하나를 남긴다. 되돌리기도 여기에 남는다.
     public func append(_ entry: Entry) {
         do {
             try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -59,19 +60,45 @@ public struct AuditLog: @unchecked Sendable {   // FileManager 보관 — PathGu
         }
     }
 
-    /// 최근 기록을 새 것부터 읽는다.
+    /// 이번 달 기록을 새 것부터 읽는다.
     public func recentEntries(limit: Int = 200) -> [Entry] {
-        guard let data = try? Data(contentsOf: currentFileURL) else { return [] }
+        decode(fileURL: currentFileURL).suffix(limit).reversed()
+    }
+
+    /// 남아 있는 **모든 달**의 기록을 새 것부터 읽는다.
+    ///
+    /// 되돌리기에 필요하다. 지난달에 지운 걸 이번 달에 되돌리는 건 흔한 일인데,
+    /// 이번 달 파일만 보면 그게 아예 안 보인다.
+    public func allEntries(limit: Int = 500) -> [Entry] {
+        guard let files = try? fileManager.contentsOfDirectory(
+            at: directory, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]
+        ) else {
+            return []
+        }
+
+        let logs = files
+            .filter { $0.pathExtension == "jsonl" }
+            .sorted { $0.lastPathComponent > $1.lastPathComponent }   // 파일 이름이 곧 연월이라 이대로 정렬된다
+
+        var entries: [Entry] = []
+        for log in logs {
+            entries.append(contentsOf: decode(fileURL: log).reversed())
+            if entries.count >= limit { break }
+        }
+        return Array(entries.prefix(limit))
+    }
+
+    private func decode(fileURL: URL) -> [Entry] {
+        guard let data = try? Data(contentsOf: fileURL) else { return [] }
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
 
-        let lines = data.split(separator: 0x0A)
         var entries: [Entry] = []
-        for line in lines.suffix(limit) {
+        for line in data.split(separator: 0x0A) {
             if let entry = try? decoder.decode(Entry.self, from: Data(line)) {
                 entries.append(entry)
             }
         }
-        return entries.reversed()
+        return entries
     }
 }

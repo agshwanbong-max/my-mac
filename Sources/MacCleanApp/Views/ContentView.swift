@@ -20,6 +20,9 @@ struct ContentView: View {
         }
         .sheet(isPresented: $model.isConfirming) { ConfirmSheet() }
         .sheet(isPresented: $model.isShowingResults) { ResultsSheet() }
+        .sheet(isPresented: $model.isShowingRestore) {
+            RestoreSheet().environmentObject(model)
+        }
         .sheet(item: $model.browsingDirectory) { directory in
             BrowserSheet(directory: directory.url)
                 .environmentObject(model)
@@ -54,6 +57,24 @@ struct ContentView: View {
             .toggleStyle(.button)
             .help("홈 전체를 훑어 용량이 어디에 있는지와 대용량 파일을 찾습니다. 수십 초 걸립니다.")
             .disabled(model.isBusy)
+        }
+
+        ToolbarItem(placement: .primaryAction) {
+            Toggle(isOn: $model.includeDuplicates) {
+                Label("중복 찾기", systemImage: "doc.on.doc")
+            }
+            .toggleStyle(.button)
+            .help("문서·다운로드·사진 폴더에서 내용이 완전히 같은 파일을 찾습니다. 파일을 해시하므로 가장 오래 걸립니다.")
+            .disabled(model.isBusy)
+        }
+
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                model.isShowingRestore = true
+            } label: {
+                Label("되돌리기", systemImage: "arrow.uturn.backward")
+            }
+            .help("이 앱이 휴지통으로 옮긴 것을 원래 자리로 되돌립니다")
         }
     }
 }
