@@ -84,6 +84,8 @@ public struct ScanCoordinator: Sendable {
         ]
         if deepScan {
             scanners.append(SpaceBreakdownScanner())
+            // 홈 밖도 재야 macOS 저장 공간 화면의 '시스템 데이터' 숫자와 이어붙일 수 있다.
+            scanners.append(SystemAreaScanner())
         }
         return ScanCoordinator(scanners: scanners)
     }

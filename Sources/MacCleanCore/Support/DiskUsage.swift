@@ -25,8 +25,14 @@ public struct DiskUsage: Sendable {
     public init() {}
 
     /// 경로 하나의 실제 디스크 점유량을 잰다.
-    /// - Parameter isCancelled: 주기적으로 물어보고 true 면 즉시 중단한다.
-    public func measure(_ url: URL, isCancelled: () -> Bool = { false }) -> Measurement {
+    /// - Parameters:
+    ///   - limit: 순회 상한. 홈 밖(`/Applications`, `/Library`)은 파일이 훨씬 많아 기본값으로는 중간에 끊긴다.
+    ///   - isCancelled: 주기적으로 물어보고 true 면 즉시 중단한다.
+    public func measure(
+        _ url: URL,
+        limit: Int = DiskUsage.nodeLimit,
+        isCancelled: () -> Bool = { false }
+    ) -> Measurement {
         // `resourceValues(forKeys:)` 는 Set 를, `enumerator(includingPropertiesForKeys:)` 는
         // Array 를 받는다. Set 로 선언하고 열거자에 넘길 때만 Array 로 바꾼다.
         let keys: Set<URLResourceKey> = [
@@ -71,7 +77,7 @@ public struct DiskUsage: Sendable {
 
         for case let child as URL in enumerator {
             visited += 1
-            if visited > DiskUsage.nodeLimit || isCancelled() {
+            if visited > limit || isCancelled() {
                 incomplete = true
                 break
             }

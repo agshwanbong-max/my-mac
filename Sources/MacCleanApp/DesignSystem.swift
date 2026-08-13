@@ -140,6 +140,7 @@ enum ScannerLabel {
         case "iosBackup": return "기기 백업을 확인하는 중…"
         case "nodeModules": return "프로젝트 폴더를 살펴보는 중…"
         case "spaceBreakdown": return "홈 전체를 훑는 중… (수십 초 걸립니다)"
+        case "systemArea": return "홈 밖(앱·시스템 폴더)을 재는 중…"
         default: return "검사 중…"
         }
     }
