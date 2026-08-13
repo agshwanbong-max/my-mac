@@ -49,7 +49,7 @@ struct FindingRow: View {
                 }
 
                 Button {
-                    withAnimation(.smooth(duration: 0.2)) { isExpanded.toggle() }
+                    withAnimation(.easeInOut(duration: 0.2)) { isExpanded.toggle() }
                 } label: {
                     Image(systemName: "chevron.down")
                         .font(.caption.weight(.semibold))
@@ -102,7 +102,7 @@ struct FindingRow: View {
                 }
             }
             .frame(width: 18, height: 18)
-            .animation(.smooth(duration: 0.12), value: isSelected)
+            .animation(.easeInOut(duration: 0.12), value: isSelected)
             .onTapGesture { model.toggle(finding) }
         } else {
             // 안내 전용 — 체크박스 자리에 등급 아이콘만 둔다. 애초에 고를 수 없다는 뜻이다.

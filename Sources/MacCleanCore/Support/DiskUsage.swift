@@ -27,7 +27,9 @@ public struct DiskUsage: Sendable {
     /// 경로 하나의 실제 디스크 점유량을 잰다.
     /// - Parameter isCancelled: 주기적으로 물어보고 true 면 즉시 중단한다.
     public func measure(_ url: URL, isCancelled: () -> Bool = { false }) -> Measurement {
-        let keys: [URLResourceKey] = [
+        // `resourceValues(forKeys:)` 는 Set 를, `enumerator(includingPropertiesForKeys:)` 는
+        // Array 를 받는다. Set 로 선언하고 열거자에 넘길 때만 Array 로 바꾼다.
+        let keys: Set<URLResourceKey> = [
             .isDirectoryKey,
             .isRegularFileKey,
             .isSymbolicLinkKey,
@@ -57,7 +59,7 @@ public struct DiskUsage: Sendable {
         // `enumerator(at:)` 는 디렉터리 심볼릭 링크를 따라가지 않는다 — 우리가 원하는 동작이다.
         guard let enumerator = FileManager.default.enumerator(
             at: url,
-            includingPropertiesForKeys: keys,
+            includingPropertiesForKeys: Array(keys),
             options: [],
             errorHandler: { _, _ in
                 incomplete = true

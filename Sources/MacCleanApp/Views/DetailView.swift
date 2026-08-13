@@ -16,7 +16,7 @@ struct DetailView: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .animation(.smooth(duration: 0.25), value: model.selectedCategory)
+        .animation(.easeInOut(duration: 0.25), value: model.selectedCategory)
     }
 
     @ViewBuilder
@@ -206,7 +206,7 @@ private struct ActionBar: View {
             .padding(.vertical, 12)
             .glassPanel()
         }
-        .animation(.smooth(duration: 0.2), value: model.selectedBytes)
+        .animation(.easeInOut(duration: 0.2), value: model.selectedBytes)
     }
 }
 #endif

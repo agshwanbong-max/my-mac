@@ -85,7 +85,10 @@ final class AppModel: ObservableObject {
         let includeLargeFiles = self.includeLargeFiles
         let runningIdentifiers = Set(NSWorkspace.shared.runningApplications.compactMap { $0.bundleIdentifier })
 
-        scanTask = Task { [weak self] in
+        // `Task {}` 는 이 클래스의 @MainActor 를 물려받는다.
+        // 그러면 아래 동기 호출들이 메인 스레드에서 돌아 UI 가 멈춘다.
+        // `Task.detached` 로 액터 밖에서 실행한다.
+        scanTask = Task.detached(priority: .userInitiated) { [weak self] in
             let fullDiskAccess = FullDiskAccessProbe.hasAccess(paths: paths)
             let context = ScanContext(
                 paths: paths,
@@ -147,7 +150,8 @@ final class AppModel: ObservableObject {
         phase = .executing(current: 0, total: targets.count)
 
         let paths = self.paths
-        cleanupTask = Task { [weak self] in
+        // 삭제는 동기 작업이다. 메인 액터에서 돌리면 진행률 표시가 멈춘다.
+        cleanupTask = Task.detached(priority: .userInitiated) { [weak self] in
             let executor = CleanupExecutor(paths: paths, dryRun: dryRun)
             let results = executor.execute(
                 targets,

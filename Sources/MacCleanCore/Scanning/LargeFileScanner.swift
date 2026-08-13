@@ -22,7 +22,7 @@ public struct LargeFileScanner: Scanner {
     ]
 
     public func scan(context: ScanContext, isCancelled: () -> Bool) -> (findings: [Finding], warnings: [ScanWarning]) {
-        let keys: [URLResourceKey] = [
+        let keys: Set<URLResourceKey> = [
             .isDirectoryKey, .isSymbolicLinkKey, .isPackageKey,
             .totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey,
             .contentModificationDateKey,
@@ -30,7 +30,7 @@ public struct LargeFileScanner: Scanner {
 
         guard let enumerator = FileManager.default.enumerator(
             at: context.paths.home,
-            includingPropertiesForKeys: keys,
+            includingPropertiesForKeys: Array(keys),
             options: [],
             errorHandler: { _, _ in true }
         ) else {
@@ -71,7 +71,7 @@ public struct LargeFileScanner: Scanner {
                 size = 0
             }
             if size >= minimumBytes {
-                candidates.append((url, size, values.contentModificationDate))
+                candidates.append((url: url, size: size, modified: values.contentModificationDate))
             }
         }
 
