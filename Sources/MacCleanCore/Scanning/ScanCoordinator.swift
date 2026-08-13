@@ -71,9 +71,10 @@ public struct ScanCoordinator: Sendable {
 
     /// 기본 구성. 규칙 기반 스캐너 + 전용 스캐너들.
     ///
-    /// - Parameter includeLargeFiles: 홈 전체를 훑어 대용량 파일을 찾는다.
-    ///   가장 무거운 스캐너라 기본은 꺼져 있다. 검사가 몇 초 안에 끝나야 하기 때문이다.
-    public static func standard(paths: UserPaths, includeLargeFiles: Bool = false) -> ScanCoordinator {
+    /// - Parameter deepScan: 홈 전체를 훑어 **용량이 어디에 있는지**와 대용량 파일을 찾는다.
+    ///   가장 무거운 스캐너라 기본은 꺼져 있다 (파일 수에 따라 수십 초).
+    ///   대신 "정리 후보는 5GB 인데 227GB 는 어디 갔나" 라는 질문에 답할 수 있는 유일한 경로다.
+    public static func standard(paths: UserPaths, deepScan: Bool = false) -> ScanCoordinator {
         var scanners: [Scanner] = [
             SystemDataScanner(),
             RuleScanner(rules: RuleCatalog.all(paths: paths)),
@@ -81,8 +82,8 @@ public struct ScanCoordinator: Sendable {
             IOSBackupScanner(),
             NodeModulesScanner(),
         ]
-        if includeLargeFiles {
-            scanners.append(LargeFileScanner())
+        if deepScan {
+            scanners.append(SpaceBreakdownScanner())
         }
         return ScanCoordinator(scanners: scanners)
     }

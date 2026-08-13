@@ -3,6 +3,7 @@ import Foundation
 /// 결과를 사람이 이해할 수 있는 묶음으로 나눈다. UI 의 섹션 단위이기도 하다.
 public enum FindingCategory: String, Codable, Sendable, CaseIterable {
     case systemDataDiagnosis   // "시스템 데이터"가 왜 큰지에 대한 진단 (스냅샷 등)
+    case spaceBreakdown        // 용량이 어디에 있는지 (정리 대상이 아니라 지도)
     case trash
     case userCache
     case logs
@@ -19,6 +20,7 @@ public enum FindingCategory: String, Codable, Sendable, CaseIterable {
     public var localizedTitle: String {
         switch self {
         case .systemDataDiagnosis: return "시스템 데이터 진단"
+        case .spaceBreakdown: return "용량 분포"
         case .trash: return "휴지통"
         case .userCache: return "앱 캐시"
         case .logs: return "로그 · 진단 리포트"
@@ -38,18 +40,19 @@ public enum FindingCategory: String, Codable, Sendable, CaseIterable {
     public var sortOrder: Int {
         switch self {
         case .systemDataDiagnosis: return 0
-        case .trash: return 1
-        case .xcode: return 2
-        case .simulators: return 3
-        case .iosBackup: return 4
-        case .developerTooling: return 5
-        case .nodeModules: return 6
-        case .userCache: return 7
-        case .browser: return 8
-        case .logs: return 9
-        case .mail: return 10
-        case .downloads: return 11
-        case .largeFiles: return 12
+        case .spaceBreakdown: return 1
+        case .trash: return 2
+        case .xcode: return 3
+        case .simulators: return 4
+        case .iosBackup: return 5
+        case .developerTooling: return 6
+        case .nodeModules: return 7
+        case .userCache: return 8
+        case .browser: return 9
+        case .logs: return 10
+        case .mail: return 11
+        case .downloads: return 12
+        case .largeFiles: return 13
         }
     }
 }

@@ -82,6 +82,7 @@ extension FindingCategory {
     var symbolName: String {
         switch self {
         case .systemDataDiagnosis: return "stethoscope"
+        case .spaceBreakdown: return "chart.pie"
         case .trash: return "trash"
         case .userCache: return "shippingbox"
         case .logs: return "doc.text"
@@ -101,6 +102,7 @@ extension FindingCategory {
     var tint: Color {
         switch self {
         case .systemDataDiagnosis: return .orange
+        case .spaceBreakdown: return .blue
         case .trash: return .gray
         case .userCache: return .teal
         case .logs: return .brown
@@ -137,7 +139,7 @@ enum ScannerLabel {
         case "simulators": return "시뮬레이터를 확인하는 중…"
         case "iosBackup": return "기기 백업을 확인하는 중…"
         case "nodeModules": return "프로젝트 폴더를 살펴보는 중…"
-        case "largeFiles": return "대용량 파일을 찾는 중…"
+        case "spaceBreakdown": return "홈 전체를 훑는 중… (수십 초 걸립니다)"
         default: return "검사 중…"
         }
     }

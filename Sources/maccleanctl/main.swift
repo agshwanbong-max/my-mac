@@ -21,9 +21,12 @@ func line(_ character: String = "─", _ count: Int = 72) {
     print(String(repeating: character, count: count))
 }
 
-func runScan(includeLargeFiles: Bool) async -> ScanReport {
+func runScan(deepScan: Bool) async -> ScanReport {
     let context = ScanContext(paths: paths, hasFullDiskAccess: hasFullDiskAccess)
-    let coordinator = ScanCoordinator.standard(paths: paths, includeLargeFiles: includeLargeFiles)
+    let coordinator = ScanCoordinator.standard(paths: paths, deepScan: deepScan)
+    if deepScan {
+        print("정밀 분석 중입니다. 홈 전체를 훑으므로 수십 초 걸릴 수 있습니다…\n")
+    }
     return await coordinator.run(context: context)
 }
 
@@ -49,7 +52,7 @@ func printReport(_ report: ScanReport) {
             case .review: marker = "[확인]"
             case .advisory: marker = "[안내]"
             }
-            let size = finding.reclaimableBytes > 0 ? ByteFormat.string(finding.reclaimableBytes) : "-"
+            let size = ByteFormat.stringOrDash(finding.reclaimableBytes)
             print("\(marker) \(size.padded(to: 10)) \(finding.title)")
             print("        \(finding.detail.replacingOccurrences(of: "\n", with: "\n        "))")
             if let command = finding.suggestedCommand {
@@ -81,7 +84,7 @@ case "scan":
     if !hasFullDiskAccess {
         print("⚠ 전체 디스크 접근 권한이 없습니다. 일부 항목을 찾지 못합니다.\n\(FullDiskAccessProbe.terminalInstructions)\n")
     }
-    printReport(await runScan(includeLargeFiles: flags.contains("--large-files")))
+    printReport(await runScan(deepScan: flags.contains("--deep") || flags.contains("--large-files")))
 
 case "rules":
     let rules = RuleCatalog.all(paths: paths)
@@ -95,7 +98,7 @@ case "rules":
     }
 
 case "plan", "clean":
-    let report = await runScan(includeLargeFiles: false)
+    let report = await runScan(deepScan: false)
     let wantsSafeOnly = flags.contains("--safe")
     let confirmed = flags.contains("--confirm")
 
@@ -149,7 +152,7 @@ default:
     사용법: maccleanctl <명령>
 
       scan                       검사해서 결과를 보여준다 (아무것도 지우지 않음)
-        --large-files            홈 전체를 훑어 대용량 파일까지 찾는다 (느림)
+        --deep                   홈 전체를 훑어 용량이 어디 있는지 + 대용량 파일까지 찾는다 (느림)
       rules                      등록된 정리 규칙 전부 출력
       plan                       지울 항목 미리보기 (아무것도 지우지 않음)
       clean --confirm            실제로 정리 (기본은 휴지통으로 이동)

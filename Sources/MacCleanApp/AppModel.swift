@@ -28,8 +28,8 @@ final class AppModel: ObservableObject {
     @Published var selectedCategory: FindingCategory?
     /// 사용자가 체크한 항목의 id.
     @Published var selection: Set<String> = []
-    /// 홈 전체를 훑어 대용량 파일까지 찾을지. 가장 무거운 검사라 기본은 꺼둔다.
-    @Published var includeLargeFiles = false
+    /// 홈 전체를 훑어 용량 분포와 대용량 파일까지 찾을지. 가장 무거운 검사라 기본은 꺼둔다.
+    @Published var includeDeepScan = false
 
     @Published var isConfirming = false
     @Published var isShowingResults = false
@@ -82,7 +82,7 @@ final class AppModel: ObservableObject {
         selection = []
 
         let paths = self.paths
-        let includeLargeFiles = self.includeLargeFiles
+        let deepScan = self.includeDeepScan
         let runningIdentifiers = Set(NSWorkspace.shared.runningApplications.compactMap { $0.bundleIdentifier })
 
         // `Task {}` 는 이 클래스의 @MainActor 를 물려받는다.
@@ -99,7 +99,7 @@ final class AppModel: ObservableObject {
                 runningBundleIdentifiers: runningIdentifiers,
                 hasFullDiskAccess: fullDiskAccess
             )
-            let coordinator = ScanCoordinator.standard(paths: paths, includeLargeFiles: includeLargeFiles)
+            let coordinator = ScanCoordinator.standard(paths: paths, deepScan: deepScan)
 
             let result = await coordinator.run(
                 context: context,

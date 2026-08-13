@@ -44,11 +44,11 @@ struct ContentView: View {
         }
 
         ToolbarItem(placement: .primaryAction) {
-            Toggle(isOn: $model.includeLargeFiles) {
-                Label("대용량 파일 포함", systemImage: "doc.richtext")
+            Toggle(isOn: $model.includeDeepScan) {
+                Label("정밀 분석", systemImage: "chart.pie")
             }
             .toggleStyle(.button)
-            .help("홈 전체를 훑어 대용량 파일까지 찾습니다. 검사가 느려집니다.")
+            .help("홈 전체를 훑어 용량이 어디에 있는지와 대용량 파일을 찾습니다. 수십 초 걸립니다.")
             .disabled(model.isBusy)
         }
     }

@@ -178,3 +178,37 @@ final class DeduplicationTests: XCTestCase {
         XCTAssertEqual(result.count, 1)
     }
 }
+
+
+/// 용량 분포 묶음 계산.
+///
+/// 실제 맥에서 홈 용량의 90% 가 `~/Library` 한 곳에 있었다.
+/// 그걸 "Library 75GB" 한 줄로 보여주면 아무 도움이 안 되므로 Library 만 한 단계 더 쪼갠다.
+final class SpaceBreakdownBucketTests: XCTestCase {
+
+    private let home = "/Users/tester"
+
+    private func bucket(_ path: String) -> String? {
+        SpaceBreakdownScanner.bucket(for: URL(fileURLWithPath: path), homePath: home)
+    }
+
+    func testTopLevelFolderBecomesItsOwnBucket() {
+        XCTAssertEqual(bucket("/Users/tester/Pictures/a/b.jpg"), "Pictures")
+        XCTAssertEqual(bucket("/Users/tester/Downloads/x.dmg"), "Downloads")
+    }
+
+    func testLibraryIsSplitOneLevelDeeper() {
+        XCTAssertEqual(bucket("/Users/tester/Library/Developer/Xcode/a"), "Library/Developer")
+        XCTAssertEqual(bucket("/Users/tester/Library/Application Support/App/x"), "Library/Application Support")
+    }
+
+    func testFileDirectlyInLibraryFallsBackToLibrary() {
+        XCTAssertEqual(bucket("/Users/tester/Library/loose.txt"), "Library")
+    }
+
+    func testPathsOutsideHomeAreIgnored() {
+        XCTAssertNil(bucket("/Applications/Xcode.app/x"))
+        XCTAssertNil(bucket("/Users/other/Pictures/a.jpg"))
+        XCTAssertNil(bucket(home))
+    }
+}
