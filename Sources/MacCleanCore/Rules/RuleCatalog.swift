@@ -321,6 +321,55 @@ public enum RuleCatalog {
             requiresFullDiskAccess: true
         ))
 
+
+        // ─────────────────────────────────────────────────────────────
+        // Application Support 안의 앱 내부 캐시
+        //
+        // Electron 앱(Claude, Notion, Slack, Discord, VS Code …)은 캐시를
+        // `~/Library/Caches` 가 아니라 자기 Application Support 폴더 안에 넣는다.
+        // `Library/Caches` 만 보던 규칙들은 이걸 통째로 놓쳤다.
+        // 실제 맥에서 Claude 13GB, Notion 2.7GB 가 여기 있었는데 검사 결과에 한 줄도 안 나왔다.
+        //
+        // 겨냥하는 건 **명백한 캐시 폴더 이름들뿐**이다.
+        // `Local Storage` · `IndexedDB` · `Session Storage` 는 실제 데이터라 건드리지 않는다.
+        // ─────────────────────────────────────────────────────────────
+        let electronCacheFolders = [
+            "Cache", "Code Cache", "GPUCache", "DawnCache",
+            "DawnGraphiteCache", "DawnWebGPUCache", "ShaderCache",
+            "component_crx_cache", "blob_storage",
+        ]
+        for folder in electronCacheFolders {
+            rules.append(CleanupRule(
+                id: "appsupport.cache.\(folder.replacingOccurrences(of: " ", with: "-"))",
+                title: "앱 내부 캐시 (\(folder))",
+                explanation: "앱이 자기 폴더 안에 만들어 둔 캐시입니다. 설정·로그인 상태·문서는 다른 폴더에 있어 영향받지 않습니다.",
+                consequence: "앱이 필요할 때 다시 만듭니다. 앱을 다음에 열 때 잠깐 느릴 수 있습니다.",
+                category: .userCache,
+                risk: .safe,
+                path: "Library/Application Support/*/\(folder)",
+                mode: .wholeDirectory,
+                minimumAgeDays: 1,
+                minimumBytes: 50_000_000
+            ))
+        }
+
+        // Electron 앱은 한 단계 더 들어간 곳에도 같은 캐시를 만든다
+        // (예: `Claude/Partitions/<이름>/Cache`). 와일드카드가 하나뿐이라 흔한 조합만 따로 적는다.
+        for app in ["Claude", "Notion", "Slack", "discord", "Code", "Figma"] {
+            rules.append(CleanupRule(
+                id: "appsupport.partitionCache.\(app)",
+                title: "\(app) 파티션 캐시",
+                explanation: "\(app) 이 웹 콘텐츠별로 따로 만든 캐시입니다.",
+                consequence: "앱이 다시 만듭니다.",
+                category: .userCache,
+                risk: .safe,
+                path: "Library/Application Support/\(app)/Partitions/*/Cache",
+                mode: .wholeDirectory,
+                minimumAgeDays: 1,
+                minimumBytes: 50_000_000
+            ))
+        }
+
         // ─────────────────────────────────────────────────────────────
         // 로그
         // ─────────────────────────────────────────────────────────────

@@ -27,7 +27,7 @@ public struct SpaceBreakdownScanner: Scanner {
     public init(
         largeFileThreshold: Int64 = 300_000_000,
         maximumFiles: Int = 20,
-        maximumFolders: Int = 15,
+        maximumFolders: Int = 20,
         maximumNodes: Int = 3_000_000
     ) {
         self.largeFileThreshold = largeFileThreshold
@@ -171,20 +171,49 @@ public struct SpaceBreakdownScanner: Scanner {
         guard let first = parts.first else { return nil }
 
         if first == "Library", parts.count >= 2 {
-            return "Library/\(parts[1])"
+            let second = String(parts[1])
+            // 이 폴더들은 안에 앱별로 다시 나뉜다. 한 덩어리로 보여주면 의미가 없다.
+            // 실제로 "Application Support 38GB" 라는 한 줄로는 아무것도 알 수 없었는데,
+            // 한 단계 더 쪼개니 배경화면 13GB, Claude 13GB 가 바로 드러났다.
+            if SpaceBreakdownScanner.splitDeeper.contains(second), parts.count >= 3 {
+                return "Library/\(second)/\(parts[2])"
+            }
+            return "Library/\(second)"
         }
         return String(first)
     }
 
+    /// 한 단계 더 쪼개서 보여줄 `~/Library` 하위 폴더들.
+    static let splitDeeper: Set<String> = [
+        "Application Support",
+        "Developer",
+        "Containers",
+        "Group Containers",
+    ]
+
     /// 그 폴더가 뭔지에 대한 한 줄 설명. 모르는 폴더면 일반 안내.
     static func hint(for bucket: String) -> String {
         switch bucket {
-        case "Library/Application Support":
-            return "앱들이 실제 데이터를 넣어두는 곳입니다. iPhone 백업(MobileSync), 각종 앱의 저장 데이터가 여기 있습니다. "
-                + "캐시가 아니라 데이터라서 이 앱은 건드리지 않습니다. 파인더로 열어 어떤 앱이 크게 쓰는지 확인해 보세요."
-        case "Library/Developer":
-            return "Xcode 와 시뮬레이터가 쓰는 곳입니다. CoreSimulator 기기, iOS 기기 지원 파일, DerivedData 가 여기 들어갑니다. "
+        case "Library/Application Support/com.apple.wallpaper":
+            return "macOS 의 동영상 배경화면·화면 보호기 에셋입니다. 하나에 수 GB 씩 하고, 한 번 쓴 것도 계속 남습니다. "
+                + "시스템 설정 → 배경화면 에서 정지 이미지 배경으로 바꾸면 macOS 가 스스로 정리합니다. "
+                + "시스템이 관리하는 영역이라 이 앱은 직접 지우지 않습니다."
+        case "Library/Application Support/Claude", "Library/Application Support/Notion",
+             "Library/Application Support/Slack", "Library/Application Support/Code":
+            return "Electron 앱의 데이터 폴더입니다. 안의 Cache / Code Cache / GPUCache 는 이 앱이 정리 대상으로 다룹니다. "
+                + "나머지는 로그인 상태와 로컬 데이터라 건드리지 않습니다."
+        case "Library/Application Support/Google":
+            return "Chrome 프로필입니다. 방문 기록·북마크·비밀번호·확장 프로그램이 들어 있어 이 앱은 건드리지 않습니다. "
+                + "크롬에서 직접 정리하세요: 설정 → 개인정보 보호 → 인터넷 사용 기록 삭제 → 캐시된 이미지 및 파일."
+        case "Library/Developer/Xcode":
+            return "Xcode 가 쓰는 곳입니다. DerivedData, iOS 기기 지원 파일, 아카이브가 여기 들어갑니다. "
                 + "개발자 맥에서 가장 크게 부푸는 폴더입니다."
+        case "Library/Developer/CoreSimulator":
+            return "시뮬레이터 기기와 런타임입니다. Xcode → Settings → Platforms 에서 안 쓰는 버전을 지울 수 있습니다."
+        case "Library/Application Support":
+            return "앱들이 실제 데이터를 넣어두는 곳입니다. 캐시가 아니라 데이터라서 대부분 건드리지 않습니다."
+        case "Library/Developer":
+            return "Xcode 와 시뮬레이터가 쓰는 곳입니다."
         case "Library/Caches":
             return "앱 캐시입니다. 이 앱이 정리 대상으로 다루는 곳입니다."
         case "Library/Containers":

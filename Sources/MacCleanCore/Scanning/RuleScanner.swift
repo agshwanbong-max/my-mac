@@ -46,11 +46,25 @@ public struct RuleScanner: Scanner {
 
             for root in expandRoots(rule: rule, context: context) {
                 if isCancelled() { break }
-                findings.append(contentsOf: scan(rule: rule, root: root, context: context, guardian: guardian, isCancelled: isCancelled))
+                findings.append(contentsOf: scan(
+                    rule: rule, root: root.url, wildcardMatch: root.wildcardMatch,
+                    context: context, guardian: guardian, isCancelled: isCancelled
+                ))
             }
         }
 
         return (findings, warnings)
+    }
+
+    /// 후보 제목.
+    ///
+    /// 와일드카드로 편 규칙은 `*` 가 맞은 이름(앱 폴더명)을 앞에 붙인다.
+    /// 안 그러면 `Library/Application Support/*/Cache` 규칙이 만든 후보들이
+    /// 전부 "앱 내부 캐시" 라는 같은 제목으로 늘어서서 어느 앱 것인지 알 수 없다.
+    static func title(rule: CleanupRule, target: URL, wildcardMatch: String?) -> String {
+        guard rule.mode == .wholeDirectory else { return target.lastPathComponent }
+        if let match = wildcardMatch { return "\(match) — \(rule.title)" }
+        return rule.title
     }
 
     /// 자식 이름 비교. **접두사로 맞춘다.**
@@ -69,10 +83,17 @@ public struct RuleScanner: Scanner {
 
     /// `Library/Containers/*/Data/Library/Caches` 처럼 `*` 가 하나 들어간 경로를 실제 경로 목록으로 편다.
     /// `*` 는 **한 단계 디렉터리 이름 하나**만 대신한다. 재귀 글롭은 지원하지 않는다 — 의도한 제한이다.
-    private func expandRoots(rule: CleanupRule, context: ScanContext) -> [URL] {
+    /// 편 결과와, `*` 가 실제로 무엇에 맞았는지를 같이 돌려준다.
+    /// 맞은 이름(보통 앱 폴더명)이 없으면 후보 제목이 전부 "Cache" 로 똑같아져 구분이 안 된다.
+    struct ExpandedRoot {
+        let url: URL
+        let wildcardMatch: String?
+    }
+
+    private func expandRoots(rule: CleanupRule, context: ScanContext) -> [ExpandedRoot] {
         guard rule.path.contains("*") else {
             let root = context.paths.resolve(rule.path)
-            return FileManager.default.fileExists(atPath: root.path) ? [root] : []
+            return FileManager.default.fileExists(atPath: root.path) ? [ExpandedRoot(url: root, wildcardMatch: nil)] : []
         }
 
         let parts = rule.path.components(separatedBy: "*")
@@ -91,11 +112,14 @@ public struct RuleScanner: Scanner {
             return []
         }
 
-        var results: [URL] = []
+        var results: [ExpandedRoot] = []
         for child in children {
             let candidate = suffix.isEmpty ? child : child.appendingPathComponent(suffix)
             if FileManager.default.fileExists(atPath: candidate.path) {
-                results.append(candidate.standardizedFileURL)
+                results.append(ExpandedRoot(
+                    url: candidate.standardizedFileURL,
+                    wildcardMatch: child.lastPathComponent
+                ))
             }
         }
         return results
@@ -106,6 +130,7 @@ public struct RuleScanner: Scanner {
     private func scan(
         rule: CleanupRule,
         root: URL,
+        wildcardMatch: String?,
         context: ScanContext,
         guardian: PathGuard,
         isCancelled: () -> Bool
@@ -115,7 +140,7 @@ public struct RuleScanner: Scanner {
         switch rule.mode {
         case .wholeDirectory:
             guard let finding = makeFinding(
-                rule: rule, target: root, constraints: constraints,
+                rule: rule, target: root, constraints: constraints, wildcardMatch: wildcardMatch,
                 context: context, guardian: guardian, isCostly: false, isCancelled: isCancelled
             ) else { return [] }
             return [finding]
@@ -149,7 +174,7 @@ public struct RuleScanner: Scanner {
                 }
 
                 if let finding = makeFinding(
-                    rule: rule, target: child, constraints: constraints,
+                    rule: rule, target: child, constraints: constraints, wildcardMatch: wildcardMatch,
                     context: context, guardian: guardian, isCostly: isCostly, isCancelled: isCancelled
                 ) {
                     results.append(finding)
@@ -163,6 +188,7 @@ public struct RuleScanner: Scanner {
         rule: CleanupRule,
         target: URL,
         constraints: RuleConstraints,
+        wildcardMatch: String?,
         context: ScanContext,
         guardian: PathGuard,
         isCostly: Bool,
@@ -182,6 +208,7 @@ public struct RuleScanner: Scanner {
         if rule.mode != .wholeDirectory {
             detail = "\(target.lastPathComponent) — \(rule.explanation)"
         }
+        detail += " (\(context.paths.abbreviate(target)))"
         if measurement.incomplete {
             detail += " (일부 항목을 읽지 못해 실제 크기는 이보다 클 수 있습니다.)"
         }
@@ -197,7 +224,7 @@ public struct RuleScanner: Scanner {
             ruleID: rule.id,
             category: rule.category,
             risk: risk,
-            title: rule.mode == .wholeDirectory ? rule.title : target.lastPathComponent,
+            title: RuleScanner.title(rule: rule, target: target, wildcardMatch: wildcardMatch),
             detail: detail,
             consequence: consequence,
             path: target,

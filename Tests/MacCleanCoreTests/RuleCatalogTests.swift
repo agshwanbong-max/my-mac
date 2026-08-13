@@ -65,6 +65,27 @@ final class RuleCatalogTests: XCTestCase {
         }
     }
 
+    /// Application Support 를 겨냥하는 규칙은 **명백한 캐시 폴더 이름**으로 끝나야 한다.
+    /// 앱 데이터 폴더를 통째로 겨냥하면 로그인 상태와 로컬 문서가 날아간다.
+    func testApplicationSupportRulesTargetOnlyCacheFolders() {
+        let allowedLeaves: Set<String> = [
+            "Cache", "Code Cache", "GPUCache", "DawnCache",
+            "DawnGraphiteCache", "DawnWebGPUCache", "ShaderCache",
+            "component_crx_cache", "blob_storage",
+        ]
+        let forbiddenLeaves: Set<String> = [
+            "Local Storage", "IndexedDB", "Session Storage", "Preferences", "Cookies",
+        ]
+
+        for rule in rules where rule.path.hasPrefix("Library/Application Support") {
+            let leaf = String(rule.path.split(separator: "/").last ?? "")
+            XCTAssertFalse(forbiddenLeaves.contains(leaf),
+                           "'\(rule.id)' 이 앱 데이터 폴더를 겨냥합니다: \(leaf)")
+            XCTAssertTrue(allowedLeaves.contains(leaf),
+                          "'\(rule.id)' 의 대상 '\(leaf)' 이 캐시 폴더 허용 목록에 없습니다")
+        }
+    }
+
     /// `.review` 이상은 반드시 되돌릴 수 있는 방식이거나, 휴지통 비우기처럼 본질적으로 영구인 작업이어야 한다.
     func testReviewRulesUseTrash() {
         for rule in rules where rule.risk == .review && rule.id != "trash.user" {
@@ -197,9 +218,24 @@ final class SpaceBreakdownBucketTests: XCTestCase {
         XCTAssertEqual(bucket("/Users/tester/Downloads/x.dmg"), "Downloads")
     }
 
-    func testLibraryIsSplitOneLevelDeeper() {
-        XCTAssertEqual(bucket("/Users/tester/Library/Developer/Xcode/a"), "Library/Developer")
-        XCTAssertEqual(bucket("/Users/tester/Library/Application Support/App/x"), "Library/Application Support")
+    /// Application Support / Developer 는 안에서 앱별로 또 나뉜다.
+    /// 한 덩어리로 보여주면 "Application Support 38GB" 라는 쓸모없는 한 줄이 된다.
+    func testContainerFoldersAreSplitTwoLevelsDeep() {
+        XCTAssertEqual(bucket("/Users/tester/Library/Developer/Xcode/a"), "Library/Developer/Xcode")
+        XCTAssertEqual(bucket("/Users/tester/Library/Application Support/Claude/x"),
+                       "Library/Application Support/Claude")
+        XCTAssertEqual(bucket("/Users/tester/Library/Containers/com.foo/Data/x"),
+                       "Library/Containers/com.foo")
+    }
+
+    func testOtherLibraryFoldersStayAtOneLevel() {
+        XCTAssertEqual(bucket("/Users/tester/Library/Caches/foo/bar"), "Library/Caches")
+        XCTAssertEqual(bucket("/Users/tester/Library/Logs/a/b"), "Library/Logs")
+    }
+
+    /// 쪼갤 폴더인데 그 아래에 파일이 바로 있으면 한 단계로 돌아간다.
+    func testFileDirectlyInSplitFolder() {
+        XCTAssertEqual(bucket("/Users/tester/Library/Developer/loose.txt"), "Library/Developer")
     }
 
     func testFileDirectlyInLibraryFallsBackToLibrary() {
