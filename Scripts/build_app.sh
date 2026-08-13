@@ -30,6 +30,13 @@ mkdir -p "${APP_DIR}/Contents/Resources"
 
 cp "${BINARY}" "${APP_DIR}/Contents/MacOS/${APP_NAME}"
 
+ICON_SOURCE="Sources/MacCleanApp/Resources/AppIcon.icns"
+if [ -f "${ICON_SOURCE}" ]; then
+  cp "${ICON_SOURCE}" "${APP_DIR}/Contents/Resources/AppIcon.icns"
+else
+  echo "  (아이콘이 없습니다. python3 Scripts/make_icon.py 로 만들 수 있습니다.)"
+fi
+
 cat > "${APP_DIR}/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -49,6 +56,8 @@ cat > "${APP_DIR}/Contents/Info.plist" <<PLIST
     <string>APPL</string>
     <key>CFBundleExecutable</key>
     <string>${APP_NAME}</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>LSMinimumSystemVersion</key>
     <string>13.0</string>
     <key>NSHighResolutionCapable</key>
@@ -63,6 +72,9 @@ echo "▸ 임시 서명 중…"
 codesign --force --deep --sign - "${APP_DIR}" 2>/dev/null || {
   echo "  (서명 실패 — 서명 없이 진행합니다. 첫 실행 시 Gatekeeper 경고가 뜰 수 있습니다.)"
 }
+
+# 파인더는 아이콘을 공격적으로 캐시한다. 번들 수정 시각을 건드려 다시 읽게 만든다.
+touch "${APP_DIR}"
 
 echo "✓ 완료: ${APP_DIR}"
 echo

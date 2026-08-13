@@ -56,24 +56,48 @@ macOS 26 (Tahoe) 의 **Liquid Glass** 디자인 언어를 쓴다.
 macOS 26 전용 API 는 전부 [`DesignSystem.swift`](Sources/MacCleanApp/DesignSystem.swift)
 한 파일에만 있다 — 문제가 생기면 그 파일만 고치면 된다.
 
-## 빌드
+## 설치
 
 Xcode 프로젝트 없이 SPM 만으로 만든다. Xcode 15 이상 (또는 Command Line Tools) 필요.
+**맥 앱 바이너리는 맥에서만 만들 수 있다.** 미리 빌드된 파일을 받는 게 아니라 직접 만든다.
 
 ```bash
-# 앱 만들기 → build/MacClean.app
-./Scripts/build_app.sh
+# /Applications 에 바로 설치
+./Scripts/package.sh --install
 
-# 만들고 바로 실행
+# 또는 배포용 디스크 이미지만 만들기 → build/MacClean-0.1.0.dmg
+./Scripts/package.sh
+```
+
+설치한 뒤 **시스템 설정 → 개인정보 보호 및 보안 → 전체 디스크 접근**에
+`/Applications/MacClean.app` 을 추가하세요. 이 권한이 없으면 iPhone 백업, 메일 첨부 임시본,
+샌드박스 앱 캐시를 찾지 못합니다.
+
+> 권한은 **앱의 위치마다 따로** 붙습니다. `build` 폴더에서 켠 권한은
+> `/Applications` 로 옮긴 앱에는 적용되지 않습니다. 옮겼다면 다시 켜야 합니다.
+
+### 개발 중이라면
+
+```bash
+# 앱 번들만 만들기 → build/MacClean.app
 ./Scripts/build_app.sh --run
 
 # 테스트
 swift test
+
+# 아이콘 다시 만들기 (Pillow 필요)
+python3 Scripts/make_icon.py
 ```
 
-만든 뒤 **시스템 설정 → 개인정보 보호 및 보안 → 전체 디스크 접근**에
-`build/MacClean.app` 을 추가하세요. 이 권한이 없으면 iPhone 백업, 메일 첨부 임시본,
-샌드박스 앱 캐시를 찾지 못합니다.
+### 서명에 대해
+
+애플 개발자 인증서로 서명하지 않았고, 임시(ad-hoc) 서명만 되어 있습니다.
+**직접 빌드한 맥에서는 그냥 열립니다.** 다른 맥으로 옮기면 Gatekeeper 가 막는데,
+그 맥에서 이렇게 풀 수 있습니다.
+
+```bash
+xattr -dr com.apple.quarantine /Applications/MacClean.app
+```
 
 ---
 
