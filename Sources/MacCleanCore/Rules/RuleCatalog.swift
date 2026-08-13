@@ -81,13 +81,18 @@ public enum RuleCatalog {
         rules.append(CleanupRule(
             id: "xcode.iosDeviceSupport",
             title: "iOS 기기 지원 파일",
-            explanation: "실기기로 디버깅할 때 Xcode 가 기기에서 받아 저장한 심볼 파일입니다. iOS 버전마다 한 벌씩 쌓입니다.",
-            consequence: "해당 iOS 버전 기기를 다시 연결하면 Xcode 가 다시 받습니다 (몇 분 걸립니다).",
+            explanation: "실기기로 디버깅할 때 Xcode 가 기기에서 받아 저장한 심볼 파일입니다. "
+                + "iOS 버전마다 한 벌씩 쌓이고, 하나에 1~2GB 씩 합니다. 개발자 맥에서 가장 크게 부푸는 폴더입니다.",
+            consequence: "해당 iOS 버전 기기를 다시 연결하면 Xcode 가 다시 받습니다 (몇 분 걸립니다). "
+                + "지금 쓰는 기기의 iOS 버전만 남기고 지우는 게 보통입니다.",
             category: .xcode,
             risk: .review,
             path: "Library/Developer/Xcode/iOS DeviceSupport",
             mode: .eachChild,
-            minimumAgeDays: 30,
+            // 30일이었는데, 실제 맥에서 17GB 가 전부 이 필터에 걸려 목록에 한 줄도 안 나왔다.
+            // 어차피 확인 등급이라 사용자가 항목마다 직접 골라야 하므로,
+            // 여기서 한 번 더 조이는 건 안전이 아니라 그냥 숨기는 것이었다.
+            minimumAgeDays: 7,
             minimumBytes: 10_000_000,
             ownerBundleIdentifier: "com.apple.dt.Xcode"
         ))
@@ -101,7 +106,7 @@ public enum RuleCatalog {
             risk: .review,
             path: "Library/Developer/Xcode/watchOS DeviceSupport",
             mode: .eachChild,
-            minimumAgeDays: 30,
+            minimumAgeDays: 7,
             minimumBytes: 10_000_000
         ))
 
@@ -114,7 +119,7 @@ public enum RuleCatalog {
             risk: .review,
             path: "Library/Developer/Xcode/tvOS DeviceSupport",
             mode: .eachChild,
-            minimumAgeDays: 30,
+            minimumAgeDays: 7,
             minimumBytes: 10_000_000
         ))
 

@@ -46,10 +46,12 @@ public struct RuleScanner: Scanner {
 
             for root in expandRoots(rule: rule, context: context) {
                 if isCancelled() { break }
-                findings.append(contentsOf: scan(
+                let result = scan(
                     rule: rule, root: root.url, wildcardMatch: root.wildcardMatch,
                     context: context, guardian: guardian, isCancelled: isCancelled
-                ))
+                )
+                findings.append(contentsOf: result.findings)
+                warnings.append(contentsOf: result.warnings)
             }
         }
 
@@ -125,7 +127,23 @@ public struct RuleScanner: Scanner {
         return results
     }
 
-    // MARK: -
+    // MARK: - 왜 걸러졌는지 세기
+
+    /// 규칙이 후보를 걸러낸 이유를 센다.
+    ///
+    /// 이게 필요해진 이유: 실제 맥에서 `iOS DeviceSupport` 17GB 가 검사 결과에
+    /// **한 줄도 안 나왔다.** 규칙은 멀쩡히 있었는데 "최근 30일 이내 변경" 필터에
+    /// 전부 걸려서 조용히 사라진 것이다.
+    /// 화면에서는 "그 폴더에 아무것도 없음" 과 "전부 걸러냄" 이 똑같아 보였다.
+    /// 그 둘은 완전히 다른 이야기이므로, 걸러낸 게 있으면 그 사실을 말해준다.
+    struct SkipTally {
+        var byAge = 0
+        var byAgeBytes: Int64 = 0
+        var bySize = 0
+        var byGuard = 0
+
+        var skippedAnything: Bool { byAge > 0 || bySize > 0 || byGuard > 0 }
+    }
 
     private func scan(
         rule: CleanupRule,
@@ -134,14 +152,49 @@ public struct RuleScanner: Scanner {
         context: ScanContext,
         guardian: PathGuard,
         isCancelled: () -> Bool
-    ) -> [Finding] {
+    ) -> (findings: [Finding], warnings: [ScanWarning]) {
         let constraints = rule.constraints(root: root)
+        var tally = SkipTally()
+        let findings = collect(
+            rule: rule, root: root, wildcardMatch: wildcardMatch, constraints: constraints,
+            context: context, guardian: guardian, tally: &tally, isCancelled: isCancelled
+        )
+        return (findings, warnings(for: rule, tally: tally, foundCount: findings.count))
+    }
 
+    /// 걸러낸 게 의미 있는 양이면 사용자에게 알린다.
+    private func warnings(for rule: CleanupRule, tally: SkipTally, foundCount: Int) -> [ScanWarning] {
+        guard tally.skippedAnything else { return [] }
+
+        // 크기·관문 때문에 걸러진 건 정상 동작이라 굳이 말하지 않는다.
+        // 문제가 되는 건 "최근에 손댔다" 는 이유로 큰 덩어리가 통째로 사라지는 경우다.
+        guard tally.byAge > 0, tally.byAgeBytes >= 500_000_000 else { return [] }
+
+        return [ScanWarning(
+            ruleID: rule.id,
+            message: "'\(rule.title)' 에서 \(tally.byAge)개(\(ByteFormat.string(tally.byAgeBytes)))를 "
+                + "최근 \(rule.minimumAgeDays)일 이내에 변경됐다는 이유로 제외했습니다."
+                + (foundCount == 0 ? " 그래서 이 항목은 목록에 나오지 않습니다." : "")
+        )]
+    }
+
+    // MARK: -
+
+    private func collect(
+        rule: CleanupRule,
+        root: URL,
+        wildcardMatch: String?,
+        constraints: RuleConstraints,
+        context: ScanContext,
+        guardian: PathGuard,
+        tally: inout SkipTally,
+        isCancelled: () -> Bool
+    ) -> [Finding] {
         switch rule.mode {
         case .wholeDirectory:
             guard let finding = makeFinding(
                 rule: rule, target: root, constraints: constraints, wildcardMatch: wildcardMatch,
-                context: context, guardian: guardian, isCostly: false, isCancelled: isCancelled
+                context: context, guardian: guardian, isCostly: false, tally: &tally, isCancelled: isCancelled
             ) else { return [] }
             return [finding]
 
@@ -175,7 +228,7 @@ public struct RuleScanner: Scanner {
 
                 if let finding = makeFinding(
                     rule: rule, target: child, constraints: constraints, wildcardMatch: wildcardMatch,
-                    context: context, guardian: guardian, isCostly: isCostly, isCancelled: isCancelled
+                    context: context, guardian: guardian, isCostly: isCostly, tally: &tally, isCancelled: isCancelled
                 ) {
                     results.append(finding)
                 }
@@ -192,17 +245,28 @@ public struct RuleScanner: Scanner {
         context: ScanContext,
         guardian: PathGuard,
         isCostly: Bool,
+        tally: inout SkipTally,
         isCancelled: () -> Bool
     ) -> Finding? {
         // 관문을 못 지나면 조용히 버린다. 후보 목록에 아예 올리지 않는다.
         let decision = guardian.evaluate(target, constraints: constraints)
-        guard decision.allowed else { return nil }
+        guard decision.allowed else {
+            tally.byGuard += 1
+            return nil
+        }
 
         let measurement = usage.measure(target, isCancelled: isCancelled)
-        guard measurement.allocatedBytes >= rule.minimumBytes else { return nil }
+        guard measurement.allocatedBytes >= rule.minimumBytes else {
+            tally.bySize += 1
+            return nil
+        }
 
         let age = context.ageInDays(of: measurement.newestModification)
-        guard age >= rule.minimumAgeDays else { return nil }
+        guard age >= rule.minimumAgeDays else {
+            tally.byAge += 1
+            tally.byAgeBytes += measurement.allocatedBytes
+            return nil
+        }
 
         var detail = rule.explanation
         if rule.mode != .wholeDirectory {
