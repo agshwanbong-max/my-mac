@@ -141,8 +141,9 @@ public struct RuleScanner: Scanner {
         var byAgeBytes: Int64 = 0
         var bySize = 0
         var byGuard = 0
+        var byRunningApp = 0
 
-        var skippedAnything: Bool { byAge > 0 || bySize > 0 || byGuard > 0 }
+        var skippedAnything: Bool { byAge > 0 || bySize > 0 || byGuard > 0 || byRunningApp > 0 }
     }
 
     private func scan(
@@ -166,16 +167,28 @@ public struct RuleScanner: Scanner {
     private func warnings(for rule: CleanupRule, tally: SkipTally, foundCount: Int) -> [ScanWarning] {
         guard tally.skippedAnything else { return [] }
 
+        var messages: [ScanWarning] = []
+
         // 크기·관문 때문에 걸러진 건 정상 동작이라 굳이 말하지 않는다.
         // 문제가 되는 건 "최근에 손댔다" 는 이유로 큰 덩어리가 통째로 사라지는 경우다.
-        guard tally.byAge > 0, tally.byAgeBytes >= 500_000_000 else { return [] }
+        if tally.byAge > 0, tally.byAgeBytes >= 500_000_000 {
+            messages.append(ScanWarning(
+                ruleID: rule.id,
+                message: "'\(rule.title)' 에서 \(tally.byAge)개(\(ByteFormat.string(tally.byAgeBytes)))를 "
+                    + "최근 \(rule.minimumAgeDays)일 이내에 변경됐다는 이유로 제외했습니다."
+                    + (foundCount == 0 ? " 그래서 이 항목은 목록에 나오지 않습니다." : "")
+            ))
+        }
 
-        return [ScanWarning(
-            ruleID: rule.id,
-            message: "'\(rule.title)' 에서 \(tally.byAge)개(\(ByteFormat.string(tally.byAgeBytes)))를 "
-                + "최근 \(rule.minimumAgeDays)일 이내에 변경됐다는 이유로 제외했습니다."
-                + (foundCount == 0 ? " 그래서 이 항목은 목록에 나오지 않습니다." : "")
-        )]
+        if tally.byRunningApp > 0 {
+            messages.append(ScanWarning(
+                ruleID: rule.id,
+                message: "'\(rule.title)' 에서 \(tally.byRunningApp)개를 해당 앱이 실행 중이라 건너뛰었습니다. "
+                    + "그 앱을 종료하고 다시 검사하면 정리할 수 있습니다."
+            ))
+        }
+
+        return messages
     }
 
     // MARK: -
@@ -212,6 +225,18 @@ public struct RuleScanner: Scanner {
                 if isCancelled() { break }
 
                 let name = child.lastPathComponent
+
+                // 캐시 폴더 이름은 대개 그 앱의 번들 ID 다 (`com.google.Chrome` 처럼).
+                // 그 앱이 지금 켜져 있으면 캐시를 건드리지 않는다.
+                //
+                // 이게 나이 필터를 대신한다. 캐시에 "최근에 바뀌었나" 를 묻는 건 말이 안 된다 —
+                // 캐시는 늘 최근에 바뀐다. 실제로 그 필터 때문에 브라우저 캐시 3.5GB 가
+                // 목록에 영원히 안 뜨고 있었다. 정작 물어야 할 건 "지금 쓰는 중인가" 다.
+                if name.contains("."), context.isRunning(name) {
+                    tally.byRunningApp += 1
+                    continue
+                }
+
                 if RuleScanner.matches(name, rule.deniedChildNames) { continue }
                 if !rule.allowedChildNames.isEmpty && !rule.allowedChildNames.contains(name) { continue }
                 let isCostly = RuleScanner.matches(name, rule.costlyChildNames)

@@ -73,7 +73,7 @@ public enum RuleCatalog {
             risk: .safe,
             path: "Library/Developer/Xcode/DerivedData",
             mode: .eachChild,
-            minimumAgeDays: 1,
+            minimumAgeDays: 0,
             minimumBytes: 10_000_000,
             ownerBundleIdentifier: "com.apple.dt.Xcode"
         ))
@@ -149,7 +149,7 @@ public enum RuleCatalog {
             risk: .safe,
             path: "Library/Caches/com.apple.dt.Xcode",
             mode: .wholeDirectory,
-            minimumAgeDays: 1,
+            minimumAgeDays: 0,
             minimumBytes: 50_000_000,
             ownerBundleIdentifier: "com.apple.dt.Xcode"
         ))
@@ -179,7 +179,7 @@ public enum RuleCatalog {
             risk: .safe,
             path: "Library/Developer/CoreSimulator/Caches",
             mode: .eachChild,
-            minimumAgeDays: 1,
+            minimumAgeDays: 0,
             minimumBytes: 50_000_000
         ))
 
@@ -291,7 +291,8 @@ public enum RuleCatalog {
             // 같은 경로를 겨냥해 겹치게 하고, 중복 정리에서 더 조심스러운 등급이 남게 한다.
             path: "Library/Caches/ms-playwright",
             mode: .wholeDirectory,
-            minimumAgeDays: 30,
+            // 확인 등급이라 사용자가 직접 골라야 한다. 그 위에서 나이로 또 숨길 이유가 없다.
+            minimumAgeDays: 0,
             minimumBytes: 50_000_000
         ))
 
@@ -307,7 +308,10 @@ public enum RuleCatalog {
             risk: .safe,
             path: "Library/Caches",
             mode: .eachChild,
-            minimumAgeDays: 3,
+            // 캐시에 나이 조건을 거는 건 말이 안 된다. 캐시는 늘 최근에 바뀐다 — 그게 캐시다.
+            // 실제 맥에서 이 조건 때문에 브라우저 캐시 3.5GB 가 목록에 영원히 안 떴다.
+            // 대신 '그 앱이 지금 켜져 있는가' 로 판단한다. 그게 진짜 물어야 할 질문이다.
+            minimumAgeDays: 0,
             minimumBytes: 20_000_000,
             deniedChildNames: dataBearingCacheDirectories,
             costlyChildNames: costlyCacheDirectories
@@ -324,7 +328,7 @@ public enum RuleCatalog {
             risk: .safe,
             path: "Library/Containers/*/Data/Library/Caches",
             mode: .wholeDirectory,
-            minimumAgeDays: 7,
+            minimumAgeDays: 0,
             minimumBytes: 50_000_000,
             requiresFullDiskAccess: true
         ))
@@ -356,7 +360,8 @@ public enum RuleCatalog {
                 risk: .safe,
                 path: "Library/Application Support/*/\(folder)",
                 mode: .wholeDirectory,
-                minimumAgeDays: 1,
+                // 캐시라서 늘 최근에 바뀐다. 나이로 거르면 아무것도 안 잡힌다.
+                minimumAgeDays: 0,
                 minimumBytes: 50_000_000
             ))
         }
@@ -373,7 +378,7 @@ public enum RuleCatalog {
                 risk: .safe,
                 path: "Library/Application Support/\(app)/Partitions/*/Cache",
                 mode: .wholeDirectory,
-                minimumAgeDays: 1,
+                minimumAgeDays: 0,
                 minimumBytes: 50_000_000
             ))
         }
@@ -417,7 +422,7 @@ public enum RuleCatalog {
             risk: .review,
             path: ".pub-cache",
             mode: .wholeDirectory,
-            minimumAgeDays: 30,
+            minimumAgeDays: 0,
             minimumBytes: 200_000_000
         ))
 
@@ -492,7 +497,7 @@ public enum RuleCatalog {
             risk: .safe,
             path: "Library/Caches/Google/Chrome",
             mode: .wholeDirectory,
-            minimumAgeDays: 3,
+            minimumAgeDays: 0,
             minimumBytes: 50_000_000,
             ownerBundleIdentifier: "com.google.Chrome"
         ))
@@ -506,7 +511,7 @@ public enum RuleCatalog {
             risk: .safe,
             path: "Library/Containers/com.apple.Safari/Data/Library/Caches",
             mode: .wholeDirectory,
-            minimumAgeDays: 3,
+            minimumAgeDays: 0,
             minimumBytes: 50_000_000,
             requiresFullDiskAccess: true,
             ownerBundleIdentifier: "com.apple.Safari"
@@ -521,7 +526,7 @@ public enum RuleCatalog {
             risk: .safe,
             path: "Library/Caches/Firefox",
             mode: .wholeDirectory,
-            minimumAgeDays: 3,
+            minimumAgeDays: 0,
             minimumBytes: 50_000_000,
             ownerBundleIdentifier: "org.mozilla.firefox"
         ))

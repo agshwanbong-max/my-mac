@@ -94,6 +94,25 @@ final class RuleCatalogTests: XCTestCase {
         }
     }
 
+    /// 캐시 규칙에 나이 조건을 걸면 안 된다.
+    ///
+    /// 캐시는 늘 최근에 바뀐다 — 그게 캐시다. "3일 이내 변경됐으니 제외" 는
+    /// 브라우저를 쓰는 한 브라우저 캐시를 영원히 숨긴다는 뜻이다.
+    /// 실제로 그것 때문에 3.5GB 가 목록에 한 번도 안 떴다.
+    /// 대신 '그 앱이 실행 중인가' 로 판단한다.
+    func testCacheRulesDoNotFilterByAge() {
+        let cacheRuleIDs = rules
+            .filter { $0.category == .userCache || $0.category == .browser }
+            .map { $0.id }
+        XCTAssertFalse(cacheRuleIDs.isEmpty, "캐시 규칙이 하나도 없습니다 — 테스트가 무의미해집니다")
+
+        for rule in rules where cacheRuleIDs.contains(rule.id) {
+            XCTAssertEqual(rule.minimumAgeDays, 0,
+                           "'\(rule.id)' 는 캐시 규칙인데 나이 조건이 걸려 있습니다. "
+                           + "캐시는 늘 최근에 바뀌므로 그 조건은 항목을 영원히 숨깁니다.")
+        }
+    }
+
     /// `.review` 이상은 반드시 되돌릴 수 있는 방식이거나, 휴지통 비우기처럼 본질적으로 영구인 작업이어야 한다.
     func testReviewRulesUseTrash() {
         for rule in rules where rule.risk == .review && rule.id != "trash.user" {
