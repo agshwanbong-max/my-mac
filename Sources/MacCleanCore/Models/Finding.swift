@@ -138,4 +138,20 @@ public struct Finding: Identifiable, Codable, Sendable, Hashable {
     public var isSelectable: Bool {
         risk.appMayRemove && removal != .adviseOnly
     }
+
+    /// **이거 지워도 되나?** 에 대한 대답.
+    ///
+    /// 규칙에 걸린 항목은 규칙을 쓸 때 이미 판단이 끝났으므로 그대로 내놓는다.
+    /// 안내 전용 항목(대용량 파일, 용량 분포 등)은 규칙이 없다 — 여기서는 `nil` 을 주고,
+    /// `ImportanceAssessor` 가 그 경로를 실제로 들여다보고 답한다.
+    ///
+    /// 이걸 나눠둔 이유: 모든 항목에 조사기를 돌리면 검사가 느려지고,
+    /// 규칙이 이미 아는 답을 다시 추측하는 꼴이 된다.
+    public var presetVerdict: DeletionVerdict? {
+        switch risk {
+        case .safe: return .safe
+        case .review: return .checkFirst
+        case .advisory: return nil
+        }
+    }
 }

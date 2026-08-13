@@ -12,6 +12,10 @@ struct FindingRow: View {
 
     @State private var isExpanded = false
     @State private var isHovering = false
+    /// 안내 전용 항목은 규칙이 판정을 갖고 있지 않다. 펼칠 때 그 경로를 실제로 조사해서 답한다.
+    /// 검사할 때 전부 미리 돌리지 않는 이유는, 그러면 검사가 느려지기 때문이다.
+    @State private var assessment: ImportanceAssessment?
+    @State private var isAssessing = false
 
     private var isSelected: Bool { model.isSelected(finding) }
 
@@ -25,6 +29,13 @@ struct FindingRow: View {
                         Text(finding.title)
                             .font(.body)
                             .lineLimit(1)
+
+                        // 판정이 제목 바로 옆에 온다. 사용자가 알고 싶은 건 이것 하나다.
+                        if let verdict = finding.presetVerdict ?? assessment?.verdict {
+                            VerdictBadge(verdict: verdict)
+                        } else if isAssessing {
+                            VerdictPlaceholder()
+                        }
 
                         if !finding.removal.isReversible && finding.isSelectable {
                             Image(systemName: "exclamationmark.triangle.fill")
@@ -50,6 +61,7 @@ struct FindingRow: View {
 
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) { isExpanded.toggle() }
+                    if isExpanded { assessIfNeeded() }
                 } label: {
                     Image(systemName: "chevron.down")
                         .font(.caption.weight(.semibold))
@@ -117,7 +129,13 @@ struct FindingRow: View {
     // MARK: - 펼친 내용
 
     private var details: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
+            // 경로를 실제로 조사한 결과가 있으면 그게 먼저다. 규칙 설명보다 구체적이다.
+            if let assessment {
+                AssessmentPanel(assessment: assessment)
+                Divider()
+            }
+
             infoLine(label: "지우면", value: finding.consequence, tint: finding.risk.tint)
 
             HStack(spacing: 20) {
@@ -160,6 +178,20 @@ struct FindingRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         .padding(.leading, 30)
+    }
+
+    /// 판정이 없는 항목만 조사한다. 한 번 조사하면 다시 하지 않는다.
+    private func assessIfNeeded() {
+        guard assessment == nil, !isAssessing, let path = finding.path else { return }
+        isAssessing = true
+
+        Task.detached(priority: .userInitiated) {
+            let result = ImportanceAssessor(paths: UserPaths.current()).assess(path)
+            await MainActor.run {
+                assessment = result
+                isAssessing = false
+            }
+        }
     }
 
     private func infoLine(label: String, value: String, tint: Color) -> some View {

@@ -108,7 +108,16 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
             return skip(finding, "안전 검사에서 걸렀습니다 [\(decision.gate)] \(decision.reason)")
         }
 
-        // ── 5. 스캔 이후 변경되지 않았는가 ───────────────────────────
+        // ── 5. 자격 증명·유일본이 아닌가 (마지막 그물) ────────────────
+        // 규칙과 관문을 다 통과했어도, 경로 자체를 다시 들여다본다.
+        // 규칙을 새로 추가하다 실수해서 자격 증명이 후보로 올라오는 경우를 막는 그물이다.
+        // `.critical` 만 막는다 — 그 아래는 사용자가 판단할 몫이라 여기서 가로채지 않는다.
+        let assessment = ImportanceAssessor(paths: paths).assess(path)
+        if assessment.level == .critical {
+            return skip(finding, "자격 증명이나 유일본으로 보여 삭제하지 않았습니다: \(assessment.headline)")
+        }
+
+        // ── 6. 스캔 이후 변경되지 않았는가 ───────────────────────────
         let measurement = usage.measure(path)
         if let scanned = finding.lastModified, let current = measurement.newestModification {
             // 1초 오차는 파일시스템 타임스탬프 정밀도 문제로 흔하다.
@@ -120,7 +129,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
         // 실제 회수량은 지금 다시 잰 값을 쓴다.
         let bytes = measurement.allocatedBytes
 
-        // ── 6. 미리보기 ──────────────────────────────────────────────
+        // ── 7. 미리보기 ──────────────────────────────────────────────
         if dryRun {
             return CleanupOutcome(
                 finding: finding,
@@ -131,7 +140,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
             )
         }
 
-        // ── 7. 실행 ──────────────────────────────────────────────────
+        // ── 8. 실행 ──────────────────────────────────────────────────
         switch finding.removal {
         case .trashItem:
             return moveToTrash(finding, path: path, bytes: bytes)

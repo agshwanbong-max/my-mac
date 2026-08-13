@@ -119,6 +119,24 @@ extension FindingCategory {
     }
 }
 
+extension DeletionVerdict {
+    var tint: Color {
+        switch self {
+        case .safe: return .green
+        case .checkFirst: return .orange
+        case .keep: return .red
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .safe: return "checkmark.circle.fill"
+        case .checkFirst: return "exclamationmark.circle.fill"
+        case .keep: return "hand.raised.fill"
+        }
+    }
+}
+
 extension RiskLevel {
     var tint: Color {
         switch self {

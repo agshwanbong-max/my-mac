@@ -134,6 +134,51 @@ case "plan", "clean":
         ? "확보 예상: \(ByteFormat.string(reclaimed))"
         : "확보: \(ByteFormat.string(reclaimed)) — 휴지통으로 옮긴 항목은 휴지통을 비워야 실제 용량이 늘어납니다.")
 
+case "inspect":
+    let targets = arguments.dropFirst().filter { !$0.hasPrefix("--") }
+    if targets.isEmpty {
+        print("경로를 지정하세요. 예: maccleanctl inspect ~/Downloads/something.dmg")
+    }
+    let assessor = ImportanceAssessor(paths: paths)
+    for target in targets {
+        let expanded = (target as NSString).expandingTildeInPath
+        let url = URL(fileURLWithPath: expanded).standardizedFileURL
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            print("찾을 수 없습니다: \(url.path)\n")
+            continue
+        }
+
+        let assessment = assessor.assess(url)
+        let mark: String
+        switch assessment.verdict {
+        case .safe: mark = "✅"
+        case .checkFirst: mark = "⚠️ "
+        case .keep: mark = "🚫"
+        }
+
+        line("━")
+        print("\(mark) \(assessment.verdict.localizedTitle)")
+        print("   \(assessment.headline)")
+        print("   지우면: \(assessment.cost)")
+        line()
+        print("경로     \(paths.abbreviate(url))")
+        print("중요도   \(assessment.level.localizedTitle)")
+        print("복구     \(assessment.recoverability.localizedTitle)")
+        if !assessment.signals.isEmpty {
+            print("근거")
+            for signal in assessment.signals {
+                let arrow: String
+                switch signal.direction {
+                case .raises: arrow = "↑"
+                case .lowers: arrow = "↓"
+                case .context: arrow = "·"
+                }
+                print("  \(arrow) \(signal.title) — \(signal.detail)")
+            }
+        }
+        print()
+    }
+
 case "log":
     let entries = AuditLog(paths: paths).recentEntries()
     if entries.isEmpty {
@@ -158,6 +203,7 @@ default:
       clean --confirm            실제로 정리 (기본은 휴지통으로 이동)
         --safe                   안전 등급만
         --include-permanent      휴지통 비우기까지 포함 (복구 불가)
+      inspect <경로> …           그 파일·폴더를 지워도 되는지 판정하고 근거를 보여준다
       log                        최근 작업 기록
     """)
 }
