@@ -89,11 +89,47 @@ swift test
 python3 Scripts/make_icon.py
 ```
 
-### 서명에 대해
+### 배포본 (서명 · 공증)
 
-애플 개발자 인증서로 서명하지 않았고, 임시(ad-hoc) 서명만 되어 있습니다.
-**직접 빌드한 맥에서는 그냥 열립니다.** 다른 맥으로 옮기면 Gatekeeper 가 막는데,
-그 맥에서 이렇게 풀 수 있습니다.
+애플 개발자 계정이 있으면 공증까지 끝낸 배포본을 만들 수 있습니다.
+공증한 앱은 **다른 맥에 그냥 옮겨도 경고 없이 열립니다.**
+
+```bash
+./Scripts/release.sh
+```
+
+준비는 한 번만 하면 됩니다.
+
+1. **Developer ID Application 인증서**
+   Xcode → Settings → Accounts → Manage Certificates → + → Developer ID Application
+   (확인: `security find-identity -v -p codesigning`)
+
+2. **공증 자격증명을 키체인에 저장**
+
+   ```bash
+   xcrun notarytool store-credentials "MacClean" \
+     --apple-id "<애플 ID>" \
+     --team-id "<10자리 팀 ID>" \
+     --password "<앱 암호>"
+   ```
+
+   앱 암호는 계정 비밀번호가 아닙니다.
+   appleid.apple.com → 로그인 및 보안 → 앱 암호 에서 만드세요.
+   팀 ID 는 developer.apple.com → Membership 에 있습니다.
+
+   **스크립트는 비밀번호를 묻지도, 파일에 적지도 않습니다.** 키체인에 맡깁니다.
+   저장소에 자격증명이 들어갈 일이 없습니다.
+
+`release.sh` 는 시작하자마자 인증서와 자격증명이 실제로 쓸 수 있는지 확인합니다.
+빌드와 공증을 다 돌린 뒤에 "인증서가 없다" 를 알게 되는 일이 없도록 하려는 것입니다.
+
+앱과 DMG 를 **각각** 공증하고 스테이플합니다. DMG 만 공증하면 사용자가 앱을 꺼낸 뒤에
+Gatekeeper 가 매번 온라인 확인을 하는데, 앱에 직접 스테이플해 두면 네트워크 없이도 바로 열립니다.
+
+### 서명하지 않고 쓰려면
+
+`package.sh` 로 만든 것은 임시(ad-hoc) 서명만 되어 있습니다.
+직접 빌드한 맥에서는 그냥 열리지만, 다른 맥으로 옮기면 Gatekeeper 가 막습니다.
 
 ```bash
 xattr -dr com.apple.quarantine /Applications/MacClean.app

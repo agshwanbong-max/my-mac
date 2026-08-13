@@ -12,7 +12,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 APP_NAME="MacClean"
-VERSION="0.1.0"
+VERSION="$(cat VERSION)"
 BUILD_DIR="build"
 APP_DIR="${BUILD_DIR}/${APP_NAME}.app"
 STAGING_DIR="${BUILD_DIR}/dmg-staging"

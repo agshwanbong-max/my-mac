@@ -10,9 +10,14 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 APP_NAME="MacClean"
-BUNDLE_ID="local.macclean.app"
+BUNDLE_ID="${MACCLEAN_BUNDLE_ID:-local.macclean.app}"
 BUILD_DIR="build"
 APP_DIR="${BUILD_DIR}/${APP_NAME}.app"
+VERSION="$(cat VERSION)"
+
+# 배포용 서명은 release.sh 가 따로 한다.
+# 여기서 임시 서명을 해두면 그쪽에서 다시 벗겨내야 하므로, 건너뛸 수 있게 한다.
+SKIP_ADHOC_SIGN="${SKIP_ADHOC_SIGN:-0}"
 
 echo "▸ 빌드 중…"
 swift build -c release --product "${APP_NAME}"
@@ -51,7 +56,7 @@ cat > "${APP_DIR}/Contents/Info.plist" <<PLIST
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>CFBundleShortVersionString</key>
-    <string>0.1.0</string>
+    <string>${VERSION}</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleExecutable</key>
@@ -68,10 +73,12 @@ cat > "${APP_DIR}/Contents/Info.plist" <<PLIST
 </plist>
 PLIST
 
-echo "▸ 임시 서명 중…"
-codesign --force --deep --sign - "${APP_DIR}" 2>/dev/null || {
-  echo "  (서명 실패 — 서명 없이 진행합니다. 첫 실행 시 Gatekeeper 경고가 뜰 수 있습니다.)"
-}
+if [ "${SKIP_ADHOC_SIGN}" != "1" ]; then
+  echo "▸ 임시 서명 중…"
+  codesign --force --sign - "${APP_DIR}" 2>/dev/null || {
+    echo "  (서명 실패 — 서명 없이 진행합니다. 첫 실행 시 Gatekeeper 경고가 뜰 수 있습니다.)"
+  }
+fi
 
 # 파인더는 아이콘을 공격적으로 캐시한다. 번들 수정 시각을 건드려 다시 읽게 만든다.
 touch "${APP_DIR}"
