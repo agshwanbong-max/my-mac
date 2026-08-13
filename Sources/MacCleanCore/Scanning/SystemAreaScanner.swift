@@ -71,7 +71,7 @@ public struct SystemAreaScanner: Scanner {
             findings.append(Finding(
                 id: "systemArea|\(entry.path)",
                 ruleID: "advice.systemArea",
-                category: .spaceBreakdown,
+                category: .systemData,
                 risk: .advisory,
                 title: entry.title,
                 detail: detail,

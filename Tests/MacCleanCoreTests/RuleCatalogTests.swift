@@ -262,3 +262,40 @@ final class SpaceBreakdownBucketTests: XCTestCase {
         XCTAssertNil(bucket(home))
     }
 }
+
+
+/// macOS 저장 공간 화면의 칸 매핑.
+///
+/// 이게 틀리면 "DeviceSupport 를 지웠는데 시스템 데이터가 그대로다" 같은 혼란이 그대로 남는다.
+final class MacOSStorageCategoryTests: XCTestCase {
+
+    /// 가장 헷갈렸던 지점. DeviceSupport 17GB 는 '시스템 데이터'가 아니라 '개발자'다.
+    func testDeveloperFolderIsNotSystemData() {
+        XCTAssertEqual(MacOSStorageCategory.forHomeBucket("Library/Developer"), .developer)
+        XCTAssertEqual(MacOSStorageCategory.forHomeBucket("Library/Developer/Xcode"), .developer)
+    }
+
+    func testLibraryFoldersCountAsSystemData() {
+        XCTAssertEqual(MacOSStorageCategory.forHomeBucket("Library/Caches"), .systemData)
+        XCTAssertEqual(MacOSStorageCategory.forHomeBucket("Library/Application Support/Claude"), .systemData)
+        XCTAssertEqual(MacOSStorageCategory.forHomeBucket("Library/Containers/com.foo"), .systemData)
+    }
+
+    func testUserFoldersCountAsDocuments() {
+        XCTAssertEqual(MacOSStorageCategory.forHomeBucket("Downloads"), .documents)
+        XCTAssertEqual(MacOSStorageCategory.forHomeBucket("Desktop"), .documents)
+        XCTAssertEqual(MacOSStorageCategory.forHomeBucket("myproject"), .documents)
+    }
+
+    func testDedicatedCategoriesAreNotSwallowedBySystemData() {
+        XCTAssertEqual(MacOSStorageCategory.forHomeBucket("Pictures"), .photos)
+        XCTAssertEqual(MacOSStorageCategory.forHomeBucket("Library/Mail"), .mail)
+        XCTAssertEqual(MacOSStorageCategory.forHomeBucket("Library/Messages"), .messages)
+    }
+
+    func testAbsolutePathsOutsideHome() {
+        XCTAssertEqual(MacOSStorageCategory.forAbsolutePath("/Applications/Xcode.app"), .applications)
+        XCTAssertEqual(MacOSStorageCategory.forAbsolutePath("/Library/Caches"), .systemData)
+        XCTAssertEqual(MacOSStorageCategory.forAbsolutePath("/private/var/folders"), .systemData)
+    }
+}

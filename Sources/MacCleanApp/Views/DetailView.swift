@@ -196,17 +196,46 @@ private struct ListHeader: View {
 private struct EmptyStateView: View {
     @EnvironmentObject private var model: AppModel
 
+    /// 시스템 데이터·용량 분포는 정밀 분석을 켜야만 나온다.
+    /// 그걸 모르면 "조회가 안 된다" 로만 보인다. 그래서 이유와 버튼을 같이 준다.
+    private var needsDeepScan: Bool {
+        guard let category = model.selectedCategory else { return false }
+        return (category == .systemData || category == .spaceBreakdown) && !model.includeDeepScan
+    }
+
     var body: some View {
-        VStack(spacing: 10) {
-            Image(systemName: "sparkles")
+        VStack(spacing: 12) {
+            Image(systemName: needsDeepScan ? "chart.pie" : "sparkles")
                 .font(.system(size: 34))
                 .symbolRenderingMode(.hierarchical)
                 .foregroundStyle(.tertiary)
-            Text(model.selectedCategory == nil ? "정리할 게 없습니다" : "이 분류에는 항목이 없습니다")
-                .font(.headline)
-            Text("깨끗한 상태입니다.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
+
+            if needsDeepScan {
+                Text("정밀 분석을 켜야 볼 수 있습니다")
+                    .font(.headline)
+                Text("""
+                    시스템 데이터가 무엇으로 채워져 있는지 알려면 홈 전체를 훑어야 합니다. \
+                    파일 수에 따라 20~40초 걸립니다. 읽기만 하고 아무것도 지우지 않습니다.
+                    """)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 420)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Button("정밀 분석 켜고 다시 검사") {
+                    model.includeDeepScan = true
+                    model.startScan()
+                }
+                .primaryAction()
+                .disabled(model.isBusy)
+            } else {
+                Text(model.selectedCategory == nil ? "정리할 게 없습니다" : "이 분류에는 항목이 없습니다")
+                    .font(.headline)
+                Text("깨끗한 상태입니다.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 60)

@@ -17,11 +17,24 @@ struct SidebarView: View {
                     count: model.report?.findings.count ?? 0
                 )
                 .tag(AppModel.SidebarItem.all)
+
+                // 데이터가 없어도 항상 띄운다.
+                // 줄 자체가 없으면 "시스템 데이터를 어디서 보나" 를 알 길이 없다.
+                // 눌렀을 때 정밀 분석을 켜라고 안내하는 편이 낫다.
+                row(
+                    title: FindingCategory.systemData.localizedTitle,
+                    symbol: FindingCategory.systemData.symbolName,
+                    tint: FindingCategory.systemData.tint,
+                    bytes: 0,
+                    count: model.report?.findings(in: .systemData).count ?? 0
+                )
+                .tag(AppModel.SidebarItem.category(.systemData))
             }
 
             if let report = model.report, !report.categoriesInOrder.isEmpty {
                 Section("분류") {
-                    ForEach(report.categoriesInOrder, id: \.self) { category in
+                    // 시스템 데이터는 위 고정 자리에 이미 있다.
+                    ForEach(report.categoriesInOrder.filter { $0 != .systemData }, id: \.self) { category in
                         row(
                             title: category.localizedTitle,
                             symbol: category.symbolName,

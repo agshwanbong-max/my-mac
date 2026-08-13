@@ -113,6 +113,33 @@ public struct SpaceBreakdownScanner: Scanner {
             ))
         }
 
+        // ── 시스템 데이터 합계 ─────────────────────────────────────────
+        // macOS 저장 공간 화면의 "시스템 데이터" 숫자와 이어붙이기 위한 것.
+        // 이게 없으면 "앱은 13GB 라는데 시스템 설정은 71GB 라니 뭐가 맞나" 가 된다.
+        let systemDataTotal = folderTotals
+            .filter { MacOSStorageCategory.forHomeBucket($0.key) == .systemData }
+            .reduce(Int64(0)) { $0 + $1.value }
+
+        if systemDataTotal > 0 {
+            findings.append(Finding(
+                id: "systemData.summary",
+                ruleID: "advice.systemDataSummary",
+                category: .systemData,
+                risk: .advisory,
+                title: "홈 안의 시스템 데이터 합계",
+                detail: "아래 항목들의 합입니다. 각 폴더를 펼쳐 '열어서 직접 고르기' 로 안을 볼 수 있습니다.",
+                consequence: "시스템 설정 > 저장 공간 의 '시스템 데이터' 숫자와 비교해 보세요. "
+                    + "여기 나온 것보다 시스템 설정 숫자가 크다면, 차이는 홈 밖(/Library, /private/var)과 "
+                    + "로컬 스냅샷입니다. 그쪽은 관리자 권한이 필요해 이 앱이 손대지 않습니다. "
+                    + "macOS 가 정확히 어떻게 세는지는 공개돼 있지 않아 이 값은 근사치입니다.",
+                path: nil,
+                reclaimableBytes: systemDataTotal,
+                itemCount: 0,
+                lastModified: nil,
+                removal: .adviseOnly
+            ))
+        }
+
         // ── 폴더별 합계 ────────────────────────────────────────────────
         let topFolders = folderTotals
             .sorted { $0.value > $1.value }
@@ -120,13 +147,16 @@ public struct SpaceBreakdownScanner: Scanner {
 
         for entry in topFolders {
             let url = home.appendingPathComponent(entry.key)
+            let storageCategory = MacOSStorageCategory.forHomeBucket(entry.key)
             findings.append(Finding(
                 id: "space.folder|\(entry.key)",
                 ruleID: "advice.spaceBreakdown",
-                category: .spaceBreakdown,
+                // 시스템 데이터로 세어지는 건 전용 화면으로 보낸다.
+                // 다른 폴더들과 섞여 있으면 macOS 숫자와 이어붙일 수가 없다.
+                category: storageCategory == .systemData ? .systemData : .spaceBreakdown,
                 risk: .advisory,
                 title: "~/\(entry.key)",
-                detail: "\(folderFileCounts[entry.key] ?? 0)개 파일",
+                detail: "\(folderFileCounts[entry.key] ?? 0)개 파일 · macOS 분류: \(storageCategory.localizedTitle)",
                 consequence: SpaceBreakdownScanner.hint(for: entry.key),
                 path: url,
                 // 안내 항목의 이 값은 '회수 가능량'이 아니라 '차지하는 용량'이다.

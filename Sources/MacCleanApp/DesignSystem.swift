@@ -82,6 +82,7 @@ extension FindingCategory {
     var symbolName: String {
         switch self {
         case .systemDataDiagnosis: return "stethoscope"
+        case .systemData: return "internaldrive"
         case .spaceBreakdown: return "chart.pie"
         case .trash: return "trash"
         case .userCache: return "shippingbox"
@@ -103,6 +104,7 @@ extension FindingCategory {
     var tint: Color {
         switch self {
         case .systemDataDiagnosis: return .orange
+        case .systemData: return .orange
         case .spaceBreakdown: return .blue
         case .trash: return .gray
         case .userCache: return .teal

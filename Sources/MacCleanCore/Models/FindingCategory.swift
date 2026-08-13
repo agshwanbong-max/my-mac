@@ -3,7 +3,8 @@ import Foundation
 /// 결과를 사람이 이해할 수 있는 묶음으로 나눈다. UI 의 섹션 단위이기도 하다.
 public enum FindingCategory: String, Codable, Sendable, CaseIterable {
     case systemDataDiagnosis   // "시스템 데이터"가 왜 큰지에 대한 진단 (스냅샷 등)
-    case spaceBreakdown        // 용량이 어디에 있는지 (정리 대상이 아니라 지도)
+    case systemData            // macOS 가 '시스템 데이터' 로 세는 것들
+    case spaceBreakdown        // 나머지 용량이 어디에 있는지 (정리 대상이 아니라 지도)
     case trash
     case userCache
     case logs
@@ -21,6 +22,7 @@ public enum FindingCategory: String, Codable, Sendable, CaseIterable {
     public var localizedTitle: String {
         switch self {
         case .systemDataDiagnosis: return "시스템 데이터 진단"
+        case .systemData: return "시스템 데이터"
         case .spaceBreakdown: return "용량 분포"
         case .trash: return "휴지통"
         case .userCache: return "앱 캐시"
@@ -42,20 +44,21 @@ public enum FindingCategory: String, Codable, Sendable, CaseIterable {
     public var sortOrder: Int {
         switch self {
         case .systemDataDiagnosis: return 0
-        case .spaceBreakdown: return 1
-        case .trash: return 2
-        case .xcode: return 3
-        case .simulators: return 4
-        case .iosBackup: return 5
-        case .developerTooling: return 6
-        case .nodeModules: return 7
-        case .userCache: return 8
-        case .browser: return 9
-        case .logs: return 10
-        case .mail: return 11
-        case .downloads: return 12
-        case .largeFiles: return 13
-        case .manualSelection: return 14
+        case .systemData: return 1
+        case .spaceBreakdown: return 2
+        case .trash: return 3
+        case .xcode: return 4
+        case .simulators: return 5
+        case .iosBackup: return 6
+        case .developerTooling: return 7
+        case .nodeModules: return 8
+        case .userCache: return 9
+        case .browser: return 10
+        case .logs: return 11
+        case .mail: return 12
+        case .downloads: return 13
+        case .largeFiles: return 14
+        case .manualSelection: return 15
         }
     }
 }
