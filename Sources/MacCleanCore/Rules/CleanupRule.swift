@@ -23,12 +23,33 @@ public enum RuleMode: String, Codable, Sendable {
 /// - 규칙이 아무리 잘못 쓰여도 `PathGuard` 를 우회할 방법이 없다
 public struct CleanupRule: Identifiable, Codable, Sendable {
     public let id: String
-    public let title: String
+
+    /// 번역 키의 뿌리. 보통은 `id` 와 같다.
+    ///
+    /// 반복문으로 찍어내는 규칙들(앱마다 하나씩 만드는 캐시 규칙 같은 것)은
+    /// 문구가 똑같고 앱 이름만 다르다. 그런 규칙은 키를 공유하고 이름만 인자로 넘긴다 —
+    /// 같은 문장을 여섯 번 번역하게 만들 이유가 없다.
+    public let textKey: String
+
+    /// 문구의 `%@` 자리에 끼워 넣을 값. 없으면 서식 인자 없이 조회한다.
+    public let textArgument: String?
+
+    /// 화면에 나오는 규칙 이름.
+    public var title: String { text("title") }
 
     /// 이게 뭔지에 대한 설명. UI 에 그대로 노출된다.
-    public let explanation: String
+    public var explanation: String { text("explanation") }
+
     /// 지웠을 때 무슨 일이 벌어지는지. 애매하면 안 된다.
-    public let consequence: String
+    public var consequence: String { text("consequence") }
+
+    /// 규칙 문구는 `Localizable.strings` 에 `rule.<키>.<항목>` 으로 들어 있다.
+    /// 그래서 규칙 목록은 순수한 구조로 남고, 번역자는 문구만 한 파일에서 검토할 수 있다.
+    private func text(_ part: String) -> String {
+        let key = "rule.\(textKey).\(part)"
+        if let argument = textArgument { return L(key, argument) }
+        return L(key)
+    }
 
     public let category: FindingCategory
     public let risk: RiskLevel
@@ -74,9 +95,8 @@ public struct CleanupRule: Identifiable, Codable, Sendable {
 
     public init(
         id: String,
-        title: String,
-        explanation: String,
-        consequence: String,
+        textKey: String? = nil,
+        textArgument: String? = nil,
         category: FindingCategory,
         risk: RiskLevel,
         path: String,
@@ -93,9 +113,8 @@ public struct CleanupRule: Identifiable, Codable, Sendable {
         suggestedCommand: String? = nil
     ) {
         self.id = id
-        self.title = title
-        self.explanation = explanation
-        self.consequence = consequence
+        self.textKey = textKey ?? id
+        self.textArgument = textArgument
         self.category = category
         self.risk = risk
         self.path = path

@@ -205,3 +205,139 @@
 "update.download" = "去下载";
 "update.upToDate" = "你使用的已是最新版本。";
 "update.failed" = "无法检查更新：%@";
+
+
+/* MARK: - 清理规则 (rule.<规则 id>.<部分>) */
+
+"rule.trash.user.title" = "清倒废纸篓";
+"rule.trash.user.explanation" = "已经删除、放进废纸篓的项目。放在这里期间仍然占用同样的磁盘空间。";
+"rule.trash.user.consequence" = "会被彻底删除。只有这一项无法撤销。";
+
+"rule.xcode.derivedData.title" = "Xcode 构建中间产物（DerivedData）";
+"rule.xcode.derivedData.explanation" = "各项目的构建缓存和索引。用 Xcode 的话，这是膨胀最快的文件夹。";
+"rule.xcode.derivedData.consequence" = "下次构建时自动重新生成。该项目的首次构建和首次索引会变慢。";
+
+"rule.xcode.iosDeviceSupport.title" = "iOS 设备支持文件";
+"rule.xcode.iosDeviceSupport.explanation" = "用真机调试时 Xcode 从设备取回并保存的符号文件。每个 iOS 版本一套，每套 1–2GB。在开发者的 Mac 上这通常是膨胀最厉害的文件夹。";
+"rule.xcode.iosDeviceSupport.consequence" = "再次连接该 iOS 版本的设备时 Xcode 会重新获取（需要几分钟）。一般只保留当前设备所用的版本。";
+
+"rule.xcode.watchOSDeviceSupport.title" = "watchOS 设备支持文件";
+"rule.xcode.watchOSDeviceSupport.explanation" = "用于 Apple Watch 真机调试的符号文件。";
+"rule.xcode.watchOSDeviceSupport.consequence" = "再次连接该设备时会重新获取。";
+
+"rule.xcode.tvOSDeviceSupport.title" = "tvOS 设备支持文件";
+"rule.xcode.tvOSDeviceSupport.explanation" = "用于 Apple TV 真机调试的符号文件。";
+"rule.xcode.tvOSDeviceSupport.consequence" = "再次连接该设备时会重新获取。";
+
+"rule.xcode.archives.title" = "Xcode 归档";
+"rule.xcode.archives.explanation" = "提交到 App Store 或 TestFlight 的构建归档，里面含有 dSYM（符号文件）。";
+"rule.xcode.archives.consequence" = "⚠️ 要解析已发布版本的崩溃日志，需要那个版本的 dSYM。只在构建未发布、或已另行备份 dSYM 时才删除。";
+
+"rule.xcode.cache.title" = "Xcode 自身的缓存";
+"rule.xcode.cache.explanation" = "Xcode 自用的一般缓存。";
+"rule.xcode.cache.consequence" = "Xcode 会自行重新生成。";
+
+"rule.xcode.iosSoftwareUpdates.title" = "iOS 恢复镜像（.ipsw）";
+"rule.xcode.iosSoftwareUpdates.explanation" = "恢复或更新 iPhone / iPad 时下载的固件文件，每个 7–10GB。";
+"rule.xcode.iosSoftwareUpdates.consequence" = "需要时会重新下载。大多数不会再用第二次。";
+
+"rule.simulator.dyldCache.title" = "模拟器 dyld 缓存";
+"rule.simulator.dyldCache.explanation" = "为加快模拟器启动而生成的缓存。";
+"rule.simulator.dyldCache.consequence" = "下次启动模拟器时重新生成，仅那一次会变慢。";
+
+"rule.dev.npmCache.title" = "npm 缓存";
+"rule.dev.npmCache.explanation" = "npm 下载并保留的软件包 tarball。";
+"rule.dev.npmCache.consequence" = "下次安装时重新下载。只是安装稍慢，不影响运行。";
+
+"rule.dev.yarnCache.title" = "Yarn 缓存";
+"rule.dev.yarnCache.explanation" = "Yarn 下载并保留的软件包。";
+"rule.dev.yarnCache.consequence" = "下次安装时重新下载。";
+
+"rule.dev.pnpmStore.title" = "pnpm 存储库";
+"rule.dev.pnpmStore.explanation" = "pnpm 只存一份软件包、再用硬链接接入各个项目的存储库。";
+"rule.dev.pnpmStore.consequence" = "⚠️ 删除会**破坏所有已安装项目的 node_modules 链接。** 需要在每个项目里重新运行 `pnpm install`。";
+
+"rule.dev.pipCache.title" = "pip 缓存";
+"rule.dev.pipCache.explanation" = "pip 下载并保留的 wheel 文件。";
+"rule.dev.pipCache.consequence" = "下次安装时重新下载。";
+
+"rule.dev.homebrewCache.title" = "Homebrew 下载缓存";
+"rule.dev.homebrewCache.explanation" = "用 brew 安装时下载的原始文件仍留在这里。";
+"rule.dev.homebrewCache.consequence" = "重新安装时会再次下载。已安装的程序本身不受影响。";
+
+"rule.dev.swiftpmCache.title" = "Swift Package Manager 缓存";
+"rule.dev.swiftpmCache.explanation" = "SPM 下载的软件包仓库缓存。";
+"rule.dev.swiftpmCache.consequence" = "下次解析（resolve）时重新下载。";
+
+"rule.dev.cocoapodsCache.title" = "CocoaPods 缓存";
+"rule.dev.cocoapodsCache.explanation" = "CocoaPods 下载并保留的库。";
+"rule.dev.cocoapodsCache.consequence" = "下次 `pod install` 时重新下载。";
+
+"rule.dev.puppeteerChromium.title" = "Puppeteer / Playwright 浏览器";
+"rule.dev.puppeteerChromium.explanation" = "为自动化测试下载的 Chromium 构建，每个版本一套。";
+"rule.dev.puppeteerChromium.consequence" = "下次使用该工具时会重新下载。";
+
+"rule.cache.userCaches.title" = "App 缓存";
+"rule.cache.userCaches.explanation" = "各个 App 存放可重新生成的临时数据的地方。";
+"rule.cache.userCaches.consequence" = "各 App 会按需重新生成。首次打开时可能会短暂变慢。";
+
+"rule.cache.containerCaches.title" = "沙盒 App 缓存";
+"rule.cache.containerCaches.explanation" = "App Store 应用在自己容器内生成的缓存。App 数据和文稿在别的文件夹，不受影响。";
+"rule.cache.containerCaches.consequence" = "各 App 会重新生成。";
+
+"rule.wallpaper.aerialVideos.title" = "动态墙纸与屏保影片";
+"rule.wallpaper.aerialVideos.explanation" = "macOS 下载的航拍视频墙纸。每段 600–900MB，只要预览过一次就会下载，之后一直留着。";
+"rule.wallpaper.aerialVideos.consequence" = "重新选择该墙纸时 macOS 会再次下载。⚠️ 如果你当前使用的墙纸在其中，重新下载完成前可能显示为静态画面。它会进废纸篓，不对劲可以放回。";
+
+"rule.dev.pubCache.title" = "Dart 与 Flutter 软件包缓存（.pub-cache）";
+"rule.dev.pubCache.explanation" = "pub 下载的 Dart / Flutter 软件包。";
+"rule.dev.pubCache.consequence" = "下次 `flutter pub get` 时重新下载。项目源码不受影响。";
+
+"rule.dev.gradleCache.title" = "Gradle 缓存";
+"rule.dev.gradleCache.explanation" = "Android 构建所用的 Gradle 依赖与构建缓存。";
+"rule.dev.gradleCache.consequence" = "下次构建时重新下载并重新生成，那次构建会很久。";
+
+"rule.dev.flutterEngineCache.title" = "Flutter 引擎缓存";
+"rule.dev.flutterEngineCache.explanation" = "Flutter SDK 按版本下载的引擎二进制文件。";
+"rule.dev.flutterEngineCache.consequence" = "下次构建时重新下载。";
+
+"rule.logs.userLogs.title" = "用户日志";
+"rule.logs.userLogs.explanation" = "各 App 留下的日志文件。";
+"rule.logs.userLogs.consequence" = "删除不影响 App 运行，只是丢失排查问题的历史记录。";
+
+"rule.logs.diagnosticReports.title" = "崩溃报告";
+"rule.logs.diagnosticReports.explanation" = "App 崩溃时留下的诊断报告。";
+"rule.logs.diagnosticReports.consequence" = "删除没有影响。如果需要把崩溃日志发给开发者，请保留。";
+
+"rule.browser.chromeCache.title" = "Chrome 缓存";
+"rule.browser.chromeCache.explanation" = "Chrome 为加快打开网页而保存的缓存。书签、密码和登录状态在别的文件夹，不受影响。";
+"rule.browser.chromeCache.consequence" = "网页首次加载会稍慢，不会退出登录。";
+
+"rule.browser.safariCache.title" = "Safari 缓存";
+"rule.browser.safariCache.explanation" = "Safari 的网页缓存。历史记录、书签和密码不会被碰。";
+"rule.browser.safariCache.consequence" = "网页首次加载会稍慢，不会退出登录。";
+
+"rule.browser.firefoxCache.title" = "Firefox 缓存";
+"rule.browser.firefoxCache.explanation" = "Firefox 的网页缓存。配置文件（书签、密码）在别的文件夹。";
+"rule.browser.firefoxCache.consequence" = "网页首次加载会稍慢。";
+
+"rule.mail.downloads.title" = "邮件附件副本";
+"rule.mail.downloads.explanation" = "在邮件中打开附件时生成的临时副本。邮件本身和原始附件都会保留。";
+"rule.mail.downloads.consequence" = "再次打开附件时会重新生成。邮件里不会少任何东西。";
+
+"rule.downloads.oldInstallers.title" = "旧的安装文件";
+"rule.downloads.oldInstallers.explanation" = "留在下载文件夹里的安装镜像和安装包。装好之后通常就不需要了。";
+"rule.downloads.oldInstallers.consequence" = "移到废纸篓。需要的话可以从废纸篓放回。";
+
+"rule.advice.quicklookThumbnails.title" = "快速查看缩略图缓存";
+"rule.advice.quicklookThumbnails.explanation" = "访达预览缩略图的缓存，位于系统管理的临时文件夹中。";
+"rule.advice.quicklookThumbnails.consequence" = "要自行清理，请在终端里运行下面的命令。缩略图会按需重新生成。";
+
+/* 循环为每个 App 生成的规则。%@ 是 App 或文件夹名。 */
+"rule.appsupport.cache.title" = "App 内部缓存（%@）";
+"rule.appsupport.cache.explanation" = "App 在自己文件夹内生成的缓存。设置、登录状态和文稿在别的文件夹，不受影响。";
+"rule.appsupport.cache.consequence" = "App 需要时会重新生成。下次打开可能会短暂变慢。";
+
+"rule.appsupport.partitionCache.title" = "%@ 分区缓存";
+"rule.appsupport.partitionCache.explanation" = "%@ 为各类网页内容分别生成的缓存。";
+"rule.appsupport.partitionCache.consequence" = "App 会重新生成。";

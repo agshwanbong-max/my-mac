@@ -48,12 +48,31 @@ final class RuleCatalogTests: XCTestCase {
         }
     }
 
-    /// 모든 규칙은 사람에게 보여줄 설명을 갖고 있어야 한다.
-    func testEveryRuleExplainsItself() {
-        for rule in rules {
-            XCTAssertFalse(rule.title.isEmpty, "'\(rule.id)' 에 제목이 없습니다")
-            XCTAssertFalse(rule.explanation.isEmpty, "'\(rule.id)' 에 설명이 없습니다")
-            XCTAssertFalse(rule.consequence.isEmpty, "'\(rule.id)' 에 '지우면 어떻게 되는지' 설명이 없습니다")
+    /// 모든 규칙은 사람에게 보여줄 설명을 **모든 언어에서** 갖고 있어야 한다.
+    ///
+    /// 규칙 문구는 이제 `Localizable.strings` 에 있다. 규칙만 추가하고 문구를 안 넣으면
+    /// 화면에 `rule.dev.newThing.title` 이 그대로 찍힌다.
+    /// 조회가 키를 그대로 돌려준다는 건 번역이 없다는 뜻이므로, 그걸로 잡는다.
+    func testEveryRuleExplainsItselfInEveryLanguage() throws {
+        for language in L10n.bundle.localizations.filter({ $0 != "Base" }) {
+            let url = try XCTUnwrap(
+                L10n.bundle.url(
+                    forResource: "Localizable", withExtension: "strings",
+                    subdirectory: nil, localization: language
+                ))
+            let table = try XCTUnwrap(NSDictionary(contentsOf: url) as? [String: String])
+
+            for rule in rules {
+                for part in ["title", "explanation", "consequence"] {
+                    let key = "rule.\(rule.textKey).\(part)"
+                    let text = table[key]
+                    XCTAssertNotNil(text, "[\(language)] \(key) 문구가 없습니다")
+                    XCTAssertFalse(
+                        text?.isEmpty ?? true,
+                        "[\(language)] \(key) 문구가 비어 있습니다"
+                    )
+                }
+            }
         }
     }
 

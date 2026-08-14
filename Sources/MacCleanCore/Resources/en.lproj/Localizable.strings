@@ -208,3 +208,139 @@
 "update.download" = "Get It";
 "update.upToDate" = "You're on the latest version.";
 "update.failed" = "Couldn't check for updates: %@";
+
+
+/* MARK: - Cleanup rules (rule.<rule id>.<part>) */
+
+"rule.trash.user.title" = "Empty the Trash";
+"rule.trash.user.explanation" = "Items you already deleted. They still take up the same disk space while they sit here.";
+"rule.trash.user.consequence" = "Permanently deleted. This is the one thing that cannot be undone.";
+
+"rule.xcode.derivedData.title" = "Xcode build intermediates (DerivedData)";
+"rule.xcode.derivedData.explanation" = "Per-project build caches and indexes. The fastest-growing folder on any Mac that runs Xcode.";
+"rule.xcode.derivedData.consequence" = "Rebuilt automatically on the next build. That project's first build and first indexing pass will be slow.";
+
+"rule.xcode.iosDeviceSupport.title" = "iOS device support files";
+"rule.xcode.iosDeviceSupport.explanation" = "Symbol files Xcode pulled off your devices while debugging on real hardware. One set per iOS version, 1–2GB each. On a developer's Mac this is usually the biggest offender.";
+"rule.xcode.iosDeviceSupport.consequence" = "Xcode fetches them again the next time you connect a device on that iOS version (takes a few minutes). Most people keep only the version their current device runs.";
+
+"rule.xcode.watchOSDeviceSupport.title" = "watchOS device support files";
+"rule.xcode.watchOSDeviceSupport.explanation" = "Symbol files for debugging on a physical Apple Watch.";
+"rule.xcode.watchOSDeviceSupport.consequence" = "Fetched again the next time you connect that device.";
+
+"rule.xcode.tvOSDeviceSupport.title" = "tvOS device support files";
+"rule.xcode.tvOSDeviceSupport.explanation" = "Symbol files for debugging on a physical Apple TV.";
+"rule.xcode.tvOSDeviceSupport.consequence" = "Fetched again the next time you connect that device.";
+
+"rule.xcode.archives.title" = "Xcode archives";
+"rule.xcode.archives.explanation" = "Archives of builds you shipped to the App Store or TestFlight. They contain the dSYMs (symbol files).";
+"rule.xcode.archives.consequence" = "⚠️ You need a version's dSYM to symbolicate crash logs from that version. Delete only builds you never shipped, or ones whose dSYMs you backed up separately.";
+
+"rule.xcode.cache.title" = "Xcode's own cache";
+"rule.xcode.cache.explanation" = "General-purpose cache Xcode keeps for itself.";
+"rule.xcode.cache.consequence" = "Xcode rebuilds it on its own.";
+
+"rule.xcode.iosSoftwareUpdates.title" = "iOS restore images (.ipsw)";
+"rule.xcode.iosSoftwareUpdates.explanation" = "Firmware files downloaded when restoring or updating an iPhone or iPad. 7–10GB each.";
+"rule.xcode.iosSoftwareUpdates.consequence" = "Downloaded again if you ever need one. Most are never used twice.";
+
+"rule.simulator.dyldCache.title" = "Simulator dyld cache";
+"rule.simulator.dyldCache.explanation" = "A cache built to make the simulator launch faster.";
+"rule.simulator.dyldCache.consequence" = "Rebuilt on the next simulator launch. That one launch is slower.";
+
+"rule.dev.npmCache.title" = "npm cache";
+"rule.dev.npmCache.explanation" = "Package tarballs npm downloaded and kept.";
+"rule.dev.npmCache.consequence" = "Downloaded again on the next install. Installs get a little slower, nothing else changes.";
+
+"rule.dev.yarnCache.title" = "Yarn cache";
+"rule.dev.yarnCache.explanation" = "Packages Yarn downloaded and kept.";
+"rule.dev.yarnCache.consequence" = "Downloaded again on the next install.";
+
+"rule.dev.pnpmStore.title" = "pnpm store";
+"rule.dev.pnpmStore.explanation" = "The store where pnpm keeps one copy of each package and hard-links it into every project.";
+"rule.dev.pnpmStore.consequence" = "⚠️ Deleting it **breaks the node_modules links in every project you already installed.** You will have to run `pnpm install` again in each one.";
+
+"rule.dev.pipCache.title" = "pip cache";
+"rule.dev.pipCache.explanation" = "Wheel files pip downloaded and kept.";
+"rule.dev.pipCache.consequence" = "Downloaded again on the next install.";
+
+"rule.dev.homebrewCache.title" = "Homebrew download cache";
+"rule.dev.homebrewCache.explanation" = "The original files brew downloaded while installing, still sitting around.";
+"rule.dev.homebrewCache.consequence" = "Downloaded again when you reinstall. The installed programs themselves are untouched.";
+
+"rule.dev.swiftpmCache.title" = "Swift Package Manager cache";
+"rule.dev.swiftpmCache.explanation" = "Package repository caches SPM downloaded.";
+"rule.dev.swiftpmCache.consequence" = "Downloaded again on the next resolve.";
+
+"rule.dev.cocoapodsCache.title" = "CocoaPods cache";
+"rule.dev.cocoapodsCache.explanation" = "Libraries CocoaPods downloaded and kept.";
+"rule.dev.cocoapodsCache.consequence" = "Downloaded again on the next `pod install`.";
+
+"rule.dev.puppeteerChromium.title" = "Puppeteer / Playwright browsers";
+"rule.dev.puppeteerChromium.explanation" = "Chromium builds downloaded for automated testing. One set per version.";
+"rule.dev.puppeteerChromium.consequence" = "Downloaded again the next time you use that tool.";
+
+"rule.cache.userCaches.title" = "App caches";
+"rule.cache.userCaches.explanation" = "Where apps put temporary data they can rebuild.";
+"rule.cache.userCaches.consequence" = "Each app rebuilds what it needs. Apps may be briefly slower the first time you open them.";
+
+"rule.cache.containerCaches.title" = "Sandboxed app caches";
+"rule.cache.containerCaches.explanation" = "Caches App Store apps keep inside their own containers. App data and documents live elsewhere and are untouched.";
+"rule.cache.containerCaches.consequence" = "Each app rebuilds them.";
+
+"rule.wallpaper.aerialVideos.title" = "Video wallpapers and screen saver footage";
+"rule.wallpaper.aerialVideos.explanation" = "Aerial video wallpapers macOS downloaded. 600–900MB each, fetched the moment you preview one and kept forever after.";
+"rule.wallpaper.aerialVideos.consequence" = "macOS downloads it again if you pick that wallpaper. ⚠️ If your current wallpaper is one of these, it may show as a still image until it downloads again. It goes to the Trash, so you can put it back.";
+
+"rule.dev.pubCache.title" = "Dart & Flutter package cache (.pub-cache)";
+"rule.dev.pubCache.explanation" = "Dart and Flutter packages pub downloaded.";
+"rule.dev.pubCache.consequence" = "Downloaded again on the next `flutter pub get`. Your project source is untouched.";
+
+"rule.dev.gradleCache.title" = "Gradle cache";
+"rule.dev.gradleCache.explanation" = "Gradle's dependency and build caches, used for Android builds.";
+"rule.dev.gradleCache.consequence" = "Re-downloaded and rebuilt on the next build. That build takes a long time.";
+
+"rule.dev.flutterEngineCache.title" = "Flutter engine cache";
+"rule.dev.flutterEngineCache.explanation" = "Engine binaries the Flutter SDK downloaded, one set per version.";
+"rule.dev.flutterEngineCache.consequence" = "Downloaded again on the next build.";
+
+"rule.logs.userLogs.title" = "User logs";
+"rule.logs.userLogs.explanation" = "Log files apps left behind.";
+"rule.logs.userLogs.consequence" = "No effect on how apps run. You only lose the troubleshooting history.";
+
+"rule.logs.diagnosticReports.title" = "Crash reports";
+"rule.logs.diagnosticReports.explanation" = "Diagnostic reports left behind when an app crashed.";
+"rule.logs.diagnosticReports.consequence" = "No effect. Keep them if you need to send a crash log to an app's developer.";
+
+"rule.browser.chromeCache.title" = "Chrome cache";
+"rule.browser.chromeCache.explanation" = "Pages Chrome stored to load faster. Bookmarks, passwords and sign-in state live in a different folder and are untouched.";
+"rule.browser.chromeCache.consequence" = "Pages load a little slower the first time. You will not be signed out.";
+
+"rule.browser.safariCache.title" = "Safari cache";
+"rule.browser.safariCache.explanation" = "Safari's web cache. History, bookmarks and passwords are not touched.";
+"rule.browser.safariCache.consequence" = "Pages load a little slower the first time. You will not be signed out.";
+
+"rule.browser.firefoxCache.title" = "Firefox cache";
+"rule.browser.firefoxCache.explanation" = "Firefox's web cache. Your profile (bookmarks and passwords) lives in a different folder.";
+"rule.browser.firefoxCache.consequence" = "Pages load a little slower the first time.";
+
+"rule.mail.downloads.title" = "Mail attachment copies";
+"rule.mail.downloads.explanation" = "Temporary copies created when you open an attachment from Mail. The messages and the original attachments stay put.";
+"rule.mail.downloads.consequence" = "Recreated when you open the attachment again. Nothing disappears from Mail.";
+
+"rule.downloads.oldInstallers.title" = "Old installers";
+"rule.downloads.oldInstallers.explanation" = "Disk images and packages left in your Downloads folder. Once the app is installed you usually don't need them.";
+"rule.downloads.oldInstallers.consequence" = "Moved to the Trash. You can put them back if you need them.";
+
+"rule.advice.quicklookThumbnails.title" = "Quick Look thumbnail cache";
+"rule.advice.quicklookThumbnails.explanation" = "Finder's preview thumbnail cache. It lives in a system-managed temporary folder.";
+"rule.advice.quicklookThumbnails.consequence" = "To clear it yourself, run the command below in Terminal. Thumbnails are rebuilt as needed.";
+
+/* Rules generated per app in a loop. %@ is the app or folder name. */
+"rule.appsupport.cache.title" = "In-app cache (%@)";
+"rule.appsupport.cache.explanation" = "A cache the app built inside its own folder. Settings, sign-in state and documents live elsewhere and are unaffected.";
+"rule.appsupport.cache.consequence" = "The app rebuilds it when needed. It may be briefly slow the next time you open it.";
+
+"rule.appsupport.partitionCache.title" = "%@ partition cache";
+"rule.appsupport.partitionCache.explanation" = "Caches %@ keeps separately for each piece of web content.";
+"rule.appsupport.partitionCache.consequence" = "The app rebuilds it.";

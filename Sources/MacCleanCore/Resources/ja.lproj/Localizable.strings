@@ -205,3 +205,139 @@
 "update.download" = "入手する";
 "update.upToDate" = "最新バージョンをお使いです。";
 "update.failed" = "アップデートを確認できませんでした: %@";
+
+
+/* MARK: - 整理ルール (rule.<ルール id>.<項目>) */
+
+"rule.trash.user.title" = "ゴミ箱を空にする";
+"rule.trash.user.explanation" = "すでに削除してゴミ箱に入っている項目です。ここにある間もディスク容量はそのまま占有されます。";
+"rule.trash.user.consequence" = "完全に削除されます。これだけは元に戻せません。";
+
+"rule.xcode.derivedData.title" = "Xcode のビルド中間生成物（DerivedData）";
+"rule.xcode.derivedData.explanation" = "プロジェクトごとのビルドキャッシュとインデックスです。Xcode を使っていると最も速く膨らむフォルダです。";
+"rule.xcode.derivedData.consequence" = "次のビルドで自動的に作り直されます。そのプロジェクトの初回ビルドと初回インデックスが遅くなります。";
+
+"rule.xcode.iosDeviceSupport.title" = "iOS デバイスサポートファイル";
+"rule.xcode.iosDeviceSupport.explanation" = "実機デバッグの際に Xcode がデバイスから取得して保存したシンボルファイルです。iOS のバージョンごとに一式たまり、1つ 1〜2GB あります。開発者の Mac で最も大きく膨らむフォルダです。";
+"rule.xcode.iosDeviceSupport.consequence" = "その iOS バージョンのデバイスを再接続すると Xcode が取得し直します（数分かかります）。今使っているデバイスのバージョンだけ残すのが一般的です。";
+
+"rule.xcode.watchOSDeviceSupport.title" = "watchOS デバイスサポートファイル";
+"rule.xcode.watchOSDeviceSupport.explanation" = "Apple Watch の実機デバッグ用シンボルファイルです。";
+"rule.xcode.watchOSDeviceSupport.consequence" = "そのデバイスを再接続すると取得し直します。";
+
+"rule.xcode.tvOSDeviceSupport.title" = "tvOS デバイスサポートファイル";
+"rule.xcode.tvOSDeviceSupport.explanation" = "Apple TV の実機デバッグ用シンボルファイルです。";
+"rule.xcode.tvOSDeviceSupport.consequence" = "そのデバイスを再接続すると取得し直します。";
+
+"rule.xcode.archives.title" = "Xcode アーカイブ";
+"rule.xcode.archives.explanation" = "App Store や TestFlight に提出したビルドのアーカイブです。中に dSYM（シンボルファイル）が入っています。";
+"rule.xcode.archives.consequence" = "⚠️ 配布済みバージョンのクラッシュログを解析するには、そのバージョンの dSYM が必要です。未リリースのビルドか、dSYM を別途バックアップしてある場合だけ削除してください。";
+
+"rule.xcode.cache.title" = "Xcode 自体のキャッシュ";
+"rule.xcode.cache.explanation" = "Xcode が使う一般的なキャッシュです。";
+"rule.xcode.cache.consequence" = "Xcode が自動で作り直します。";
+
+"rule.xcode.iosSoftwareUpdates.title" = "iOS 復元イメージ（.ipsw）";
+"rule.xcode.iosSoftwareUpdates.explanation" = "iPhone / iPad の復元やアップデート時にダウンロードしたファームウェアです。1つ 7〜10GB あります。";
+"rule.xcode.iosSoftwareUpdates.consequence" = "必要になれば再ダウンロードされます。ほとんどは二度と使いません。";
+
+"rule.simulator.dyldCache.title" = "シミュレータの dyld キャッシュ";
+"rule.simulator.dyldCache.explanation" = "シミュレータの起動を速くするために作られるキャッシュです。";
+"rule.simulator.dyldCache.consequence" = "次のシミュレータ起動時に作り直されます。その一度だけ遅くなります。";
+
+"rule.dev.npmCache.title" = "npm キャッシュ";
+"rule.dev.npmCache.explanation" = "npm がダウンロードして保持しているパッケージの tarball です。";
+"rule.dev.npmCache.consequence" = "次のインストール時に再ダウンロードされます。少し遅くなるだけで動作に影響はありません。";
+
+"rule.dev.yarnCache.title" = "Yarn キャッシュ";
+"rule.dev.yarnCache.explanation" = "Yarn がダウンロードして保持しているパッケージです。";
+"rule.dev.yarnCache.consequence" = "次のインストール時に再ダウンロードされます。";
+
+"rule.dev.pnpmStore.title" = "pnpm ストア";
+"rule.dev.pnpmStore.explanation" = "pnpm がパッケージを1部だけ置き、プロジェクトごとにハードリンクでつなぐためのストアです。";
+"rule.dev.pnpmStore.consequence" = "⚠️ 削除すると**インストール済みプロジェクトの node_modules のリンクが壊れます。** 各プロジェクトで `pnpm install` をやり直す必要があります。";
+
+"rule.dev.pipCache.title" = "pip キャッシュ";
+"rule.dev.pipCache.explanation" = "pip がダウンロードして保持している wheel ファイルです。";
+"rule.dev.pipCache.consequence" = "次のインストール時に再ダウンロードされます。";
+
+"rule.dev.homebrewCache.title" = "Homebrew のダウンロードキャッシュ";
+"rule.dev.homebrewCache.explanation" = "brew でインストールした際にダウンロードした元ファイルが残っているものです。";
+"rule.dev.homebrewCache.consequence" = "再インストール時にダウンロードし直します。インストール済みのプログラム自体はそのままです。";
+
+"rule.dev.swiftpmCache.title" = "Swift Package Manager キャッシュ";
+"rule.dev.swiftpmCache.explanation" = "SPM がダウンロードしたパッケージリポジトリのキャッシュです。";
+"rule.dev.swiftpmCache.consequence" = "次の解決（resolve）時に再ダウンロードされます。";
+
+"rule.dev.cocoapodsCache.title" = "CocoaPods キャッシュ";
+"rule.dev.cocoapodsCache.explanation" = "CocoaPods がダウンロードして保持しているライブラリです。";
+"rule.dev.cocoapodsCache.consequence" = "次の `pod install` 時に再ダウンロードされます。";
+
+"rule.dev.puppeteerChromium.title" = "Puppeteer / Playwright のブラウザ";
+"rule.dev.puppeteerChromium.explanation" = "自動テスト用にダウンロードした Chromium ビルドです。バージョンごとに一式たまります。";
+"rule.dev.puppeteerChromium.consequence" = "そのツールを次に使うときに再ダウンロードされます。";
+
+"rule.cache.userCaches.title" = "アプリのキャッシュ";
+"rule.cache.userCaches.explanation" = "アプリが作り直せる一時データを置いておく場所です。";
+"rule.cache.userCaches.consequence" = "各アプリが必要に応じて作り直します。次に開くとき一瞬遅くなることがあります。";
+
+"rule.cache.containerCaches.title" = "サンドボックスアプリのキャッシュ";
+"rule.cache.containerCaches.explanation" = "App Store アプリが自身のコンテナ内に作るキャッシュです。アプリのデータや書類は別のフォルダなので影響しません。";
+"rule.cache.containerCaches.consequence" = "各アプリが作り直します。";
+
+"rule.wallpaper.aerialVideos.title" = "動画の壁紙・スクリーンセーバ映像";
+"rule.wallpaper.aerialVideos.explanation" = "macOS がダウンロードした空撮映像の壁紙です。1本 600〜900MB あり、一度プレビューしただけでダウンロードされ、その後もずっと残ります。";
+"rule.wallpaper.aerialVideos.consequence" = "その壁紙を選び直せば macOS が再ダウンロードします。⚠️ 現在使用中の壁紙がここにあると、再ダウンロードされるまで静止画として表示される場合があります。ゴミ箱に入るので、おかしければ元に戻せます。";
+
+"rule.dev.pubCache.title" = "Dart・Flutter パッケージキャッシュ（.pub-cache）";
+"rule.dev.pubCache.explanation" = "pub がダウンロードした Dart / Flutter のパッケージです。";
+"rule.dev.pubCache.consequence" = "次の `flutter pub get` 時に再ダウンロードされます。プロジェクトのソースはそのままです。";
+
+"rule.dev.gradleCache.title" = "Gradle キャッシュ";
+"rule.dev.gradleCache.explanation" = "Android ビルドで使う Gradle の依存関係・ビルドキャッシュです。";
+"rule.dev.gradleCache.consequence" = "次のビルドで再ダウンロード・再生成されます。そのビルドに時間がかかります。";
+
+"rule.dev.flutterEngineCache.title" = "Flutter エンジンキャッシュ";
+"rule.dev.flutterEngineCache.explanation" = "Flutter SDK がバージョンごとにダウンロードしたエンジンバイナリです。";
+"rule.dev.flutterEngineCache.consequence" = "次のビルド時に再ダウンロードされます。";
+
+"rule.logs.userLogs.title" = "ユーザログ";
+"rule.logs.userLogs.explanation" = "アプリが残したログファイルです。";
+"rule.logs.userLogs.consequence" = "削除してもアプリの動作に影響はありません。問題調査の履歴が消えるだけです。";
+
+"rule.logs.diagnosticReports.title" = "クラッシュレポート";
+"rule.logs.diagnosticReports.explanation" = "アプリが落ちたときに残った診断レポートです。";
+"rule.logs.diagnosticReports.consequence" = "削除しても影響ありません。開発者に送るクラッシュログが必要なら残してください。";
+
+"rule.browser.chromeCache.title" = "Chrome キャッシュ";
+"rule.browser.chromeCache.explanation" = "Chrome がページを速く開くために保存したキャッシュです。ブックマーク・パスワード・ログイン状態は別のフォルダなので影響しません。";
+"rule.browser.chromeCache.consequence" = "ページの初回読み込みが少し遅くなります。ログアウトはされません。";
+
+"rule.browser.safariCache.title" = "Safari キャッシュ";
+"rule.browser.safariCache.explanation" = "Safari の Web キャッシュです。履歴・ブックマーク・パスワードには触れません。";
+"rule.browser.safariCache.consequence" = "ページの初回読み込みが少し遅くなります。ログアウトはされません。";
+
+"rule.browser.firefoxCache.title" = "Firefox キャッシュ";
+"rule.browser.firefoxCache.explanation" = "Firefox の Web キャッシュです。プロファイル（ブックマーク・パスワード）は別のフォルダにあります。";
+"rule.browser.firefoxCache.consequence" = "ページの初回読み込みが少し遅くなります。";
+
+"rule.mail.downloads.title" = "メール添付の一時コピー";
+"rule.mail.downloads.explanation" = "メールで添付ファイルを開いたときに作られる一時コピーです。メール本体と元の添付ファイルはそのまま残ります。";
+"rule.mail.downloads.consequence" = "添付ファイルを再度開けば作り直されます。メールから消えるものはありません。";
+
+"rule.downloads.oldInstallers.title" = "古いインストーラ";
+"rule.downloads.oldInstallers.explanation" = "ダウンロードフォルダに残ったインストール用のディスクイメージやパッケージです。インストール済みなら通常は不要です。";
+"rule.downloads.oldInstallers.consequence" = "ゴミ箱に移動します。必要ならゴミ箱から戻せます。";
+
+"rule.advice.quicklookThumbnails.title" = "クイックルックのサムネイルキャッシュ";
+"rule.advice.quicklookThumbnails.explanation" = "Finder のプレビュー用サムネイルキャッシュです。システムが管理する一時フォルダにあります。";
+"rule.advice.quicklookThumbnails.consequence" = "自分で消すには下のコマンドをターミナルで実行してください。サムネイルは必要に応じて作り直されます。";
+
+/* ループでアプリごとに作るルール。%@ はアプリ・フォルダ名。 */
+"rule.appsupport.cache.title" = "アプリ内部のキャッシュ（%@）";
+"rule.appsupport.cache.explanation" = "アプリが自分のフォルダ内に作ったキャッシュです。設定・ログイン状態・書類は別のフォルダなので影響しません。";
+"rule.appsupport.cache.consequence" = "アプリが必要なときに作り直します。次に開くとき一瞬遅くなることがあります。";
+
+"rule.appsupport.partitionCache.title" = "%@ のパーティションキャッシュ";
+"rule.appsupport.partitionCache.explanation" = "%@ が Web コンテンツごとに分けて作ったキャッシュです。";
+"rule.appsupport.partitionCache.consequence" = "アプリが作り直します。";
