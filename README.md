@@ -170,15 +170,13 @@ xattr -dr com.apple.quarantine /Applications/MacClean.app
 내려받기 단추는 `appcast.json` 을 읽어 최신 버전을 자동으로 가리킵니다.
 **릴리스를 올리면 페이지는 손댈 필요가 없습니다.** 못 읽으면 릴리스 목록으로 넘어갑니다.
 
-설정할 곳은 두 군데뿐이고, 비워두면 해당 영역이 화면에서 사라집니다.
+설정할 곳은 `docs/assets/support.js` 의 `SPONSORS` 한 줄뿐입니다.
+[GitHub Sponsors](https://github.com/sponsors) 등록이 끝나면 생기는 주소를 넣습니다.
+비워두면 후원 칸이 화면에서 통째로 사라지므로, 승인 전에는 그대로 두면 됩니다.
 
-| 파일 | 채울 것 |
-| --- | --- |
-| `docs/assets/support.js` | `SPONSORS` — GitHub Sponsors 주소 |
-| `docs/assets/ads.js` | `CLIENT`, `SLOTS` — 애드센스 게시자 ID 와 광고 단위 ID |
-
-광고는 **웹페이지에만** 있습니다. 전체 디스크 접근을 요구하는 앱 안에 광고를 넣으면
-권한을 내주게 만드는 신뢰가 먼저 무너집니다. 앱은 네트워크를 업데이트 확인 한 가지에만 씁니다.
+**광고는 넣지 않습니다.** 앱에도, 이 사이트에도. 페이지에서 나가는 외부 요청은
+최신 버전을 확인하는 `appcast.json` 하나뿐이고, 추적 스크립트는 없습니다.
+전체 디스크 접근을 요구하는 앱에서 광고는 권한을 내주게 만드는 신뢰를 먼저 깎습니다.
 
 ---
 

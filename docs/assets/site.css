@@ -267,21 +267,6 @@ pre code { background: none; padding: 0; }
   place-items: center;
 }
 
-/* ── 광고 ──────────────────────────────────────────────── */
-
-/* 광고를 켜기 전에는 자리 자체가 없어야 한다.
-   빈 회색 상자가 남아 있으면 페이지가 고장 난 것처럼 보인다. */
-.ad { display: none; margin: 32px 0; }
-.ad.on { display: block; }
-
-.ad-label {
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
 /* ── 꼬리말 ────────────────────────────────────────────── */
 
 footer {

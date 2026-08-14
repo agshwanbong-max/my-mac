@@ -164,8 +164,9 @@ struct OnboardingView: View {
 /// 앱 밖으로 나가는 링크들. 한 곳에 모아둔다.
 enum SupportLinks {
     static let repository = URL(string: "https://github.com/agshwanbong-max/my-mac")!
-    /// 후원 · 광고 페이지. 앱 안에는 광고를 넣지 않는다 —
-    /// 전체 디스크 접근을 요구하는 앱에서 광고는 신뢰를 가장 비싸게 깎는다.
+    /// 후원 페이지 (GitHub Sponsors).
+    /// 앱에도 이 페이지에도 광고는 없다 — 전체 디스크 접근을 요구하는 앱에서
+    /// 광고는 권한을 내주게 만드는 신뢰를 가장 비싸게 깎는다.
     static let support = URL(string: "https://agshwanbong-max.github.io/my-mac/support.html")!
     static let releases = URL(string: "https://github.com/agshwanbong-max/my-mac/releases")!
 }
