@@ -18,10 +18,10 @@ public enum RemovalMode: String, Codable, Sendable {
 
     public var localizedTitle: String {
         switch self {
-        case .trashItem: return "휴지통으로 이동"
-        case .permanentDelete: return "완전 삭제 (복구 불가)"
-        case .adviseOnly: return "안내만"
-        case .toolCommand: return "전용 도구로 삭제"
+        case .trashItem: return L("removal.trashItem")
+        case .permanentDelete: return L("removal.permanentDelete")
+        case .adviseOnly: return L("removal.adviseOnly")
+        case .toolCommand: return L("removal.toolCommand")
         }
     }
 

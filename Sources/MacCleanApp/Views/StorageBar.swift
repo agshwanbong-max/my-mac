@@ -50,7 +50,7 @@ struct StorageBar: View {
             Text(ByteFormat.string(report.volume.availableCapacity))
                 .font(.system(size: 28, weight: .semibold, design: .rounded))
                 .contentTransition(.numericText())
-            Text("사용 가능 · 전체 \(ByteFormat.string(report.volume.totalCapacity))")
+            Text(L("storage.freeOfTotal", ByteFormat.string(report.volume.totalCapacity)))
                 .font(.callout)
                 .foregroundStyle(.secondary)
 
@@ -60,7 +60,7 @@ struct StorageBar: View {
                 HStack(spacing: 6) {
                     Image(systemName: "sparkles")
                         .foregroundStyle(.tint)
-                    Text("\(ByteFormat.string(report.totalReclaimable)) 정리 가능")
+                    Text(L("storage.reclaimable", ByteFormat.string(report.totalReclaimable)))
                         .font(.callout.weight(.medium))
                 }
             }
@@ -83,7 +83,7 @@ struct StorageBar: View {
         let entries = report.categoryTotals.prefix(6)
 
         if entries.isEmpty {
-            Text("정리할 항목을 찾지 못했습니다.")
+            Text(L("storage.nothingFound"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         } else {

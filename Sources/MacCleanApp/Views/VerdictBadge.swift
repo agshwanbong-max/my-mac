@@ -51,17 +51,17 @@ struct AssessmentPanel: View {
                     .font(.caption)
                     .fixedSize(horizontal: false, vertical: true)
             } label: {
-                Text("지우면")
+                Text(L("verdict.ifDeleted"))
                     .font(.caption.weight(.semibold))
             }
 
             HStack(spacing: 16) {
-                chip("중요도", assessment.level.localizedTitle)
-                chip("복구", assessment.recoverability.localizedTitle)
+                chip(L("verdict.chip.importance"), assessment.level.localizedTitle)
+                chip(L("verdict.chip.recovery"), assessment.recoverability.localizedTitle)
             }
 
             if !assessment.signals.isEmpty {
-                DisclosureGroup("이렇게 판단한 근거 \(assessment.signals.count)가지") {
+                DisclosureGroup(L("verdict.signals", assessment.signals.count)) {
                     VStack(alignment: .leading, spacing: 5) {
                         ForEach(assessment.signals) { signal in
                             HStack(alignment: .top, spacing: 6) {

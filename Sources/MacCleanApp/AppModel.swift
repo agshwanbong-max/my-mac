@@ -125,9 +125,9 @@ final class AppModel: ObservableObject {
                 self.availableUpdate = manifest
             case .upToDate:
                 self.availableUpdate = nil
-                if announceNoUpdate { self.updateMessage = "최신 버전을 쓰고 계십니다." }
+                if announceNoUpdate { self.updateMessage = L("update.upToDate") }
             case .unavailable(let reason):
-                if announceNoUpdate { self.updateMessage = "업데이트를 확인하지 못했습니다: \(reason)" }
+                if announceNoUpdate { self.updateMessage = L("update.failed", reason) }
             }
         }
     }
@@ -183,7 +183,7 @@ final class AppModel: ObservableObject {
         scanTask?.cancel()
 
         phase = .scanning
-        statusText = "검사를 시작합니다…"
+        statusText = L("progress.starting")
         scanProgress = ScanProgress(completed: 0, total: 1, detail: "")
         outcomes = []
         selection = []

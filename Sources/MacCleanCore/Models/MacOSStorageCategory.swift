@@ -20,13 +20,13 @@ public enum MacOSStorageCategory: String, Codable, Sendable, CaseIterable {
 
     public var localizedTitle: String {
         switch self {
-        case .systemData: return "시스템 데이터"
-        case .developer: return "개발자"
-        case .applications: return "응용 프로그램"
-        case .photos: return "사진"
-        case .documents: return "문서"
-        case .mail: return "Mail"
-        case .messages: return "메시지"
+        case .systemData: return L("storage.systemData")
+        case .developer: return L("storage.developer")
+        case .applications: return L("storage.applications")
+        case .photos: return L("storage.photos")
+        case .documents: return L("storage.documents")
+        case .mail: return L("storage.mail")
+        case .messages: return L("storage.messages")
         }
     }
 

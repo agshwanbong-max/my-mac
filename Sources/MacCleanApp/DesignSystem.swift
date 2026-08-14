@@ -158,15 +158,15 @@ extension RiskLevel {
 enum ScannerLabel {
     static func text(for identifier: String) -> String {
         switch identifier {
-        case "systemData": return "시스템 데이터 진단 중…"
-        case "rules": return "캐시와 로그를 훑는 중…"
-        case "simulators": return "시뮬레이터를 확인하는 중…"
-        case "iosBackup": return "기기 백업을 확인하는 중…"
-        case "nodeModules": return "프로젝트 폴더를 살펴보는 중…"
-        case "spaceBreakdown": return "홈 전체를 훑는 중… (수십 초 걸립니다)"
-        case "systemArea": return "홈 밖(앱·시스템 폴더)을 재는 중…"
-        case "duplicates": return "중복 파일을 찾는 중… (파일을 해시하므로 오래 걸립니다)"
-        default: return "검사 중…"
+        case "systemData": return L("progress.systemData")
+        case "rules": return L("progress.rules")
+        case "simulators": return L("progress.simulators")
+        case "iosBackup": return L("progress.iosBackup")
+        case "nodeModules": return L("progress.nodeModules")
+        case "spaceBreakdown": return L("progress.spaceBreakdown")
+        case "systemArea": return L("progress.systemArea")
+        case "duplicates": return L("progress.duplicates")
+        default: return L("progress.default")
         }
     }
 }

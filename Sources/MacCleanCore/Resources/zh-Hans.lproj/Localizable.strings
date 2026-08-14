@@ -1,0 +1,207 @@
+/* MacClean — 简体中文
+ *
+ * 译自 ko.lproj，键名需保持一致。
+ * 缺少键时界面会直接显示键名（这是刻意设计）。
+ */
+
+/* MARK: - 通用 */
+"common.ok" = "好";
+"common.cancel" = "取消";
+"common.close" = "关闭";
+"common.itemCount" = "%d 项";
+"common.pieces" = "%d 个";
+
+/* MARK: - 边栏 */
+"sidebar.all" = "全部";
+"sidebar.categories" = "分类";
+
+/* MARK: - 分类名称 */
+"category.systemDataDiagnosis" = "系统数据诊断";
+"category.systemData" = "系统数据";
+"category.spaceBreakdown" = "空间分布";
+"category.trash" = "废纸篓";
+"category.userCache" = "App 缓存";
+"category.logs" = "日志与诊断报告";
+"category.xcode" = "Xcode";
+"category.simulators" = "iOS 模拟器";
+"category.developerTooling" = "开发工具缓存";
+"category.nodeModules" = "陈旧的 node_modules";
+"category.browser" = "浏览器缓存";
+"category.mail" = "邮件附件副本";
+"category.iosBackup" = "iPhone 与 iPad 备份";
+"category.downloads" = "下载文件夹";
+"category.largeFiles" = "大文件";
+"category.duplicates" = "重复文件";
+"category.manualSelection" = "手动选择的项目";
+
+/* MARK: - macOS 储存空间分类 */
+"storage.systemData" = "系统数据";
+"storage.developer" = "开发者";
+"storage.applications" = "应用程序";
+"storage.photos" = "照片";
+"storage.documents" = "文稿";
+"storage.mail" = "邮件";
+"storage.messages" = "信息";
+"storage.freeOfTotal" = "可用 · 共 %@";
+"storage.reclaimable" = "可清理 %@";
+"storage.nothingFound" = "没有找到可清理的项目。";
+
+/* MARK: - 判定 */
+"verdict.safe.title" = "可以删除";
+"verdict.checkFirst.title" = "确认后再删除";
+"verdict.keep.title" = "请勿删除";
+"verdict.safe.short" = "可删";
+"verdict.checkFirst.short" = "待确认";
+"verdict.keep.short" = "保留";
+"verdict.ifDeleted" = "删除后";
+"verdict.chip.importance" = "重要程度";
+"verdict.chip.recovery" = "可恢复性";
+"verdict.signals" = "该判断的 %d 条依据";
+
+"importance.disposable" = "可丢弃";
+"importance.replaceable" = "可重新获取";
+"importance.personal" = "自己创建的";
+"importance.critical" = "不能丢失";
+
+"recoverability.regenerates" = "会自动重新生成";
+"recoverability.redownloadable" = "可重新下载";
+"recoverability.syncedElsewhere" = "云端也有";
+"recoverability.inVersionControl" = "已推送到远程仓库";
+"recoverability.unknown" = "无法判断";
+"recoverability.onlyCopy" = "仅此一份";
+
+/* MARK: - 处理方式 */
+"removal.trashItem" = "移到废纸篓";
+"removal.permanentDelete" = "永久删除（无法撤销）";
+"removal.adviseOnly" = "仅提示";
+"removal.toolCommand" = "用专用工具删除";
+
+/* MARK: - 扫描 */
+"scan.running" = "扫描中";
+"scan.stop" = "停止";
+"scan.readOnlyNotice" = "只读取，不会删除任何东西。";
+
+"progress.starting" = "开始扫描…";
+"progress.systemData" = "正在诊断系统数据…";
+"progress.rules" = "正在查看缓存和日志…";
+"progress.simulators" = "正在检查模拟器…";
+"progress.iosBackup" = "正在检查设备备份…";
+"progress.nodeModules" = "正在查看项目文件夹…";
+"progress.spaceBreakdown" = "正在扫描整个个人文件夹…（需要几十秒）";
+"progress.systemArea" = "正在测量个人文件夹之外（应用与系统文件夹）…";
+"progress.duplicates" = "正在查找重复文件…（需要计算哈希，耗时最长）";
+"progress.default" = "扫描中…";
+
+/* MARK: - 工具栏 */
+"toolbar.stopScan" = "停止扫描";
+"toolbar.stopScan.help" = "停止本次扫描";
+"toolbar.deepScan" = "深度分析";
+"toolbar.deepScan.help" = "扫描整个个人文件夹，显示空间分布并找出大文件。需要几十秒。";
+"toolbar.duplicates" = "查找重复";
+"toolbar.duplicates.help" = "在文稿、下载、图片文件夹中查找内容完全相同的文件。需要计算哈希，是最慢的一项。";
+"toolbar.restore" = "撤销";
+"toolbar.restore.help" = "把本 App 移到废纸篓的项目放回原处";
+
+/* MARK: - 列表 */
+"detail.showOnlyCategory" = "只看这一类";
+"detail.selectAll" = "全选";
+"detail.deselectAll" = "取消全选";
+"detail.deepScanRequired.title" = "需要开启深度分析才能查看";
+"detail.deepScanRequired.action" = "开启深度分析并重新扫描";
+"detail.empty.all" = "没有需要清理的东西";
+"detail.empty.category" = "此分类没有项目";
+"detail.empty.detail" = "很干净。";
+"detail.skipped.title" = "扫描时跳过的项目";
+
+"row.chip.grade" = "等级";
+"row.chip.action" = "处理";
+"row.chip.items" = "项目";
+"row.help.permanent" = "无法恢复";
+"row.help.expand" = "查看详情";
+"row.help.adviseOnly" = "仅提示 —— 本 App 不会碰它";
+"row.help.browse" = "打开此文件夹自行挑选。这不是规则验证过的列表，请自行判断。";
+"row.menu.revealInFinder" = "在访达中显示";
+"row.menu.copyPath" = "拷贝路径";
+"row.menu.copyCommand" = "拷贝命令";
+"row.menu.browse" = "打开并自行挑选";
+
+/* MARK: - 执行 */
+"action.rescan" = "重新扫描";
+"action.rescan.help" = "再扫描一次";
+"action.preview" = "预览";
+"action.clean" = "执行清理";
+"action.selectionSummary" = "已选 %1$d 项 · %2$@";
+"action.movesToTrash" = "所选项目将移到废纸篓";
+"action.containsPermanent" = "所选内容包含无法恢复的项目";
+
+"confirm.title" = "要执行清理吗？";
+"confirm.toTrash" = "移到废纸篓 %d 项";
+"confirm.toTrash.detail" = "%@ · 可以从废纸篓放回。";
+"confirm.permanent" = "永久删除 %d 项";
+"confirm.permanent.detail" = "%@ · 无法撤销。";
+"confirm.manual" = "手动选择的项目 %d 项";
+"confirm.manual.detail" = "%@ · 这些不是本 App 验证过的列表。由您自行选择，App 不保证其安全性。";
+"confirm.showPermanentList" = "查看将被永久删除的项目";
+"confirm.listItem" = "· %1$@ — %2$@";
+"confirm.emptyTrashNote" = "移到废纸篓的项目，要清倒废纸篓后可用空间才会真正增加。";
+"confirm.previewOnly" = "仅预览";
+"confirm.run" = "执行";
+
+"results.dryRun.title" = "预览结果";
+"results.done.title" = "清理完成";
+"results.dryRun.detail" = "实际上没有删除任何东西。预计可释放：%@";
+"results.done.detail" = "已释放：%@";
+"results.emptyTrashNote" = "移到废纸篓的项目，要清倒废纸篓后可用空间才会真正增加。先用几天，确认没问题再清倒。";
+
+/* MARK: - 手动挑选 */
+"browser.measuring" = "正在测量文件夹大小…";
+"browser.empty" = "此文件夹为空或无法读取。";
+"browser.openInFinder" = "在访达中打开";
+"browser.warning" = "这里不是本 App 验证过的清理列表";
+"browser.blocked" = "此项目无法删除";
+"browser.containsKeep" = "所选内容包含建议保留的项目";
+"browser.addToList" = "加入清理列表";
+
+/* MARK: - 撤销 */
+"restore.title" = "从废纸篓放回";
+"restore.subtitle" = "如果原位置已经有东西，不会覆盖。撤销不该造成新的损失。";
+"restore.empty.title" = "没有可放回的项目";
+"restore.empty.detail" = "只有本 App 移到废纸篓的项目才会出现在这里。";
+"restore.action" = "放回原处";
+"restore.showInTrash" = "在废纸篓中显示";
+"restore.moved" = "已将 %@ 放回原来的位置。";
+
+/* MARK: - 权限 */
+"permission.partial.title" = "有些项目看不到";
+"permission.partial.detail" = "设备备份、邮件附件、沙盒 App 缓存需要「完全磁盘访问权限」才能看到。";
+"permission.openSettings" = "打开设置";
+
+/* MARK: - 首次启动 */
+"onboarding.tagline" = "清理储存空间。而不会误删。";
+"onboarding.what.title" = "告诉你空间去了哪里";
+"onboarding.what.body" = "把 macOS 笼统归为「系统数据」的内容按文件夹逐项展开，再从中挑出可以安全删除的部分。";
+"onboarding.access.on.title" = "已开启完全磁盘访问权限";
+"onboarding.access.on.body" = "iPhone 备份、邮件附件副本、沙盒 App 缓存都可以扫描。";
+"onboarding.access.off.title" = "需要完全磁盘访问权限";
+"onboarding.access.off.body" = "没有这个权限，macOS 会把 ~/Library 的大部分内容对本 App 隐藏。不会报错，只是看起来像空文件夹，所以 App 会悄悄地只找到一半。\n\n这个权限只用于读取。删什么由你在界面上决定。";
+"onboarding.access.openSettings" = "打开完全磁盘访问权限设置";
+"onboarding.access.hint" = "设置打开后，在列表中开启 MacClean，再回到这个窗口。App 会自动重新检查。";
+"onboarding.never.title" = "本 App 绝不会做的事";
+"onboarding.never.body" = "· 文稿、照片、iCloud、凭据在代码层面被拦截，规则也无法触及。\n· 默认处理是移到废纸篓，可以撤销。\n· 不要求管理员权限。\n· 每一项都说明删什么、为什么删，执行前再确认一次。";
+"onboarding.start" = "开始使用";
+"onboarding.startWithout" = "不授权直接开始";
+
+/* MARK: - 菜单与更新 */
+"menu.checkUpdates" = "检查更新…";
+"menu.support" = "支持开发";
+"menu.support.item" = "支持 MacClean…";
+"menu.support.help" = "MacClean 是免费的。在浏览器中打开支持页面。";
+"menu.sourceCode" = "查看源代码";
+
+"update.alertTitle" = "更新";
+"update.available" = "新版本 %@ 已发布";
+"update.current" = "你正在使用 %@。";
+"update.later" = "以后再说";
+"update.download" = "去下载";
+"update.upToDate" = "你使用的已是最新版本。";
+"update.failed" = "无法检查更新：%@";

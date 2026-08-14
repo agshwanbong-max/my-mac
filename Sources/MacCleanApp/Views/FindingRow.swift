@@ -38,7 +38,7 @@ struct FindingRow: View {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .font(.caption2)
                                 .foregroundStyle(.red)
-                                .help("복구할 수 없습니다")
+                                .help(L("row.help.permanent"))
                         }
                     }
 
@@ -68,7 +68,7 @@ struct FindingRow: View {
                 }
                 .buttonStyle(.plain)
                 .opacity(isHovering || isExpanded ? 1 : 0.35)
-                .help("자세히 보기")
+                .help(L("row.help.expand"))
             }
             .padding(.horizontal, Design.gutter)
             .padding(.vertical, 10)
@@ -85,14 +85,14 @@ struct FindingRow: View {
         .onTapGesture { model.toggle(finding) }
         .contextMenu {
             if finding.path != nil {
-                Button("파인더에서 보기") { model.revealInFinder(finding) }
-                Button("경로 복사") { model.copyToPasteboard(finding.path?.path ?? "") }
+                Button(L("row.menu.revealInFinder")) { model.revealInFinder(finding) }
+                Button(L("row.menu.copyPath")) { model.copyToPasteboard(finding.path?.path ?? "") }
             }
             if let command = finding.suggestedCommand {
-                Button("명령어 복사") { model.copyToPasteboard(command) }
+                Button(L("row.menu.copyCommand")) { model.copyToPasteboard(command) }
             }
             if canBrowse {
-                Button("열어서 직접 고르기") { model.browse(finding.path!) }
+                Button(L("row.menu.browse")) { model.browse(finding.path!) }
             }
         }
     }
@@ -131,7 +131,7 @@ struct FindingRow: View {
                 .font(.system(size: 15))
                 .foregroundStyle(.secondary)
                 .frame(width: 18, height: 18)
-                .help("안내 전용 — 이 앱은 이 항목을 건드리지 않습니다")
+                .help(L("row.help.adviseOnly"))
         }
     }
 
@@ -145,13 +145,13 @@ struct FindingRow: View {
                 Divider()
             }
 
-            infoLine(label: "지우면", value: finding.consequence, tint: finding.risk.tint)
+            infoLine(label: L("verdict.ifDeleted"), value: finding.consequence, tint: finding.risk.tint)
 
             HStack(spacing: 20) {
-                infoChip(label: "등급", value: finding.risk.localizedTitle, tint: finding.risk.tint)
-                infoChip(label: "처리", value: finding.removal.localizedTitle, tint: .secondary)
+                infoChip(label: L("row.chip.grade"), value: finding.risk.localizedTitle, tint: finding.risk.tint)
+                infoChip(label: L("row.chip.action"), value: finding.removal.localizedTitle, tint: .secondary)
                 if finding.itemCount > 0 {
-                    infoChip(label: "항목", value: "\(finding.itemCount)개", tint: .secondary)
+                    infoChip(label: L("row.chip.items"), value: L("common.pieces", finding.itemCount), tint: .secondary)
                 }
             }
 
@@ -168,10 +168,10 @@ struct FindingRow: View {
                 Button {
                     model.browse(finding.path!)
                 } label: {
-                    Label("열어서 직접 고르기", systemImage: "folder.badge.gearshape")
+                    Label(L("row.menu.browse"), systemImage: "folder.badge.gearshape")
                 }
                 .controlSize(.small)
-                .help("이 폴더를 열어 안의 항목을 직접 고릅니다. 규칙이 검증한 목록이 아니므로 판단은 직접 하셔야 합니다.")
+                .help(L("row.help.browse"))
             }
 
             if let command = finding.suggestedCommand {
@@ -189,7 +189,7 @@ struct FindingRow: View {
                         Image(systemName: "doc.on.doc")
                     }
                     .buttonStyle(.plain)
-                    .help("명령어 복사")
+                    .help(L("row.menu.copyCommand"))
                 }
             }
         }

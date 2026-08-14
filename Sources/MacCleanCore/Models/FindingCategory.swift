@@ -22,23 +22,23 @@ public enum FindingCategory: String, Codable, Sendable, CaseIterable {
 
     public var localizedTitle: String {
         switch self {
-        case .systemDataDiagnosis: return "시스템 데이터 진단"
-        case .systemData: return "시스템 데이터"
-        case .spaceBreakdown: return "용량 분포"
-        case .trash: return "휴지통"
-        case .userCache: return "앱 캐시"
-        case .logs: return "로그 · 진단 리포트"
-        case .xcode: return "Xcode"
-        case .simulators: return "iOS 시뮬레이터"
-        case .developerTooling: return "개발 도구 캐시"
-        case .nodeModules: return "오래된 node_modules"
-        case .browser: return "브라우저 캐시"
-        case .mail: return "메일 첨부 임시본"
-        case .iosBackup: return "iPhone · iPad 백업"
-        case .downloads: return "다운로드 폴더"
-        case .largeFiles: return "대용량 파일"
-        case .duplicates: return "중복 파일"
-        case .manualSelection: return "직접 고른 항목"
+        case .systemDataDiagnosis: return L("category.systemDataDiagnosis")
+        case .systemData: return L("category.systemData")
+        case .spaceBreakdown: return L("category.spaceBreakdown")
+        case .trash: return L("category.trash")
+        case .userCache: return L("category.userCache")
+        case .logs: return L("category.logs")
+        case .xcode: return L("category.xcode")
+        case .simulators: return L("category.simulators")
+        case .developerTooling: return L("category.developerTooling")
+        case .nodeModules: return L("category.nodeModules")
+        case .browser: return L("category.browser")
+        case .mail: return L("category.mail")
+        case .iosBackup: return L("category.iosBackup")
+        case .downloads: return L("category.downloads")
+        case .largeFiles: return L("category.largeFiles")
+        case .duplicates: return L("category.duplicates")
+        case .manualSelection: return L("category.manualSelection")
         }
     }
 

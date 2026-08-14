@@ -39,8 +39,8 @@ struct ContentView: View {
             BrowserSheet(directory: directory.url)
                 .environmentObject(model)
         }
-        .alert("업데이트", isPresented: .constant(model.updateMessage != nil)) {
-            Button("확인") { model.updateMessage = nil }
+        .alert(L("update.alertTitle"), isPresented: .constant(model.updateMessage != nil)) {
+            Button(L("common.ok")) { model.updateMessage = nil }
         } message: {
             Text(model.updateMessage ?? "")
         }
@@ -53,35 +53,35 @@ struct ContentView: View {
                 Button {
                     model.cancelScan()
                 } label: {
-                    Label("검사 중단", systemImage: "stop.circle")
+                    Label(L("toolbar.stopScan"), systemImage: "stop.circle")
                 }
-                .help("검사를 중단합니다")
+                .help(L("toolbar.stopScan.help"))
             } else {
                 Button {
                     model.startScan()
                 } label: {
-                    Label("다시 검사", systemImage: "arrow.clockwise")
+                    Label(L("action.rescan"), systemImage: "arrow.clockwise")
                 }
                 .keyboardShortcut("r")
-                .help("다시 검사합니다")
+                .help(L("action.rescan.help"))
             }
         }
 
         ToolbarItem(placement: .primaryAction) {
             Toggle(isOn: $model.includeDeepScan) {
-                Label("정밀 분석", systemImage: "chart.pie")
+                Label(L("toolbar.deepScan"), systemImage: "chart.pie")
             }
             .toggleStyle(.button)
-            .help("홈 전체를 훑어 용량이 어디에 있는지와 대용량 파일을 찾습니다. 수십 초 걸립니다.")
+            .help(L("toolbar.deepScan.help"))
             .disabled(model.isBusy)
         }
 
         ToolbarItem(placement: .primaryAction) {
             Toggle(isOn: $model.includeDuplicates) {
-                Label("중복 찾기", systemImage: "doc.on.doc")
+                Label(L("toolbar.duplicates"), systemImage: "doc.on.doc")
             }
             .toggleStyle(.button)
-            .help("문서·다운로드·사진 폴더에서 내용이 완전히 같은 파일을 찾습니다. 파일을 해시하므로 가장 오래 걸립니다.")
+            .help(L("toolbar.duplicates.help"))
             .disabled(model.isBusy)
         }
 
@@ -89,9 +89,9 @@ struct ContentView: View {
             Button {
                 model.isShowingRestore = true
             } label: {
-                Label("되돌리기", systemImage: "arrow.uturn.backward")
+                Label(L("toolbar.restore"), systemImage: "arrow.uturn.backward")
             }
-            .help("이 앱이 휴지통으로 옮긴 것을 원래 자리로 되돌립니다")
+            .help(L("toolbar.restore.help"))
         }
     }
 }

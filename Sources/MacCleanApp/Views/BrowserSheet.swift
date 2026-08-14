@@ -36,13 +36,13 @@ struct BrowserSheet: View {
             if isLoading {
                 VStack(spacing: 10) {
                     ProgressView()
-                    Text("폴더 크기를 재는 중입니다…")
+                    Text(L("browser.measuring"))
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if entries.isEmpty {
-                Text("이 폴더는 비어 있거나 읽을 수 없습니다.")
+                Text(L("browser.empty"))
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -72,7 +72,7 @@ struct BrowserSheet: View {
                     .truncationMode(.middle)
             }
             Spacer()
-            Button("파인더에서 열기") {
+            Button(L("browser.openInFinder")) {
                 NSWorkspace.shared.activateFileViewerSelecting([directory])
             }
             .controlSize(.small)
@@ -86,7 +86,7 @@ struct BrowserSheet: View {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundStyle(.orange)
             VStack(alignment: .leading, spacing: 3) {
-                Text("여기는 이 앱이 검증한 정리 목록이 아닙니다")
+                Text(L("browser.warning"))
                     .font(.callout.weight(.semibold))
                 Text("""
                     앱이 아는 안전한 경로가 아니라, 폴더를 그대로 열어 보여주는 화면입니다. \
@@ -130,7 +130,7 @@ struct BrowserSheet: View {
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
                     .frame(width: 18)
-                    .help(entry.blockedReason ?? "지울 수 없는 항목입니다")
+                    .help(entry.blockedReason ?? L("browser.blocked"))
             }
 
             Image(systemName: entry.isDirectory ? "folder.fill" : "doc")
@@ -163,29 +163,29 @@ struct BrowserSheet: View {
             if isSelected { selection.remove(entry.id) } else { selection.insert(entry.id) }
         }
         .contextMenu {
-            Button("파인더에서 보기") { NSWorkspace.shared.activateFileViewerSelecting([entry.url]) }
-            Button("경로 복사") { model.copyToPasteboard(entry.url.path) }
+            Button(L("row.menu.revealInFinder")) { NSWorkspace.shared.activateFileViewerSelecting([entry.url]) }
+            Button(L("row.menu.copyPath")) { model.copyToPasteboard(entry.url.path) }
         }
     }
 
     private var footer: some View {
         HStack(spacing: 12) {
-            Text("\(selectedEntries.count)건 선택 · \(ByteFormat.string(selectedBytes))")
+            Text(L("action.selectionSummary", selectedEntries.count, ByteFormat.string(selectedBytes)))
                 .font(.callout.weight(.medium))
                 .contentTransition(.numericText())
 
             if selectedEntries.contains(where: { $0.assessment.verdict == .keep }) {
-                Label("보관 권고 항목이 포함돼 있습니다", systemImage: "exclamationmark.triangle.fill")
+                Label(L("browser.containsKeep"), systemImage: "exclamationmark.triangle.fill")
                     .font(.caption)
                     .foregroundStyle(.red)
             }
 
             Spacer()
 
-            Button("닫기") { model.browsingDirectory = nil }
+            Button(L("common.close")) { model.browsingDirectory = nil }
                 .secondaryAction()
 
-            Button("정리 목록에 추가") {
+            Button(L("browser.addToList")) {
                 let browser = DirectoryBrowser(paths: paths)
                 model.addManualSelections(selectedEntries.map { browser.finding(for: $0) })
                 model.browsingDirectory = nil

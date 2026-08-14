@@ -23,7 +23,7 @@ struct ConfirmSheet: View {
                     .font(.title2)
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(.tint)
-                Text("정리를 실행할까요?")
+                Text(L("confirm.title"))
                     .font(.title2.weight(.semibold))
             }
 
@@ -31,16 +31,16 @@ struct ConfirmSheet: View {
                 summaryRow(
                     icon: "trash",
                     tint: .accentColor,
-                    title: "휴지통으로 이동 \(reversible.count)건",
-                    subtitle: "\(ByteFormat.string(reversible.reduce(0) { $0 + $1.reclaimableBytes })) · 휴지통에서 되돌릴 수 있습니다."
+                    title: L("confirm.toTrash", reversible.count),
+                    subtitle: L("confirm.toTrash.detail", ByteFormat.string(reversible.reduce(0) { $0 + $1.reclaimableBytes }))
                 )
 
                 if !irreversible.isEmpty {
                     summaryRow(
                         icon: "exclamationmark.triangle.fill",
                         tint: .red,
-                        title: "완전 삭제 \(irreversible.count)건",
-                        subtitle: "\(ByteFormat.string(irreversible.reduce(0) { $0 + $1.reclaimableBytes })) · 되돌릴 수 없습니다."
+                        title: L("confirm.permanent", irreversible.count),
+                        subtitle: L("confirm.permanent.detail", ByteFormat.string(irreversible.reduce(0) { $0 + $1.reclaimableBytes }))
                     )
                 }
 
@@ -48,19 +48,18 @@ struct ConfirmSheet: View {
                     summaryRow(
                         icon: "hand.point.up.left.fill",
                         tint: .orange,
-                        title: "직접 고른 항목 \(manual.count)건",
-                        subtitle: "\(ByteFormat.string(manual.reduce(0) { $0 + $1.reclaimableBytes })) · "
-                            + "이 앱이 검증한 목록이 아닙니다. 직접 판단하신 항목이라 앱이 안전을 보장하지 않습니다."
+                        title: L("confirm.manual", manual.count),
+                        subtitle: L("confirm.manual.detail", ByteFormat.string(manual.reduce(0) { $0 + $1.reclaimableBytes }))
                     )
                 }
             }
 
             if !irreversible.isEmpty {
-                DisclosureGroup("완전 삭제되는 항목 보기") {
+                DisclosureGroup(L("confirm.showPermanentList")) {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 4) {
                             ForEach(irreversible) { finding in
-                                Text("· \(finding.title) — \(ByteFormat.string(finding.reclaimableBytes))")
+                                Text(L("confirm.listItem", finding.title, ByteFormat.string(finding.reclaimableBytes)))
                                     .font(.caption)
                             }
                         }
@@ -72,7 +71,7 @@ struct ConfirmSheet: View {
             }
 
             Label(
-                "휴지통으로 옮긴 항목은 휴지통을 비워야 실제 여유 공간이 늘어납니다.",
+                L("confirm.emptyTrashNote"),
                 systemImage: "info.circle"
             )
             .font(.caption)
@@ -81,13 +80,13 @@ struct ConfirmSheet: View {
             Divider()
 
             HStack {
-                Button("미리보기만") { model.performCleanup(dryRun: true) }
+                Button(L("confirm.previewOnly")) { model.performCleanup(dryRun: true) }
                     .secondaryAction()
                 Spacer()
-                Button("취소") { model.isConfirming = false }
+                Button(L("common.cancel")) { model.isConfirming = false }
                     .secondaryAction()
                     .keyboardShortcut(.cancelAction)
-                Button("실행") { model.performCleanup(dryRun: false) }
+                Button(L("confirm.run")) { model.performCleanup(dryRun: false) }
                     .primaryAction()
                     .keyboardShortcut(.defaultAction)
             }
@@ -132,12 +131,12 @@ struct ResultsSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text(wasDryRun ? "미리보기 결과" : "정리 완료")
+            Text(wasDryRun ? L("results.dryRun.title") : L("results.done.title"))
                 .font(.title2.weight(.semibold))
 
             Text(wasDryRun
-                ? "실제로는 아무것도 지우지 않았습니다. 확보 예상: \(ByteFormat.string(reclaimed))"
-                : "확보: \(ByteFormat.string(reclaimed))")
+                ? L("results.dryRun.detail", ByteFormat.string(reclaimed))
+                : L("results.done.detail", ByteFormat.string(reclaimed)))
                 .font(.callout)
 
             ScrollView {
@@ -163,7 +162,7 @@ struct ResultsSheet: View {
 
             if !wasDryRun {
                 Label(
-                    "휴지통으로 옮긴 항목은 휴지통을 비워야 실제 여유 공간이 늘어납니다. 며칠 써보고 문제가 없을 때 비우세요.",
+                    L("results.emptyTrashNote"),
                     systemImage: "info.circle"
                 )
                 .font(.caption)
@@ -174,12 +173,12 @@ struct ResultsSheet: View {
 
             HStack {
                 Spacer()
-                Button("다시 검사") {
+                Button(L("action.rescan")) {
                     model.isShowingResults = false
                     model.startScan()
                 }
                 .secondaryAction()
-                Button("닫기") { model.isShowingResults = false }
+                Button(L("common.close")) { model.isShowingResults = false }
                     .primaryAction()
                     .keyboardShortcut(.defaultAction)
             }

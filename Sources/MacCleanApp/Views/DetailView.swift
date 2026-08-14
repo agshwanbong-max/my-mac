@@ -81,7 +81,7 @@ struct ScanProgressBar: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 10) {
-                Text("검사 중")
+                Text(L("scan.running"))
                     .font(.callout.weight(.medium))
 
                 Text("\(model.scanProgress.completed) / \(model.scanProgress.total)")
@@ -91,14 +91,14 @@ struct ScanProgressBar: View {
 
                 Spacer()
 
-                Button("중단") { model.cancelScan() }
+                Button(L("scan.stop")) { model.cancelScan() }
                     .controlSize(.small)
             }
 
             ProgressView(value: model.scanProgress.fraction)
                 .progressViewStyle(.linear)
 
-            Text(model.statusText.isEmpty ? "읽기만 합니다. 아무것도 지우지 않습니다." : model.statusText)
+            Text(model.statusText.isEmpty ? L("scan.readOnlyNotice") : model.statusText)
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
@@ -126,7 +126,7 @@ private struct CategoryBlock: View {
                     .foregroundStyle(category.tint)
                 Text(category.localizedTitle)
                     .font(.headline)
-                Text("\(findings.count)건")
+                Text(L("common.itemCount", findings.count))
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
@@ -138,7 +138,7 @@ private struct CategoryBlock: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Button("이 분류만 보기") { model.sidebarSelection = .category(category) }
+                Button(L("detail.showOnlyCategory")) { model.sidebarSelection = .category(category) }
                     .buttonStyle(.link)
                     .font(.caption)
             }
@@ -162,10 +162,10 @@ private struct ListHeader: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            Text(model.selectedCategory?.localizedTitle ?? "전체")
+            Text(model.selectedCategory?.localizedTitle ?? L("sidebar.all"))
                 .font(.title3.weight(.semibold))
 
-            Text("\(model.visibleFindings.count)건")
+            Text(L("common.itemCount", model.visibleFindings.count))
                 .font(.callout)
                 .foregroundStyle(.secondary)
 
@@ -179,7 +179,7 @@ private struct ListHeader: View {
                         .foregroundStyle(.secondary)
                 }
             } else if model.visibleSelectableCount > 0 {
-                Button(model.allVisibleSelected ? "전체 해제" : "전체 선택") {
+                Button(model.allVisibleSelected ? L("detail.deselectAll") : L("detail.selectAll")) {
                     model.setSelectionForVisible(!model.allVisibleSelected)
                 }
                 .buttonStyle(.link)
@@ -211,7 +211,7 @@ private struct EmptyStateView: View {
                 .foregroundStyle(.tertiary)
 
             if needsDeepScan {
-                Text("정밀 분석을 켜야 볼 수 있습니다")
+                Text(L("detail.deepScanRequired.title"))
                     .font(.headline)
                 Text("""
                     시스템 데이터가 무엇으로 채워져 있는지 알려면 홈 전체를 훑어야 합니다. \
@@ -223,16 +223,16 @@ private struct EmptyStateView: View {
                     .frame(maxWidth: 420)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Button("정밀 분석 켜고 다시 검사") {
+                Button(L("detail.deepScanRequired.action")) {
                     model.includeDeepScan = true
                     model.startScan()
                 }
                 .primaryAction()
                 .disabled(model.isBusy)
             } else {
-                Text(model.selectedCategory == nil ? "정리할 게 없습니다" : "이 분류에는 항목이 없습니다")
+                Text(model.selectedCategory == nil ? L("detail.empty.all") : L("detail.empty.category"))
                     .font(.headline)
-                Text("깨끗한 상태입니다.")
+                Text(L("detail.empty.detail"))
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
@@ -267,7 +267,7 @@ private struct WarningsBlock: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label("검사 중 건너뛴 항목", systemImage: "info.circle")
+            Label(L("detail.skipped.title"), systemImage: "info.circle")
                 .font(.callout.weight(.semibold))
                 .foregroundStyle(.secondary)
 
@@ -300,12 +300,12 @@ private struct ActionBar: View {
                         .font(.callout.monospacedDigit())
                 } else {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("\(model.selectedFindings.count)건 선택 · \(ByteFormat.string(model.selectedBytes))")
+                        Text(L("action.selectionSummary", model.selectedFindings.count, ByteFormat.string(model.selectedBytes)))
                             .font(.callout.weight(.medium))
                             .contentTransition(.numericText())
                         Text(model.selectionIncludesIrreversible
-                             ? "복구 불가 항목이 포함돼 있습니다"
-                             : "선택한 항목은 휴지통으로 이동합니다")
+                             ? L("action.containsPermanent")
+                             : L("action.movesToTrash"))
                             .font(.caption)
                             .foregroundStyle(model.selectionIncludesIrreversible ? .orange : .secondary)
                     }
@@ -313,11 +313,11 @@ private struct ActionBar: View {
 
                 Spacer(minLength: 20)
 
-                Button("미리보기") { model.performCleanup(dryRun: true) }
+                Button(L("action.preview")) { model.performCleanup(dryRun: true) }
                     .secondaryAction()
                     .disabled(!model.canClean)
 
-                Button("정리 실행") { model.requestCleanup() }
+                Button(L("action.clean")) { model.requestCleanup() }
                     .primaryAction()
                     .keyboardShortcut(.defaultAction)
                     .disabled(!model.canClean)

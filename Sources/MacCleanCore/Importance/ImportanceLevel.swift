@@ -20,18 +20,18 @@ public enum DeletionVerdict: String, Codable, Sendable, CaseIterable {
 
     public var localizedTitle: String {
         switch self {
-        case .safe: return "지워도 됩니다"
-        case .checkFirst: return "확인하고 지우세요"
-        case .keep: return "지우지 마세요"
+        case .safe: return L("verdict.safe.title")
+        case .checkFirst: return L("verdict.checkFirst.title")
+        case .keep: return L("verdict.keep.title")
         }
     }
 
     /// 목록에 붙는 아주 짧은 딱지.
     public var shortLabel: String {
         switch self {
-        case .safe: return "지워도 됨"
-        case .checkFirst: return "확인 후"
-        case .keep: return "보관"
+        case .safe: return L("verdict.safe.short")
+        case .checkFirst: return L("verdict.checkFirst.short")
+        case .keep: return L("verdict.keep.short")
         }
     }
 }
@@ -57,10 +57,10 @@ public enum ImportanceLevel: Int, Codable, Sendable, CaseIterable, Comparable {
 
     public var localizedTitle: String {
         switch self {
-        case .disposable: return "버려도 됨"
-        case .replaceable: return "다시 구할 수 있음"
-        case .personal: return "직접 만든 것"
-        case .critical: return "잃으면 안 됨"
+        case .disposable: return L("importance.disposable")
+        case .replaceable: return L("importance.replaceable")
+        case .personal: return L("importance.personal")
+        case .critical: return L("importance.critical")
         }
     }
 }
@@ -81,12 +81,12 @@ public enum Recoverability: String, Codable, Sendable, CaseIterable {
 
     public var localizedTitle: String {
         switch self {
-        case .regenerates: return "자동 재생성"
-        case .redownloadable: return "다시 받을 수 있음"
-        case .syncedElsewhere: return "클라우드에도 있음"
-        case .inVersionControl: return "원격 저장소에 있음"
-        case .unknown: return "판단 불가"
-        case .onlyCopy: return "여기에만 있음"
+        case .regenerates: return L("recoverability.regenerates")
+        case .redownloadable: return L("recoverability.redownloadable")
+        case .syncedElsewhere: return L("recoverability.syncedElsewhere")
+        case .inVersionControl: return L("recoverability.inVersionControl")
+        case .unknown: return L("recoverability.unknown")
+        case .onlyCopy: return L("recoverability.onlyCopy")
         }
     }
 }

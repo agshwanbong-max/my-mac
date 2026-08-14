@@ -35,6 +35,21 @@ mkdir -p "${APP_DIR}/Contents/Resources"
 
 cp "${BINARY}" "${APP_DIR}/Contents/MacOS/${APP_NAME}"
 
+# 번역 파일. SPM 은 리소스를 `MacClean_MacCleanCore.bundle` 로 묶어 빌드 폴더에 둔다.
+# 이걸 Contents/Resources 에 넣어야 `Bundle.module` 이 찾는다.
+# 빠뜨리면 앱이 조용히 키 이름("verdict.safe")을 화면에 찍는다.
+BIN_PATH="$(swift build -c release --product "${APP_NAME}" --show-bin-path)"
+BUNDLE_COUNT=0
+for RESOURCE_BUNDLE in "${BIN_PATH}"/*.bundle; do
+  [ -e "${RESOURCE_BUNDLE}" ] || continue
+  cp -R "${RESOURCE_BUNDLE}" "${APP_DIR}/Contents/Resources/"
+  BUNDLE_COUNT=$((BUNDLE_COUNT + 1))
+done
+if [ "${BUNDLE_COUNT}" -eq 0 ]; then
+  echo "리소스 번들을 찾지 못했습니다. 번역이 빠진 앱이 만들어집니다." >&2
+  exit 1
+fi
+
 ICON_SOURCE="Sources/MacCleanApp/Resources/AppIcon.icns"
 if [ -f "${ICON_SOURCE}" ]; then
   cp "${ICON_SOURCE}" "${APP_DIR}/Contents/Resources/AppIcon.icns"
@@ -65,6 +80,17 @@ cat > "${APP_DIR}/Contents/Info.plist" <<PLIST
     <string>AppIcon</string>
     <key>LSMinimumSystemVersion</key>
     <string>13.0</string>
+    <!-- 이걸 안 적으면 macOS 는 앱을 한국어 전용으로 보고, 영어 사용자에게도
+         메뉴와 창을 한국어로 띄운다. 번역 파일이 있어도 소용없다. -->
+    <key>CFBundleDevelopmentRegion</key>
+    <string>ko</string>
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>ko</string>
+        <string>en</string>
+        <string>ja</string>
+        <string>zh-Hans</string>
+    </array>
     <key>NSHighResolutionCapable</key>
     <true/>
     <!-- 샌드박스를 쓰지 않는다. 샌드박스 안에서는 ~/Library 를 읽을 수 없어

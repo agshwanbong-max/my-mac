@@ -1,0 +1,210 @@
+/* MacClean — English
+ *
+ * Translated from ko.lproj. Keep the keys in sync.
+ * A missing key shows the key itself on screen — that is deliberate.
+ *
+ * Tone: plain and direct. This app deletes files; hedging language
+ * makes people distrust it, and marketing language makes them distrust it more.
+ */
+
+/* MARK: - Common */
+"common.ok" = "OK";
+"common.cancel" = "Cancel";
+"common.close" = "Close";
+"common.itemCount" = "%d items";
+"common.pieces" = "%d";
+
+/* MARK: - Sidebar */
+"sidebar.all" = "All";
+"sidebar.categories" = "Categories";
+
+/* MARK: - Category names */
+"category.systemDataDiagnosis" = "System Data Diagnosis";
+"category.systemData" = "System Data";
+"category.spaceBreakdown" = "Where Space Went";
+"category.trash" = "Trash";
+"category.userCache" = "App Caches";
+"category.logs" = "Logs & Diagnostics";
+"category.xcode" = "Xcode";
+"category.simulators" = "iOS Simulators";
+"category.developerTooling" = "Developer Tool Caches";
+"category.nodeModules" = "Stale node_modules";
+"category.browser" = "Browser Caches";
+"category.mail" = "Mail Attachment Copies";
+"category.iosBackup" = "iPhone & iPad Backups";
+"category.downloads" = "Downloads Folder";
+"category.largeFiles" = "Large Files";
+"category.duplicates" = "Duplicate Files";
+"category.manualSelection" = "Manually Selected";
+
+/* MARK: - macOS storage categories */
+"storage.systemData" = "System Data";
+"storage.developer" = "Developer";
+"storage.applications" = "Applications";
+"storage.photos" = "Photos";
+"storage.documents" = "Documents";
+"storage.mail" = "Mail";
+"storage.messages" = "Messages";
+"storage.freeOfTotal" = "available · %@ total";
+"storage.reclaimable" = "%@ can be freed";
+"storage.nothingFound" = "Nothing to clean up.";
+
+/* MARK: - Verdict */
+"verdict.safe.title" = "Safe to delete";
+"verdict.checkFirst.title" = "Check before deleting";
+"verdict.keep.title" = "Do not delete";
+"verdict.safe.short" = "Safe";
+"verdict.checkFirst.short" = "Check first";
+"verdict.keep.short" = "Keep";
+"verdict.ifDeleted" = "If deleted";
+"verdict.chip.importance" = "Importance";
+"verdict.chip.recovery" = "Recovery";
+"verdict.signals" = "%d reasons behind this call";
+
+"importance.disposable" = "Disposable";
+"importance.replaceable" = "Replaceable";
+"importance.personal" = "Made by you";
+"importance.critical" = "Cannot be lost";
+
+"recoverability.regenerates" = "Regenerates automatically";
+"recoverability.redownloadable" = "Can be downloaded again";
+"recoverability.syncedElsewhere" = "Also in the cloud";
+"recoverability.inVersionControl" = "Pushed to a remote";
+"recoverability.unknown" = "Can't tell";
+"recoverability.onlyCopy" = "Only copy";
+
+/* MARK: - Removal method */
+"removal.trashItem" = "Move to Trash";
+"removal.permanentDelete" = "Delete permanently (no undo)";
+"removal.adviseOnly" = "Advice only";
+"removal.toolCommand" = "Delete with its own tool";
+
+/* MARK: - Scanning */
+"scan.running" = "Scanning";
+"scan.stop" = "Stop";
+"scan.readOnlyNotice" = "Reading only. Nothing is being deleted.";
+
+"progress.starting" = "Starting the scan…";
+"progress.systemData" = "Diagnosing System Data…";
+"progress.rules" = "Sweeping caches and logs…";
+"progress.simulators" = "Checking simulators…";
+"progress.iosBackup" = "Checking device backups…";
+"progress.nodeModules" = "Looking through project folders…";
+"progress.spaceBreakdown" = "Walking your whole home folder… (takes a while)";
+"progress.systemArea" = "Measuring outside home (apps and system folders)…";
+"progress.duplicates" = "Finding duplicates… (hashing files, this is the slow one)";
+"progress.default" = "Scanning…";
+
+/* MARK: - Toolbar */
+"toolbar.stopScan" = "Stop Scan";
+"toolbar.stopScan.help" = "Stops the scan";
+"toolbar.deepScan" = "Deep Analysis";
+"toolbar.deepScan.help" = "Walks your entire home folder to show where space went and find large files. Takes tens of seconds.";
+"toolbar.duplicates" = "Find Duplicates";
+"toolbar.duplicates.help" = "Finds byte-identical files in Documents, Downloads and Pictures. It hashes files, so this is the slowest scan.";
+"toolbar.restore" = "Restore";
+"toolbar.restore.help" = "Puts back what this app moved to the Trash";
+
+/* MARK: - List */
+"detail.showOnlyCategory" = "Show only this category";
+"detail.selectAll" = "Select All";
+"detail.deselectAll" = "Deselect All";
+"detail.deepScanRequired.title" = "Turn on Deep Analysis to see this";
+"detail.deepScanRequired.action" = "Turn on Deep Analysis and rescan";
+"detail.empty.all" = "Nothing to clean up";
+"detail.empty.category" = "Nothing in this category";
+"detail.empty.detail" = "You're clean.";
+"detail.skipped.title" = "Skipped during the scan";
+
+"row.chip.grade" = "Grade";
+"row.chip.action" = "Action";
+"row.chip.items" = "Items";
+"row.help.permanent" = "This cannot be undone";
+"row.help.expand" = "Show details";
+"row.help.adviseOnly" = "Advice only — this app will not touch it";
+"row.help.browse" = "Opens this folder so you can pick items yourself. These are not rule-verified, so the judgement is yours.";
+"row.menu.revealInFinder" = "Reveal in Finder";
+"row.menu.copyPath" = "Copy Path";
+"row.menu.copyCommand" = "Copy Command";
+"row.menu.browse" = "Open and pick manually";
+
+/* MARK: - Action */
+"action.rescan" = "Rescan";
+"action.rescan.help" = "Runs the scan again";
+"action.preview" = "Preview";
+"action.clean" = "Clean Up";
+"action.selectionSummary" = "%1$d selected · %2$@";
+"action.movesToTrash" = "Selected items go to the Trash";
+"action.containsPermanent" = "Your selection includes items that cannot be recovered";
+
+"confirm.title" = "Run the cleanup?";
+"confirm.toTrash" = "Move to Trash — %d items";
+"confirm.toTrash.detail" = "%@ · You can put these back from the Trash.";
+"confirm.permanent" = "Delete permanently — %d items";
+"confirm.permanent.detail" = "%@ · This cannot be undone.";
+"confirm.manual" = "Manually selected — %d items";
+"confirm.manual.detail" = "%@ · These were not verified by the app's rules. You chose them, so the app does not vouch for their safety.";
+"confirm.showPermanentList" = "Show what gets permanently deleted";
+"confirm.listItem" = "· %1$@ — %2$@";
+"confirm.emptyTrashNote" = "Space is only freed once you empty the Trash.";
+"confirm.previewOnly" = "Preview Only";
+"confirm.run" = "Run";
+
+"results.dryRun.title" = "Preview Result";
+"results.done.title" = "Cleanup Complete";
+"results.dryRun.detail" = "Nothing was actually deleted. Estimated to free: %@";
+"results.done.detail" = "Freed: %@";
+"results.emptyTrashNote" = "Space is only freed once you empty the Trash. Use your Mac for a few days first, then empty it if nothing broke.";
+
+/* MARK: - Manual browsing */
+"browser.measuring" = "Measuring folder sizes…";
+"browser.empty" = "This folder is empty or cannot be read.";
+"browser.openInFinder" = "Open in Finder";
+"browser.warning" = "These are not rule-verified cleanup candidates";
+"browser.blocked" = "This item cannot be deleted";
+"browser.containsKeep" = "Your selection includes items we recommend keeping";
+"browser.addToList" = "Add to Cleanup List";
+
+/* MARK: - Restore */
+"restore.title" = "Restore from Trash";
+"restore.subtitle" = "If something already sits in the original location, it is never overwritten. Undoing must not cause a new loss.";
+"restore.empty.title" = "Nothing to restore";
+"restore.empty.detail" = "Only items this app moved to the Trash show up here.";
+"restore.action" = "Restore";
+"restore.showInTrash" = "Show in Trash";
+"restore.moved" = "Moved %@ back to its original location.";
+
+/* MARK: - Permission */
+"permission.partial.title" = "Some items are hidden";
+"permission.partial.detail" = "Device backups, mail attachments and sandboxed app caches need Full Disk Access to be visible.";
+"permission.openSettings" = "Open Settings";
+
+/* MARK: - First run */
+"onboarding.tagline" = "Reclaims storage. Without deleting the wrong thing.";
+"onboarding.what.title" = "Shows you where your space went";
+"onboarding.what.body" = "Breaks down what macOS lumps together as 'System Data', folder by folder. Then it picks out the parts that are safe to delete.";
+"onboarding.access.on.title" = "Full Disk Access is on";
+"onboarding.access.on.body" = "iPhone backups, mail attachment copies and sandboxed app caches are all scannable.";
+"onboarding.access.off.title" = "Full Disk Access is required";
+"onboarding.access.off.body" = "Without it, macOS hides much of ~/Library from this app. There is no error — the folders simply look empty, so the app quietly finds half of what's there.\n\nThis permission is used to read only. You choose what gets deleted.";
+"onboarding.access.openSettings" = "Open Full Disk Access settings";
+"onboarding.access.hint" = "When Settings opens, switch MacClean on in the list and come back to this window. It rechecks automatically.";
+"onboarding.never.title" = "What this app never does";
+"onboarding.never.body" = "· Documents, photos, iCloud and credentials are blocked in code. No rule can reach them.\n· The default action is Move to Trash. It is reversible.\n· It never asks for administrator privileges.\n· Every item explains what it is and why, and asks once more before running.";
+"onboarding.start" = "Get Started";
+"onboarding.startWithout" = "Start without permission";
+
+/* MARK: - Menu & updates */
+"menu.checkUpdates" = "Check for Updates…";
+"menu.support" = "Support";
+"menu.support.item" = "Support MacClean…";
+"menu.support.help" = "MacClean is free. Opens the support page in your browser.";
+"menu.sourceCode" = "View Source Code";
+
+"update.alertTitle" = "Update";
+"update.available" = "Version %@ is out";
+"update.current" = "You're on %@.";
+"update.later" = "Later";
+"update.download" = "Get It";
+"update.upToDate" = "You're on the latest version.";
+"update.failed" = "Couldn't check for updates: %@";

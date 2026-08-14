@@ -25,9 +25,9 @@ struct RestoreSheet: View {
                         .font(.system(size: 30))
                         .symbolRenderingMode(.hierarchical)
                         .foregroundStyle(.tertiary)
-                    Text("되돌릴 항목이 없습니다")
+                    Text(L("restore.empty.title"))
                         .font(.headline)
-                    Text("이 앱이 휴지통으로 옮긴 것만 여기 나옵니다.")
+                    Text(L("restore.empty.detail"))
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
@@ -45,9 +45,9 @@ struct RestoreSheet: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 3) {
-            Text("휴지통에서 되돌리기")
+            Text(L("restore.title"))
                 .font(.headline)
-            Text("원래 자리에 이미 뭔가 있으면 덮어쓰지 않습니다. 되돌리기가 새로운 손실을 만들면 안 되니까요.")
+            Text(L("restore.subtitle"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -94,10 +94,10 @@ struct RestoreSheet: View {
                     .foregroundStyle(.secondary)
             }
 
-            Button("되돌리기") {
+            Button(L("restore.action")) {
                 switch model.restore(entry) {
                 case .restored(let url):
-                    message = "\(url.lastPathComponent) 을(를) 원래 자리로 옮겼습니다."
+                    message = L("restore.moved", url.lastPathComponent)
                 case .failed(let reason):
                     message = reason
                 }
@@ -109,7 +109,7 @@ struct RestoreSheet: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 9)
         .contextMenu {
-            Button("휴지통에서 보기") {
+            Button(L("restore.showInTrash")) {
                 NSWorkspace.shared.activateFileViewerSelecting([entry.trashedTo])
             }
         }
@@ -124,7 +124,7 @@ struct RestoreSheet: View {
                     .lineLimit(2)
             }
             Spacer()
-            Button("닫기") { model.isShowingRestore = false }
+            Button(L("common.close")) { model.isShowingRestore = false }
                 .primaryAction()
                 .keyboardShortcut(.defaultAction)
         }

@@ -1,0 +1,207 @@
+/* MacClean — 日本語
+ *
+ * ko.lproj からの翻訳。キーは同期させること。
+ * キーが欠けていると画面にキー名がそのまま出る（意図的な仕様）。
+ */
+
+/* MARK: - 共通 */
+"common.ok" = "OK";
+"common.cancel" = "キャンセル";
+"common.close" = "閉じる";
+"common.itemCount" = "%d件";
+"common.pieces" = "%d個";
+
+/* MARK: - サイドバー */
+"sidebar.all" = "すべて";
+"sidebar.categories" = "分類";
+
+/* MARK: - 分類名 */
+"category.systemDataDiagnosis" = "システムデータの診断";
+"category.systemData" = "システムデータ";
+"category.spaceBreakdown" = "容量の内訳";
+"category.trash" = "ゴミ箱";
+"category.userCache" = "アプリのキャッシュ";
+"category.logs" = "ログ・診断レポート";
+"category.xcode" = "Xcode";
+"category.simulators" = "iOS シミュレータ";
+"category.developerTooling" = "開発ツールのキャッシュ";
+"category.nodeModules" = "古い node_modules";
+"category.browser" = "ブラウザのキャッシュ";
+"category.mail" = "メール添付の一時コピー";
+"category.iosBackup" = "iPhone・iPad のバックアップ";
+"category.downloads" = "ダウンロードフォルダ";
+"category.largeFiles" = "大きなファイル";
+"category.duplicates" = "重複ファイル";
+"category.manualSelection" = "手動で選んだ項目";
+
+/* MARK: - macOS のストレージ分類 */
+"storage.systemData" = "システムデータ";
+"storage.developer" = "デベロッパ";
+"storage.applications" = "アプリケーション";
+"storage.photos" = "写真";
+"storage.documents" = "書類";
+"storage.mail" = "メール";
+"storage.messages" = "メッセージ";
+"storage.freeOfTotal" = "空き · 合計 %@";
+"storage.reclaimable" = "%@ を整理できます";
+"storage.nothingFound" = "整理できる項目は見つかりませんでした。";
+
+/* MARK: - 判定 */
+"verdict.safe.title" = "削除して問題ありません";
+"verdict.checkFirst.title" = "確認してから削除してください";
+"verdict.keep.title" = "削除しないでください";
+"verdict.safe.short" = "削除可";
+"verdict.checkFirst.short" = "要確認";
+"verdict.keep.short" = "保持";
+"verdict.ifDeleted" = "削除すると";
+"verdict.chip.importance" = "重要度";
+"verdict.chip.recovery" = "復旧";
+"verdict.signals" = "この判断の根拠 %d件";
+
+"importance.disposable" = "捨ててよい";
+"importance.replaceable" = "取り直せる";
+"importance.personal" = "自分で作ったもの";
+"importance.critical" = "失ってはいけない";
+
+"recoverability.regenerates" = "自動で再生成";
+"recoverability.redownloadable" = "再ダウンロード可能";
+"recoverability.syncedElsewhere" = "クラウドにもある";
+"recoverability.inVersionControl" = "リモートに push 済み";
+"recoverability.unknown" = "判断できない";
+"recoverability.onlyCopy" = "ここにしかない";
+
+/* MARK: - 処理方法 */
+"removal.trashItem" = "ゴミ箱に入れる";
+"removal.permanentDelete" = "完全に削除（取り消し不可）";
+"removal.adviseOnly" = "案内のみ";
+"removal.toolCommand" = "専用ツールで削除";
+
+/* MARK: - スキャン */
+"scan.running" = "スキャン中";
+"scan.stop" = "中止";
+"scan.readOnlyNotice" = "読み取るだけです。何も削除しません。";
+
+"progress.starting" = "スキャンを開始します…";
+"progress.systemData" = "システムデータを診断中…";
+"progress.rules" = "キャッシュとログを確認中…";
+"progress.simulators" = "シミュレータを確認中…";
+"progress.iosBackup" = "デバイスのバックアップを確認中…";
+"progress.nodeModules" = "プロジェクトフォルダを調べています…";
+"progress.spaceBreakdown" = "ホームフォルダ全体をスキャン中…（数十秒かかります）";
+"progress.systemArea" = "ホーム外（アプリ・システムフォルダ）を計測中…";
+"progress.duplicates" = "重複ファイルを検索中…（ハッシュ計算のため時間がかかります）";
+"progress.default" = "スキャン中…";
+
+/* MARK: - ツールバー */
+"toolbar.stopScan" = "スキャンを中止";
+"toolbar.stopScan.help" = "スキャンを中止します";
+"toolbar.deepScan" = "詳細分析";
+"toolbar.deepScan.help" = "ホームフォルダ全体をスキャンし、容量の内訳と大きなファイルを探します。数十秒かかります。";
+"toolbar.duplicates" = "重複を検索";
+"toolbar.duplicates.help" = "書類・ダウンロード・写真フォルダで内容が完全に同じファイルを探します。ハッシュ計算のため最も時間がかかります。";
+"toolbar.restore" = "元に戻す";
+"toolbar.restore.help" = "このアプリがゴミ箱に入れた項目を元の場所に戻します";
+
+/* MARK: - 一覧 */
+"detail.showOnlyCategory" = "この分類だけ表示";
+"detail.selectAll" = "すべて選択";
+"detail.deselectAll" = "選択を解除";
+"detail.deepScanRequired.title" = "詳細分析をオンにすると表示されます";
+"detail.deepScanRequired.action" = "詳細分析をオンにして再スキャン";
+"detail.empty.all" = "整理する項目はありません";
+"detail.empty.category" = "この分類には項目がありません";
+"detail.empty.detail" = "きれいな状態です。";
+"detail.skipped.title" = "スキャン中にスキップした項目";
+
+"row.chip.grade" = "等級";
+"row.chip.action" = "処理";
+"row.chip.items" = "項目";
+"row.help.permanent" = "元に戻せません";
+"row.help.expand" = "詳しく見る";
+"row.help.adviseOnly" = "案内のみ — このアプリは触りません";
+"row.help.browse" = "このフォルダを開いて中身を自分で選びます。ルールで検証した一覧ではないため、判断はご自身で行ってください。";
+"row.menu.revealInFinder" = "Finder で表示";
+"row.menu.copyPath" = "パスをコピー";
+"row.menu.copyCommand" = "コマンドをコピー";
+"row.menu.browse" = "開いて自分で選ぶ";
+
+/* MARK: - 実行 */
+"action.rescan" = "再スキャン";
+"action.rescan.help" = "もう一度スキャンします";
+"action.preview" = "プレビュー";
+"action.clean" = "整理を実行";
+"action.selectionSummary" = "%1$d件選択 · %2$@";
+"action.movesToTrash" = "選択した項目はゴミ箱に入ります";
+"action.containsPermanent" = "復元できない項目が含まれています";
+
+"confirm.title" = "整理を実行しますか？";
+"confirm.toTrash" = "ゴミ箱に入れる %d件";
+"confirm.toTrash.detail" = "%@ · ゴミ箱から元に戻せます。";
+"confirm.permanent" = "完全に削除 %d件";
+"confirm.permanent.detail" = "%@ · 元に戻せません。";
+"confirm.manual" = "手動で選んだ項目 %d件";
+"confirm.manual.detail" = "%@ · このアプリが検証した一覧ではありません。ご自身で選ばれた項目なので、安全は保証できません。";
+"confirm.showPermanentList" = "完全に削除される項目を表示";
+"confirm.listItem" = "· %1$@ — %2$@";
+"confirm.emptyTrashNote" = "ゴミ箱に入れた項目は、ゴミ箱を空にして初めて空き容量が増えます。";
+"confirm.previewOnly" = "プレビューのみ";
+"confirm.run" = "実行";
+
+"results.dryRun.title" = "プレビュー結果";
+"results.done.title" = "整理が完了しました";
+"results.dryRun.detail" = "実際には何も削除していません。確保できる見込み: %@";
+"results.done.detail" = "確保: %@";
+"results.emptyTrashNote" = "ゴミ箱に入れた項目は、ゴミ箱を空にして初めて空き容量が増えます。数日使ってみて問題がなければ空にしてください。";
+
+/* MARK: - 手動で選ぶ */
+"browser.measuring" = "フォルダのサイズを計測中です…";
+"browser.empty" = "このフォルダは空か、読み取れません。";
+"browser.openInFinder" = "Finder で開く";
+"browser.warning" = "ここはこのアプリが検証した整理リストではありません";
+"browser.blocked" = "削除できない項目です";
+"browser.containsKeep" = "保持を推奨する項目が含まれています";
+"browser.addToList" = "整理リストに追加";
+
+/* MARK: - 元に戻す */
+"restore.title" = "ゴミ箱から元に戻す";
+"restore.subtitle" = "元の場所に既に何かある場合は上書きしません。元に戻す操作が新たな損失を生んではいけないからです。";
+"restore.empty.title" = "元に戻す項目はありません";
+"restore.empty.detail" = "このアプリがゴミ箱に入れた項目だけがここに出ます。";
+"restore.action" = "元に戻す";
+"restore.showInTrash" = "ゴミ箱で表示";
+"restore.moved" = "%@ を元の場所に戻しました。";
+
+/* MARK: - 権限 */
+"permission.partial.title" = "一部の項目が見えていません";
+"permission.partial.detail" = "デバイスのバックアップ、メール添付、サンドボックスアプリのキャッシュはフルディスクアクセスがないと見えません。";
+"permission.openSettings" = "設定を開く";
+
+/* MARK: - 初回起動 */
+"onboarding.tagline" = "ストレージを整理します。間違って消すことなく。";
+"onboarding.what.title" = "容量がどこにあるかを教えます";
+"onboarding.what.body" = "macOS が「システムデータ」とひとまとめにしている中身を、フォルダ単位で見せます。そのうえで削除して問題ないものを選び出します。";
+"onboarding.access.on.title" = "フルディスクアクセスがオンです";
+"onboarding.access.on.body" = "iPhone のバックアップ、メール添付の一時コピー、サンドボックスアプリのキャッシュまですべてスキャンできます。";
+"onboarding.access.off.title" = "フルディスクアクセスが必要です";
+"onboarding.access.off.body" = "この権限がないと、macOS は ~/Library の大部分をアプリから隠します。エラーも出ず空のフォルダに見えるだけなので、権限がないとアプリは黙って半分しか見つけられません。\n\nこの権限は読み取りにのみ使います。何を削除するかは画面でご自身が選びます。";
+"onboarding.access.openSettings" = "フルディスクアクセスの設定を開く";
+"onboarding.access.hint" = "設定が開いたら一覧で MacClean をオンにして、このウインドウに戻ってください。自動で再確認します。";
+"onboarding.never.title" = "このアプリがしないこと";
+"onboarding.never.body" = "· 書類・写真・iCloud・認証情報はコードで遮断しています。ルールでも到達できません。\n· 既定の処理はゴミ箱への移動です。元に戻せます。\n· 管理者権限は要求しません。\n· 何をなぜ削除するかを項目ごとに説明し、実行前にもう一度確認します。";
+"onboarding.start" = "はじめる";
+"onboarding.startWithout" = "権限なしで始める";
+
+/* MARK: - メニュー・アップデート */
+"menu.checkUpdates" = "アップデートを確認…";
+"menu.support" = "支援する";
+"menu.support.item" = "MacClean を支援…";
+"menu.support.help" = "MacClean は無料です。支援ページをブラウザで開きます。";
+"menu.sourceCode" = "ソースコードを見る";
+
+"update.alertTitle" = "アップデート";
+"update.available" = "新しいバージョン %@ が出ました";
+"update.current" = "現在お使いなのは %@ です。";
+"update.later" = "あとで";
+"update.download" = "入手する";
+"update.upToDate" = "最新バージョンをお使いです。";
+"update.failed" = "アップデートを確認できませんでした: %@";

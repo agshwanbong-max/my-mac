@@ -10,7 +10,7 @@ struct SidebarView: View {
         List(selection: $model.sidebarSelection) {
             Section {
                 row(
-                    title: "전체",
+                    title: L("sidebar.all"),
                     symbol: "square.grid.2x2",
                     tint: .accentColor,
                     bytes: model.report?.totalReclaimable ?? 0,
@@ -32,7 +32,7 @@ struct SidebarView: View {
             }
 
             if let report = model.report, !report.categoriesInOrder.isEmpty {
-                Section("분류") {
+                Section(L("sidebar.categories")) {
                     // 시스템 데이터는 위 고정 자리에 이미 있다.
                     ForEach(report.categoriesInOrder.filter { $0 != .systemData }, id: \.self) { category in
                         row(
@@ -96,7 +96,7 @@ private struct SupportFooter: View {
         Link(destination: SupportLinks.support) {
             HStack(spacing: 6) {
                 Image(systemName: "heart")
-                Text("후원하기")
+                Text(L("menu.support"))
                 Spacer(minLength: 0)
             }
             .font(.caption)
@@ -104,7 +104,7 @@ private struct SupportFooter: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help("MacClean 은 무료입니다. 후원 페이지를 브라우저에서 엽니다.")
+        .help(L("menu.support.help"))
         .padding(.horizontal, 16)
         .padding(.vertical, 9)
     }
@@ -116,16 +116,16 @@ private struct PermissionNotice: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("일부 항목을 못 봅니다", systemImage: "lock.shield")
+            Label(L("permission.partial.title"), systemImage: "lock.shield")
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.orange)
 
-            Text("기기 백업, 메일 첨부, 샌드박스 앱 캐시는 전체 디스크 접근 권한이 있어야 보입니다.")
+            Text(L("permission.partial.detail"))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Button("설정 열기") { model.openFullDiskAccessSettings() }
+            Button(L("permission.openSettings")) { model.openFullDiskAccessSettings() }
                 .controlSize(.small)
         }
         .padding(12)

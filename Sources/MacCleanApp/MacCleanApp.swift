@@ -17,14 +17,14 @@ struct MacCleanApp: App {
         .commands {
             CommandGroup(replacing: .newItem) {}
             CommandGroup(after: .toolbar) {
-                Button("다시 검사") { model.startScan() }
+                Button(L("action.rescan")) { model.startScan() }
                     .keyboardShortcut("r")
             }
             CommandGroup(after: .appInfo) {
-                Button("업데이트 확인…") { model.checkForUpdates(announceNoUpdate: true) }
+                Button(L("menu.checkUpdates")) { model.checkForUpdates(announceNoUpdate: true) }
                 Divider()
-                Button("후원하기…") { NSWorkspace.shared.open(SupportLinks.support) }
-                Button("소스 코드 보기") { NSWorkspace.shared.open(SupportLinks.repository) }
+                Button(L("menu.support.item")) { NSWorkspace.shared.open(SupportLinks.support) }
+                Button(L("menu.sourceCode")) { NSWorkspace.shared.open(SupportLinks.repository) }
             }
         }
     }

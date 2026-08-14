@@ -16,21 +16,21 @@ struct UpdateBanner: View {
                     .foregroundStyle(.tint)
 
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("새 버전 \(manifest.version) 이 나왔습니다")
+                    Text(L("update.available", manifest.version))
                         .font(.callout.weight(.medium))
-                    Text("지금 쓰시는 건 \(model.currentVersion) 입니다.")
+                    Text(L("update.current", model.currentVersion))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
                 Spacer()
 
-                Button("나중에") { model.dismissUpdate() }
+                Button(L("update.later")) { model.dismissUpdate() }
                     .buttonStyle(.plain)
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
-                Button("받으러 가기") { model.openDownloadPage() }
+                Button(L("update.download")) { model.openDownloadPage() }
                     .controlSize(.small)
             }
             .padding(.horizontal, Design.gutter)
