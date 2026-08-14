@@ -49,8 +49,11 @@ struct SidebarView: View {
         }
         .listStyle(.sidebar)
         .safeAreaInset(edge: .bottom) {
-            if !model.hasFullDiskAccess {
-                PermissionNotice()
+            VStack(spacing: 0) {
+                if !model.hasFullDiskAccess {
+                    PermissionNotice()
+                }
+                SupportFooter()
             }
         }
     }
@@ -78,6 +81,32 @@ struct SidebarView: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+/// 사이드바 맨 아래에 **항상** 있다.
+///
+/// 메뉴 막대에도 후원하기가 있지만, 맥 앱의 메뉴 막대는 찾아 들어가는 사람만 본다.
+/// 무료로 쓰다가 문득 고마워지는 순간은 검사 결과를 볼 때인데, 그때 눈에 보이는 곳은 여기다.
+///
+/// 대신 조용해야 한다. 배지도, 색도, 강조도 없다 —
+/// 정리하러 온 사람을 붙잡고 돈 얘기를 하면 그게 광고다.
+private struct SupportFooter: View {
+    var body: some View {
+        Link(destination: SupportLinks.support) {
+            HStack(spacing: 6) {
+                Image(systemName: "heart")
+                Text("후원하기")
+                Spacer(minLength: 0)
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help("MacClean 은 무료입니다. 후원 페이지를 브라우저에서 엽니다.")
+        .padding(.horizontal, 16)
+        .padding(.vertical, 9)
     }
 }
 

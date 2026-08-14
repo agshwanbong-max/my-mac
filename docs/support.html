@@ -18,6 +18,10 @@
     transition: transform 0.12s ease, border-color 0.12s ease;
   }
   .donate:hover { transform: translateY(-2px); border-color: var(--tint); }
+  /* 승인 대기 중에는 자리만 지킨다. 눌리는 것처럼 보이면 안 된다. */
+  .donate.pending { opacity: 0.62; cursor: default; }
+  .donate.pending:hover { transform: none; border-color: var(--border); }
+  .donate.pending .donate-mark { background: var(--surface-2); color: var(--text-dim); }
   .donate-mark {
     width: 46px;
     height: 46px;
@@ -62,11 +66,6 @@
   </section>
 
   <div class="grid" data-donate></div>
-
-  <div class="note" data-donate-empty>
-    <strong>후원 링크는 아직 준비 중입니다.</strong><br>
-    그동안은 아래의 "돈 안 드는 방법" 쪽이 훨씬 도움이 됩니다.
-  </div>
 
   <p class="meta" style="text-align:center" data-donate-note>
     금액은 자유입니다. 커피 한 잔이면 충분하고, 안 하셔도 아무것도 달라지지 않습니다.
