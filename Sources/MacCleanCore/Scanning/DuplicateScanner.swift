@@ -54,7 +54,7 @@ public struct DuplicateScanner: Scanner {
             if isCancelled() || truncated { break }
             let root = context.paths.resolve(relative)
             guard FileManager.default.fileExists(atPath: root.path) else { continue }
-            context.progress.note("중복 후보 모으는 중… ~/\(relative)")
+            context.progress.note(L("progress.duplicateCandidates", relative))
 
             guard let enumerator = FileManager.default.enumerator(
                 at: root,
@@ -110,7 +110,7 @@ public struct DuplicateScanner: Scanner {
         }
 
         // ── 3단계: 전체 해시로 확정 ───────────────────────────────────
-        context.progress.note("중복 확인 중… \(candidates.count)묶음")
+        context.progress.note(L("progress.duplicateVerify", candidates.count))
         var confirmed: [(digest: String, urls: [URL], size: Int64)] = []
 
         for group in candidates {
@@ -157,7 +157,7 @@ public struct DuplicateScanner: Scanner {
                     risk: .review,
                     title: victim.lastPathComponent,
                     detail: "\(context.paths.abbreviate(victim.deletingLastPathComponent()))"
-                        + " · 같은 파일 \(group.urls.count)개 중 하나",
+                        + L("duplicate.oneOf", group.urls.count),
                     consequence: """
                     내용이 한 바이트도 다르지 않은 사본이 남습니다:
                     \(context.paths.abbreviate(keeper))
@@ -181,13 +181,13 @@ public struct DuplicateScanner: Scanner {
         if truncated {
             warnings.append(ScanWarning(
                 ruleID: "duplicates",
-                message: "파일이 너무 많아 중복 검사를 끝까지 하지 못했습니다. 일부만 찾았습니다."
+                message: L("warn.duplicateIncomplete")
             ))
         }
         if confirmed.count > maximumGroups {
             warnings.append(ScanWarning(
                 ruleID: "duplicates",
-                message: "중복 묶음이 \(confirmed.count)개 있는데 큰 것부터 \(maximumGroups)개만 보여줍니다."
+                message: L("warn.duplicateTruncated", confirmed.count, maximumGroups)
             ))
         }
 

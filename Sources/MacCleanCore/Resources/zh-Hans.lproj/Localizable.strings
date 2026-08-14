@@ -341,3 +341,220 @@
 "rule.appsupport.partitionCache.title" = "%@ 分区缓存";
 "rule.appsupport.partitionCache.explanation" = "%@ 为各类网页内容分别生成的缓存。";
 "rule.appsupport.partitionCache.consequence" = "App 会重新生成。";
+
+/* MARK: - 判断依据 */
+"signal.credentialFile" = "凭据文件";
+"signal.credentialFile.detail" = "扩展名 .%@ —— 证书或密钥。";
+"signal.credentialFolder" = "凭据文件夹";
+"signal.credentialFolder.detail" = "位于 ~/%@ 中。";
+"signal.generatedFolder" = "自动生成的文件夹";
+"signal.generatedFolder.detail" = "路径中含有「%@」，是工具生成的。";
+"signal.buildArtifact" = "构建产物";
+"signal.buildArtifact.detail" = "扩展名 .%@ —— 重新构建就会生成。";
+"signal.userFolder" = "用户文件夹";
+"signal.userFolder.detail" = "位于 ~/%@ 中，视为你自己放进去的。";
+"signal.workFile" = "工作文件";
+"signal.workFile.detail" = "扩展名 .%@ —— 属于人会自己创作的文件类型。";
+"signal.fetchedFile" = "获取来的文件";
+"signal.fetchedFile.detail" = "扩展名 .%@ —— 安装文件或压缩文件。";
+"signal.fromInternet" = "从互联网下载";
+"signal.fromInternet.detail" = "带有下载标记（quarantine）。";
+"signal.cloudFolder" = "云同步文件夹";
+"signal.cloudFolder.detail" = "位于 ~/%@ 中。在这里删除可能连云端也一起删除。";
+"signal.gitWithRemote" = "git 仓库（有远程）";
+"signal.gitWithRemote.detail" = "%@ —— 已提交并推送的内容可以重新取回。";
+"signal.gitNoRemote" = "git 仓库（无远程）";
+"signal.gitNoRemote.detail" = "%@ —— 没有上传过，只存在于这台 Mac。";
+"signal.notOpenedLong" = "很久没打开";
+"signal.notOpenedLong.detail" = "上次打开是 %d 天前。";
+"signal.recentlyUsed" = "最近使用过";
+"signal.recentlyUsed.detail" = "%d 天前打开过，可能正在使用。";
+"signal.lastUsed" = "上次使用";
+"signal.lastUsed.detail" = "%d 天前";
+
+/* MARK: - 判定结论 */
+"assess.critical.headline" = "属于凭据或唯一副本。本 App 不会删除这类项目。";
+"assess.critical.cost" = "没有办法找回。";
+"assess.personalInVCS.headline" = "是你自己创建的，但已推送到远程仓库。";
+"assess.personalInVCS.cost" = "重新克隆即可。未提交的改动会丢失。";
+"assess.personalInCloud.headline" = "是你自己创建的，且位于云同步文件夹中。";
+"assess.personalInCloud.cost" = "在这里删除会同时从其他设备和云端消失。";
+"assess.personalOnly.headline" = "看起来是你自己创建的，且没有找到其他副本。";
+"assess.personalOnly.cost" = "删除后无法再做出一份一样的。";
+"assess.redownloadable.headline" = "可以重新下载的文件。";
+"assess.redownloadable.cost.sized" = "需要重新下载 %@。";
+"assess.redownloadable.cost" = "需要重新下载。";
+"assess.inVCS.headline" = "内容在远程仓库中。";
+"assess.inVCS.cost" = "重新取回即可。";
+"assess.inCloud.headline" = "位于云同步文件夹中。";
+"assess.inCloud.cost" = "在这里删除会同时从其他设备消失。";
+"assess.noCopy.headline" = "没有找到副本，也没有远程。";
+"assess.noCopy.cost" = "删除后可能没有办法找回。";
+"assess.probablyReplaceable.headline" = "看起来可以重新生成或重新下载，但不确定。";
+"assess.probablyReplaceable.cost" = "重新获取需要时间。";
+"assess.disposable.headline" = "是工具生成的，需要时会重新生成。";
+"assess.disposable.cost.slow" = "没有代价。下次使用时可能会慢一次。";
+"assess.disposable.cost" = "没有代价。";
+
+/* MARK: - 通用（核心） */
+"common.fileCount" = "%d 个文件";
+"progress.walkingHome" = "正在扫描个人文件夹… %d 千个文件";
+"progress.measuring" = "正在测量 %@…";
+"progress.measuringApp" = "正在确认 App 大小… %@";
+"progress.finished" = "%@ 完成";
+"progress.duplicateCandidates" = "正在收集重复候选… ~/%@";
+"progress.duplicateVerify" = "正在核对重复… %d 组";
+
+/* MARK: - 风险等级 */
+"risk.safe" = "安全";
+"risk.review" = "需确认";
+"risk.advisory" = "仅提示";
+"risk.safe.detail" = "删除后系统或 App 会自动重新生成的缓存与日志。即便如此，执行前仍会请你确认。";
+"risk.review.detail" = "删除后需要重新下载或重新构建，也可能是唯一的一份，所以要逐项自行选择。";
+"risk.advisory.detail" = "本 App 不会碰它，只告诉你它为什么占空间、以及你可以怎么自行处理。";
+
+/* MARK: - 扫描过程中拼出的文字 */
+"scan.wildcardTitle" = "%1$@ — %2$@";
+"scan.detailWithName" = "%1$@ — %2$@";
+"scan.partialRead" = "（有部分项目读不到，实际大小可能更大。）";
+"scan.partialCount" = "（因权限或体积只统计了一部分 —— 实际可能更大）";
+"scan.costlyNote" = " 这一项重新生成很花时间，或者需要重新下载几百 MB。";
+
+/* MARK: - 扫描警告 */
+"warn.needsFullDiskAccess" = "「%@」因缺少完全磁盘访问权限而跳过。";
+"warn.appRunning" = "「%@」因对应 App 正在运行而跳过。请退出该 App 后重新扫描。";
+"warn.skippedByAge" = "「%1$@」中有 %2$d 项（%3$@）因最近 %4$d 天内有改动而被排除。";
+"warn.skippedByAge.hidden" = " 所以这一项没有出现在列表中。";
+"warn.skippedByRunningApp" = "「%1$@」中有 %2$d 项因对应 App 正在运行而跳过。退出该 App 后重新扫描即可清理。";
+"warn.breakdownIncomplete" = "文件太多，空间分布没能统计完。显示的数值比实际偏小。";
+"warn.duplicateIncomplete" = "文件太多，重复检查没能做完，只找到了一部分。";
+"warn.duplicateTruncated" = "共有 %1$d 组重复，只显示体积最大的 %2$d 组。";
+"warn.simulatorRunning" = "模拟器正在运行，已跳过模拟器相关项目。请退出后重新扫描。";
+"warn.xcrunUnavailable" = "无法运行 xcrun，已跳过模拟器检查。";
+"warn.iosBackupUnreadable" = "无法读取 iOS 备份文件夹。请在 系统设置 → 隐私与安全性 → 完全磁盘访问权限 中允许本 App。";
+
+/* MARK: - 空间分布 */
+"breakdown.total.title" = "个人文件夹内的系统数据合计";
+"breakdown.total.detail" = "以下各项之和。展开任一文件夹，用「打开并自行挑选」可以查看里面的内容。";
+"breakdown.total.consequence" = "请与 系统设置 > 储存空间 中的「系统数据」数值对比。如果那边更大，差额来自个人文件夹之外（/Library、/private/var）以及本地快照。那些需要管理员权限，本 App 不去动。macOS 的统计方式并未公开，因此这里是近似值。";
+"breakdown.folder.detail" = "%1$d 个文件 · macOS 分类：%2$@";
+"breakdown.largeFile.consequence" = "属于用户文件，本 App 不会碰。请在访达中自行查看并判断。";
+"breakdown.hint.wallpaper" = "macOS 的动态墙纸与屏保素材。每段好几 GB，不再使用后也会一直留着。在 系统设置 → 墙纸 中改用静态图片墙纸，macOS 会自行清理。这是系统管理的区域，本 App 不直接删除。";
+"breakdown.hint.claude" = "大部分是 vm_bundles 内的虚拟机镜像（rootfs.img）。它不是缓存，而是 App 正在使用的实际镜像，因此本 App 不会碰。若不需要，请在该 App 的设置中关闭相关功能，让它自行清理。里面的 Cache / Code Cache / GPUCache 会作为清理对象处理。";
+"breakdown.hint.electron" = "Electron App 的数据文件夹。里面的 Cache / Code Cache / GPUCache 会作为清理对象处理，其余是登录状态和本地数据，不会碰。";
+"breakdown.hint.chrome" = "Chrome 的配置文件。里面有历史记录、书签、密码和扩展程序，本 App 不会碰。体积变大通常是因为 OptGuideOnDeviceModel（设备端 AI 模型，好几 GB）和更新程序缓存。请在 Chrome 内清理：设置 → 隐私 → 删除浏览数据 → 缓存的图片和文件。";
+"breakdown.hint.developer" = "Xcode 使用的位置。DerivedData、iOS 设备支持文件、归档都放在这里。是开发者 Mac 上膨胀最厉害的文件夹。";
+"breakdown.hint.coreSimulator" = "模拟器设备与运行时。可在 Xcode → Settings → Platforms 中删除不用的版本。";
+"breakdown.hint.appSupport" = "各 App 存放实际数据的位置。是数据而非缓存，所以大部分不会碰。";
+"breakdown.hint.xcodeShared" = "Xcode 与模拟器使用的位置。";
+"breakdown.hint.caches" = "App 缓存。是本 App 作为清理对象处理的地方。";
+"breakdown.hint.containers" = "沙盒 App 的数据。只有缓存是清理对象，其余是 App 数据。";
+"breakdown.hint.groupContainers" = "多个 App 共享的数据。属于 App 数据，不会碰。";
+"breakdown.hint.pictures" = "照片图库。请在照片 App 中整理。";
+"breakdown.hint.downloads" = "下载文件夹。旧的安装文件会作为清理对象处理。";
+"breakdown.hint.userFiles" = "你自己的文件。本 App 绝不会碰。";
+"breakdown.hint.generic" = "空间占用情况。本 App 不会碰这个文件夹。";
+
+/* MARK: - 个人文件夹之外 */
+"systemArea.hint.libraryCaches" = "整个系统共用的缓存。在 macOS 储存空间界面中算作「系统数据」。需要管理员权限，本 App 不会碰。";
+"systemArea.hint.libraryAppSupport" = "所有用户共用的 App 数据。Adobe、虚拟机、开发工具在这里占地很大。算作「系统数据」。";
+"systemArea.hint.libraryDeveloper" = "安装在系统层面的开发者工具。从 Xcode 15 起，模拟器运行时放在这里。可在 Xcode → Settings → Platforms 中删除不用的版本。";
+"systemArea.hint.libraryLogs" = "系统日志，通常不大。";
+"systemArea.hint.varFolders" = "系统管理的临时文件夹。重启后会清理掉相当一部分。算作「系统数据」。";
+"systemArea.installedApp.detail" = "已安装的 App · /Applications";
+"systemArea.installedApp.consequence" = "在 macOS 储存空间界面中算作「应用程序」。不用的 App 请在访达中拖到废纸篓。本 App 不会删除已安装的程序。";
+"systemArea.categoryMap.title" = "macOS 储存空间分类与实际文件夹的对应";
+"systemArea.categoryMap.detail" = "系统设置储存空间界面里的各个分类，实际指向哪里。\n你想减少哪个数字，动手的地方就不同。";
+"systemArea.categoryMap.consequence" = "· 开发者  →  ~/Library/Developer\n  iOS DeviceSupport、模拟器、DerivedData。清理这里会让「开发者」变小，「系统数据」不变。\n\n· 应用程序  →  /Applications\n  光 Xcode 一个就 15–20GB。只有删 App 才会变小。\n\n· 系统数据  →  其余全部\n  ~/Library/Application Support、~/Library/Caches、~/Library/Containers、\n  /Library、/private/var 和本地快照都归到这里。";
+
+/* MARK: - 系统数据诊断 */
+"systemData.tmSnapshots.title" = "%d 个 Time Machine 本地快照";
+"systemData.updateSnapshots.title" = "%d 个 macOS 更新快照";
+"systemData.purgeable.title" = "可回收（purgeable）空间约 %@";
+"systemData.purgeable.consequence" = "这也是磁盘工具和访达显示的可用空间对不上的原因。";
+"systemData.volume.title" = "磁盘概况";
+"systemData.volume.consequence" = "「系统数据」不是某一个文件夹，而是 macOS 无法归类的所有内容之和 —— 快照、缓存、日志、模拟器、设备备份全都算进去。";
+
+/* MARK: - 模拟器 · 备份 · node_modules */
+"simulator.unavailable.title" = "%d 台无法使用的模拟器设备";
+"simulator.unavailable.detail" = "它们所用的运行时已不再安装，Xcode 无法启动这些设备。";
+"simulator.unavailable.consequence" = "用 `xcrun simctl delete unavailable` 可以一次性干净删除。需要时可以在 Xcode 里重新创建相同的设备。";
+"simulator.runtimes.title" = "已安装的模拟器运行时 %1$d 个 · %2$@";
+"simulator.runtimes.detail" = "每个 iOS 版本装一套运行时，每套 7–10GB。";
+"simulator.runtimes.consequence" = "请在 Xcode → Settings → Platforms 中删除不用的版本。直接删文件会和 Xcode 的列表对不上，所以本 App 不会碰。";
+"iosBackup.title" = "%@ 的备份";
+"iosBackup.device" = "设备：%@";
+"iosBackup.lastBackup" = " · 上次备份 %@";
+"nodeModules.detail" = "%1$@ · 距上次改动已 %2$d 天";
+"nodeModules.consequence" = "在项目文件夹里重新运行 `npm install`（或 yarn/pnpm）即可原样恢复。源代码和 package.json 不受影响。";
+"duplicate.oneOf" = " · %d 个相同文件中的一个";
+
+/* MARK: - 执行结果 */
+"outcome.removed" = "已移到废纸篓";
+"outcome.deleted" = "已删除";
+"outcome.simulated" = "预览";
+"outcome.skipped" = "已跳过";
+"outcome.failed" = "失败";
+"outcome.planned" = "待%1$@ · %2$@";
+"outcome.trashed" = "已移到废纸篓 · %@";
+"outcome.trashFailed" = "无法移到废纸篓：%@";
+"outcome.deletedDetail" = "已删除 · %@";
+"outcome.deleteFailed" = "无法删除：%@";
+"outcome.commandPlanned" = "将执行：%@";
+"outcome.commandDone" = "%1$@ 执行完成 · %2$@";
+"outcome.commandFailed" = "命令失败：%@";
+"outcome.commandError" = "无法执行命令：%@";
+
+/* MARK: - 跳过原因 */
+"skip.cancelled" = "你中止了执行。";
+"skip.adviseOnly" = "仅提示的项目，本 App 不会碰。";
+"skip.noPath" = "没有路径。";
+"skip.noConstraints" = "缺少安全约束信息，无法校验。";
+"skip.gate" = "被安全检查拦下 [%1$@] %2$@";
+"skip.critical" = "看起来是凭据或唯一副本，未删除：%@";
+"skip.survivorGone" = "本应保留的副本不见了。删掉这个就只剩不下任何一份。";
+"skip.survivorChanged" = "本应保留的副本在扫描后内容变了，已经不是同一个文件。";
+"skip.notDuplicateAnymore" = "这个文件在扫描后内容变了，已不再是重复文件。";
+"skip.changedSinceScan" = "扫描之后内容有改动，可能正在使用，因此跳过。请重新扫描。";
+"skip.unreachable" = "本不该走到这里的路径。";
+"skip.noCommand" = "没有要执行的命令。";
+"skip.commandNotAllowed" = "不允许的命令：%@";
+
+/* MARK: - 撤销 */
+"restore.blocked.gone" = "已从废纸篓消失。如果你清倒过废纸篓，就无法放回了。";
+"restore.blocked.occupied" = "原位置已经有别的东西，不会覆盖。";
+"restore.failed.gone" = "已从废纸篓消失。";
+"restore.failed.occupied" = "原位置已经有别的东西，没有覆盖。";
+"restore.failed.mkdir" = "无法重建原来的文件夹：%@";
+"restore.failed.generic" = "无法放回：%@";
+"restore.audit.message" = "已从废纸篓放回";
+
+/* MARK: - 安全关卡 */
+"guard.pass" = "通过";
+"guard.g1.notAbsolute" = "不是绝对文件路径";
+"guard.g1.parentRef" = "含有上级路径引用（..）";
+"guard.g1.volumeRoot" = "宗卷根目录";
+"guard.g2.missing" = "路径不存在";
+"guard.g2.symlink" = "符号链接 —— 不以链接为目标";
+"guard.g2.resolvedProtected" = "链接解析后落在受保护路径：%@";
+"guard.g3.protected" = "受保护对象：%@";
+"guard.g3.protectedPrefix" = "受保护路径：%@";
+"guard.g4.outsideRoot" = "在规则允许的根目录之外";
+"guard.g4.homeItself" = "个人文件夹本身";
+"guard.g4.aboveHome" = "个人文件夹的上级路径";
+"guard.g5.tooShallow" = "路径深度 %1$d < 最小 %2$d";
+"guard.g6.notOwned" = "不属于当前用户（uid %d）";
+"guard.g6.otherVolume" = "与个人文件夹不在同一宗卷";
+"guard.g6.sip" = "SIP 保护标记（SF_RESTRICTED）";
+"guard.g6.immutable" = "锁定标记（immutable）";
+"guard.g7.noWrite" = "上级目录没有写入权限";
+"protected.byName" = "路径中含有受保护的名称「%@」";
+"protected.insideBundle" = "位于受保护的宗包「%@」内部";
+
+/* MARK: - 命令执行与更新 */
+"shell.notAllowed" = "不允许的可执行文件：%@";
+"shell.notFound" = "找不到可执行文件：%@";
+"shell.failed" = "命令执行失败：%@";
+"shell.timeout" = "命令未在限定时间内结束。";
+"update.httpStatus" = "服务器响应 %d";
+"update.badVersionFormat" = "无法读取版本格式";

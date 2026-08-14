@@ -342,3 +342,220 @@
 "rule.appsupport.partitionCache.title" = "%@ 파티션 캐시";
 "rule.appsupport.partitionCache.explanation" = "%@ 이 웹 콘텐츠별로 따로 만든 캐시입니다.";
 "rule.appsupport.partitionCache.consequence" = "앱이 다시 만듭니다.";
+
+/* MARK: - 판정 근거 */
+"signal.credentialFile" = "자격 증명 파일";
+"signal.credentialFile.detail" = "확장자 .%@ — 인증서나 키입니다.";
+"signal.credentialFolder" = "자격 증명 폴더";
+"signal.credentialFolder.detail" = "~/%@ 안입니다.";
+"signal.generatedFolder" = "자동 생성 폴더";
+"signal.generatedFolder.detail" = "경로에 '%@' 가 있습니다. 도구가 만들어낸 것입니다.";
+"signal.buildArtifact" = "빌드 산출물";
+"signal.buildArtifact.detail" = "확장자 .%@ — 다시 빌드하면 만들어집니다.";
+"signal.userFolder" = "사용자 폴더";
+"signal.userFolder.detail" = "~/%@ 안입니다. 직접 넣어둔 것으로 봅니다.";
+"signal.workFile" = "작업 파일";
+"signal.workFile.detail" = "확장자 .%@ — 직접 만드는 종류의 파일입니다.";
+"signal.fetchedFile" = "받아온 파일";
+"signal.fetchedFile.detail" = "확장자 .%@ — 설치 파일이나 압축 파일입니다.";
+"signal.fromInternet" = "인터넷에서 받음";
+"signal.fromInternet.detail" = "다운로드 표시(quarantine)가 붙어 있습니다.";
+"signal.cloudFolder" = "클라우드 동기화 폴더";
+"signal.cloudFolder.detail" = "~/%@ 안입니다. 여기서 지우면 클라우드에서도 지워질 수 있습니다.";
+"signal.gitWithRemote" = "git 저장소 (원격 있음)";
+"signal.gitWithRemote.detail" = "%@ — 커밋·푸시된 내용은 다시 받을 수 있습니다.";
+"signal.gitNoRemote" = "git 저장소 (원격 없음)";
+"signal.gitNoRemote.detail" = "%@ — 올려둔 곳이 없어 이 맥에만 있습니다.";
+"signal.notOpenedLong" = "오래 열지 않음";
+"signal.notOpenedLong.detail" = "마지막으로 연 지 %d일 지났습니다.";
+"signal.recentlyUsed" = "최근에 사용";
+"signal.recentlyUsed.detail" = "%d일 전에 열었습니다. 지금 쓰는 중일 수 있습니다.";
+"signal.lastUsed" = "마지막 사용";
+"signal.lastUsed.detail" = "%d일 전";
+
+/* MARK: - 판정 결론 */
+"assess.critical.headline" = "자격 증명이거나 유일본입니다. 이 앱은 이런 항목을 지우지 않습니다.";
+"assess.critical.cost" = "되돌릴 방법이 없습니다.";
+"assess.personalInVCS.headline" = "직접 만든 것이지만 원격 저장소에 올라가 있습니다.";
+"assess.personalInVCS.cost" = "다시 받으면 됩니다. 커밋하지 않은 변경은 사라집니다.";
+"assess.personalInCloud.headline" = "직접 만든 것이고, 클라우드 동기화 폴더 안입니다.";
+"assess.personalInCloud.cost" = "여기서 지우면 다른 기기와 클라우드에서도 사라집니다.";
+"assess.personalOnly.headline" = "직접 만든 것으로 보이고, 다른 사본을 찾지 못했습니다.";
+"assess.personalOnly.cost" = "지우면 같은 걸 다시 만들 수 없습니다.";
+"assess.redownloadable.headline" = "다시 받을 수 있는 파일입니다.";
+"assess.redownloadable.cost.sized" = "%@ 를 다시 내려받아야 합니다.";
+"assess.redownloadable.cost" = "다시 내려받아야 합니다.";
+"assess.inVCS.headline" = "원격 저장소에 있는 내용입니다.";
+"assess.inVCS.cost" = "다시 받으면 됩니다.";
+"assess.inCloud.headline" = "클라우드 동기화 폴더 안입니다.";
+"assess.inCloud.cost" = "여기서 지우면 다른 기기에서도 사라집니다.";
+"assess.noCopy.headline" = "사본이나 원격을 찾지 못했습니다.";
+"assess.noCopy.cost" = "지우면 되돌릴 방법이 없을 수 있습니다.";
+"assess.probablyReplaceable.headline" = "다시 만들거나 다시 받을 수 있어 보이지만, 확실하지는 않습니다.";
+"assess.probablyReplaceable.cost" = "다시 구하는 데 시간이 걸립니다.";
+"assess.disposable.headline" = "도구가 만들어낸 것입니다. 필요하면 다시 만들어집니다.";
+"assess.disposable.cost.slow" = "없음. 다음에 쓸 때 한 번 느려질 수 있습니다.";
+"assess.disposable.cost" = "없음.";
+
+/* MARK: - 공통 (코어) */
+"common.fileCount" = "%d개 파일";
+"progress.walkingHome" = "홈을 훑는 중… %d천 개 파일";
+"progress.measuring" = "%@ 재는 중…";
+"progress.measuringApp" = "앱 크기 확인 중… %@";
+"progress.finished" = "%@ 완료";
+"progress.duplicateCandidates" = "중복 후보 모으는 중… ~/%@";
+"progress.duplicateVerify" = "중복 확인 중… %d묶음";
+
+/* MARK: - 위험 등급 */
+"risk.safe" = "안전";
+"risk.review" = "확인 필요";
+"risk.advisory" = "안내 전용";
+"risk.safe.detail" = "지워도 시스템이나 앱이 자동으로 다시 만드는 캐시·로그입니다. 그래도 실행 전 승인을 받습니다.";
+"risk.review.detail" = "지우면 다시 받거나 다시 빌드해야 합니다. 유일본일 수도 있어 항목마다 직접 선택해야 합니다.";
+"risk.advisory.detail" = "이 앱은 이 항목을 건드리지 않습니다. 용량을 차지하는 이유와 직접 처리하는 방법만 알려줍니다.";
+
+/* MARK: - 검사 중 만들어지는 문구 */
+"scan.wildcardTitle" = "%1$@ — %2$@";
+"scan.detailWithName" = "%1$@ — %2$@";
+"scan.partialRead" = " (일부 항목을 읽지 못해 실제 크기는 이보다 클 수 있습니다.)";
+"scan.partialCount" = " (권한이나 크기 때문에 일부만 셌습니다 — 실제로는 더 클 수 있습니다)";
+"scan.costlyNote" = " 이 항목은 다시 만드는 데 시간이 오래 걸리거나 수백 MB 를 다시 내려받아야 합니다.";
+
+/* MARK: - 검사 경고 */
+"warn.needsFullDiskAccess" = "'%@' 은(는) 전체 디스크 접근 권한이 없어 건너뛰었습니다.";
+"warn.appRunning" = "'%@' 은(는) 해당 앱이 실행 중이라 건너뛰었습니다. 앱을 종료한 뒤 다시 검사하세요.";
+"warn.skippedByAge" = "'%1$@' 에서 %2$d개(%3$@)를 최근 %4$d일 이내에 변경됐다는 이유로 제외했습니다.";
+"warn.skippedByAge.hidden" = " 그래서 이 항목은 목록에 나오지 않습니다.";
+"warn.skippedByRunningApp" = "'%1$@' 에서 %2$d개를 해당 앱이 실행 중이라 건너뛰었습니다. 그 앱을 종료하고 다시 검사하면 정리할 수 있습니다.";
+"warn.breakdownIncomplete" = "파일이 너무 많아 용량 분포를 끝까지 세지 못했습니다. 표시된 값은 실제보다 작습니다.";
+"warn.duplicateIncomplete" = "파일이 너무 많아 중복 검사를 끝까지 하지 못했습니다. 일부만 찾았습니다.";
+"warn.duplicateTruncated" = "중복 묶음이 %1$d개 있는데 큰 것부터 %2$d개만 보여줍니다.";
+"warn.simulatorRunning" = "시뮬레이터가 실행 중이라 시뮬레이터 항목을 건너뛰었습니다. 종료 후 다시 검사하세요.";
+"warn.xcrunUnavailable" = "xcrun 을 실행할 수 없어 시뮬레이터 검사를 건너뛰었습니다.";
+"warn.iosBackupUnreadable" = "iOS 백업 폴더를 읽지 못했습니다. 시스템 설정 → 개인정보 보호 및 보안 → 전체 디스크 접근에서 이 앱을 허용해 주세요.";
+
+/* MARK: - 용량 분포 */
+"breakdown.total.title" = "홈 안의 시스템 데이터 합계";
+"breakdown.total.detail" = "아래 항목들의 합입니다. 각 폴더를 펼쳐 '열어서 직접 고르기' 로 안을 볼 수 있습니다.";
+"breakdown.total.consequence" = "시스템 설정 > 저장 공간 의 '시스템 데이터' 숫자와 비교해 보세요. 여기 나온 것보다 시스템 설정 숫자가 크다면, 차이는 홈 밖(/Library, /private/var)과 로컬 스냅샷입니다. 그쪽은 관리자 권한이 필요해 이 앱이 손대지 않습니다. macOS 가 정확히 어떻게 세는지는 공개돼 있지 않아 이 값은 근사치입니다.";
+"breakdown.folder.detail" = "%1$d개 파일 · macOS 분류: %2$@";
+"breakdown.largeFile.consequence" = "사용자 파일이라 이 앱은 건드리지 않습니다. 파인더에서 직접 확인하고 판단하세요.";
+"breakdown.hint.wallpaper" = "macOS 의 동영상 배경화면·화면 보호기 에셋입니다. 하나에 수 GB 씩 하고, 한 번 쓴 것도 계속 남습니다. 시스템 설정 → 배경화면 에서 정지 이미지 배경으로 바꾸면 macOS 가 스스로 정리합니다. 시스템이 관리하는 영역이라 이 앱은 직접 지우지 않습니다.";
+"breakdown.hint.claude" = "대부분이 vm_bundles 안의 가상머신 이미지(rootfs.img)입니다. 캐시가 아니라 앱이 쓰는 실제 이미지라 이 앱은 건드리지 않습니다. 필요 없다면 Claude 앱 설정에서 해당 기능을 끄고 앱이 스스로 정리하게 하세요. 안의 Cache / Code Cache / GPUCache 는 이 앱이 정리 대상으로 다룹니다.";
+"breakdown.hint.electron" = "Electron 앱의 데이터 폴더입니다. 안의 Cache / Code Cache / GPUCache 는 이 앱이 정리 대상으로 다룹니다. 나머지는 로그인 상태와 로컬 데이터라 건드리지 않습니다.";
+"breakdown.hint.chrome" = "Chrome 프로필입니다. 방문 기록·북마크·비밀번호·확장 프로그램이 들어 있어 이 앱은 건드리지 않습니다. 덩치가 크면 보통 OptGuideOnDeviceModel(기기 내 AI 모델, 수 GB)과 업데이터 캐시 때문입니다. 크롬에서 직접 정리하세요: 설정 → 개인정보 보호 → 인터넷 사용 기록 삭제 → 캐시된 이미지 및 파일.";
+"breakdown.hint.developer" = "Xcode 가 쓰는 곳입니다. DerivedData, iOS 기기 지원 파일, 아카이브가 여기 들어갑니다. 개발자 맥에서 가장 크게 부푸는 폴더입니다.";
+"breakdown.hint.coreSimulator" = "시뮬레이터 기기와 런타임입니다. Xcode → Settings → Platforms 에서 안 쓰는 버전을 지울 수 있습니다.";
+"breakdown.hint.appSupport" = "앱들이 실제 데이터를 넣어두는 곳입니다. 캐시가 아니라 데이터라서 대부분 건드리지 않습니다.";
+"breakdown.hint.xcodeShared" = "Xcode 와 시뮬레이터가 쓰는 곳입니다.";
+"breakdown.hint.caches" = "앱 캐시입니다. 이 앱이 정리 대상으로 다루는 곳입니다.";
+"breakdown.hint.containers" = "샌드박스 앱들의 데이터입니다. 캐시만 정리 대상이고 나머지는 앱 데이터입니다.";
+"breakdown.hint.groupContainers" = "여러 앱이 공유하는 데이터입니다. 앱 데이터라 건드리지 않습니다.";
+"breakdown.hint.pictures" = "사진 보관함입니다. 사진 앱에서 정리하세요.";
+"breakdown.hint.downloads" = "다운로드 폴더입니다. 오래된 설치 파일은 이 앱이 정리 대상으로 다룹니다.";
+"breakdown.hint.userFiles" = "사용자 파일입니다. 이 앱은 절대 건드리지 않습니다.";
+"breakdown.hint.generic" = "용량 차지 현황입니다. 이 앱은 이 폴더를 건드리지 않습니다.";
+
+/* MARK: - 홈 밖 영역 */
+"systemArea.hint.libraryCaches" = "시스템 전체가 쓰는 캐시입니다. macOS 저장 공간 화면에서는 '시스템 데이터'로 잡힙니다. 관리자 권한이 필요해 이 앱은 건드리지 않습니다.";
+"systemArea.hint.libraryAppSupport" = "모든 사용자가 함께 쓰는 앱 데이터입니다. Adobe·가상머신·개발 도구가 여기 크게 자리잡습니다. '시스템 데이터'로 잡힙니다.";
+"systemArea.hint.libraryDeveloper" = "시스템에 설치된 개발자 도구입니다. Xcode 15 부터는 시뮬레이터 런타임이 여기 들어갑니다. Xcode → Settings → Platforms 에서 안 쓰는 버전을 지울 수 있습니다.";
+"systemArea.hint.libraryLogs" = "시스템 로그입니다. 보통 크지 않습니다.";
+"systemArea.hint.varFolders" = "시스템이 관리하는 임시 폴더입니다. 재부팅하면 상당 부분 정리됩니다. '시스템 데이터'로 잡힙니다.";
+"systemArea.installedApp.detail" = "설치된 앱 · /Applications";
+"systemArea.installedApp.consequence" = "macOS 저장 공간 화면의 '응용 프로그램' 칸에 잡힙니다. 안 쓰는 앱이면 파인더에서 휴지통으로 옮기세요. 이 앱은 설치된 프로그램을 지우지 않습니다.";
+"systemArea.categoryMap.title" = "macOS 저장 공간 화면의 칸과 실제 폴더";
+"systemArea.categoryMap.detail" = "시스템 설정의 저장 공간 화면에 나오는 칸이 각각 어디를 가리키는지입니다.\n어느 숫자를 줄이려는지에 따라 손댈 곳이 다릅니다.";
+"systemArea.categoryMap.consequence" = "· 개발자  →  ~/Library/Developer\n  iOS DeviceSupport, 시뮬레이터, DerivedData. 여기를 지우면 '개발자' 칸이 줄고 '시스템 데이터'는 그대로입니다.\n\n· 응용 프로그램  →  /Applications\n  Xcode 하나가 15~20GB 입니다. 앱을 지워야 줄어듭니다.\n\n· 시스템 데이터  →  나머지 전부\n  ~/Library/Application Support, ~/Library/Caches, ~/Library/Containers,\n  /Library, /private/var, 로컬 스냅샷이 여기로 들어갑니다.";
+
+/* MARK: - 시스템 데이터 진단 */
+"systemData.tmSnapshots.title" = "Time Machine 로컬 스냅샷 %d개";
+"systemData.updateSnapshots.title" = "macOS 업데이트 스냅샷 %d개";
+"systemData.purgeable.title" = "회수 가능(purgeable) 공간 약 %@";
+"systemData.purgeable.consequence" = "디스크 유틸리티나 파인더가 보여주는 여유 공간이 서로 다르게 보이는 이유이기도 합니다.";
+"systemData.volume.title" = "디스크 현황";
+"systemData.volume.consequence" = "'시스템 데이터'는 하나의 폴더가 아니라, macOS 가 분류하지 못한 모든 것의 합계입니다. 스냅샷·캐시·로그·시뮬레이터·기기 백업이 전부 여기로 들어갑니다.";
+
+/* MARK: - 시뮬레이터 · 백업 · node_modules */
+"simulator.unavailable.title" = "사용할 수 없는 시뮬레이터 기기 %d대";
+"simulator.unavailable.detail" = "쓰던 런타임이 더 이상 설치돼 있지 않아 Xcode 에서 실행할 수 없는 기기들입니다.";
+"simulator.unavailable.consequence" = "`xcrun simctl delete unavailable` 로 한 번에 정상 삭제됩니다. 필요하면 Xcode 에서 같은 기기를 새로 만들 수 있습니다.";
+"simulator.runtimes.title" = "설치된 시뮬레이터 런타임 %1$d개 · %2$@";
+"simulator.runtimes.detail" = "iOS 버전마다 런타임이 한 벌씩 설치됩니다. 하나에 7~10GB 씩 합니다.";
+"simulator.runtimes.consequence" = "Xcode → Settings → Platforms 에서 안 쓰는 버전을 지우세요. 파일을 직접 지우면 Xcode 의 목록과 어긋나므로 이 앱은 건드리지 않습니다.";
+"iosBackup.title" = "%@ 백업";
+"iosBackup.device" = "기기: %@";
+"iosBackup.lastBackup" = " · 마지막 백업 %@";
+"nodeModules.detail" = "%1$@ · 마지막 변경 후 %2$d일 경과";
+"nodeModules.consequence" = "프로젝트 폴더에서 `npm install` (또는 yarn/pnpm) 을 다시 돌리면 그대로 복구됩니다. 소스 코드와 package.json 은 건드리지 않습니다.";
+"duplicate.oneOf" = " · 같은 파일 %d개 중 하나";
+
+/* MARK: - 실행 결과 */
+"outcome.removed" = "휴지통으로 이동";
+"outcome.deleted" = "삭제 완료";
+"outcome.simulated" = "미리보기";
+"outcome.skipped" = "건너뜀";
+"outcome.failed" = "실패";
+"outcome.planned" = "%1$@ 예정 · %2$@";
+"outcome.trashed" = "휴지통으로 옮겼습니다 · %@";
+"outcome.trashFailed" = "휴지통으로 옮기지 못했습니다: %@";
+"outcome.deletedDetail" = "삭제했습니다 · %@";
+"outcome.deleteFailed" = "삭제하지 못했습니다: %@";
+"outcome.commandPlanned" = "실행 예정: %@";
+"outcome.commandDone" = "%1$@ 실행 완료 · %2$@";
+"outcome.commandFailed" = "명령 실패: %@";
+"outcome.commandError" = "명령을 실행하지 못했습니다: %@";
+
+/* MARK: - 건너뛴 이유 */
+"skip.cancelled" = "사용자가 중단했습니다.";
+"skip.adviseOnly" = "안내 전용 항목입니다. 이 앱은 이 항목을 건드리지 않습니다.";
+"skip.noPath" = "경로가 없습니다.";
+"skip.noConstraints" = "안전 제약 정보가 없어 검증할 수 없습니다.";
+"skip.gate" = "안전 검사에서 걸렀습니다 [%1$@] %2$@";
+"skip.critical" = "자격 증명이나 유일본으로 보여 삭제하지 않았습니다: %@";
+"skip.survivorGone" = "남아 있어야 할 사본이 사라졌습니다. 이걸 지우면 마지막 하나가 없어집니다.";
+"skip.survivorChanged" = "남아 있어야 할 사본의 내용이 검사 이후 바뀌었습니다. 이제 같은 파일이 아닙니다.";
+"skip.notDuplicateAnymore" = "이 파일의 내용이 검사 이후 바뀌었습니다. 더 이상 중복이 아닙니다.";
+"skip.changedSinceScan" = "검사한 뒤에 내용이 바뀌었습니다. 지금 사용 중일 수 있어 건너뜁니다. 다시 검사해 주세요.";
+"skip.unreachable" = "여기까지 올 수 없는 경로입니다.";
+"skip.noCommand" = "실행할 명령이 없습니다.";
+"skip.commandNotAllowed" = "허용되지 않은 명령입니다: %@";
+
+/* MARK: - 되돌리기 */
+"restore.blocked.gone" = "휴지통에서 사라졌습니다. 휴지통을 비우셨다면 되돌릴 수 없습니다.";
+"restore.blocked.occupied" = "원래 자리에 이미 다른 것이 있습니다. 덮어쓰지 않습니다.";
+"restore.failed.gone" = "휴지통에서 사라졌습니다.";
+"restore.failed.occupied" = "원래 자리에 이미 다른 것이 있습니다. 덮어쓰지 않았습니다.";
+"restore.failed.mkdir" = "원래 폴더를 다시 만들지 못했습니다: %@";
+"restore.failed.generic" = "되돌리지 못했습니다: %@";
+"restore.audit.message" = "휴지통에서 되돌림";
+
+/* MARK: - 안전 관문 */
+"guard.pass" = "통과";
+"guard.g1.notAbsolute" = "절대 파일 경로가 아님";
+"guard.g1.parentRef" = "상위 경로 참조(..) 포함";
+"guard.g1.volumeRoot" = "볼륨 루트";
+"guard.g2.missing" = "경로가 존재하지 않음";
+"guard.g2.symlink" = "심볼릭 링크 — 링크는 대상으로 삼지 않음";
+"guard.g2.resolvedProtected" = "링크 해석 결과가 보호 경로: %@";
+"guard.g3.protected" = "보호 대상: %@";
+"guard.g3.protectedPrefix" = "보호 경로: %@";
+"guard.g4.outsideRoot" = "규칙이 허용한 루트 밖";
+"guard.g4.homeItself" = "홈 디렉터리 자체";
+"guard.g4.aboveHome" = "홈 디렉터리의 상위 경로";
+"guard.g5.tooShallow" = "경로 깊이 %1$d < 최소 %2$d";
+"guard.g6.notOwned" = "현재 사용자 소유가 아님 (uid %d)";
+"guard.g6.otherVolume" = "홈과 다른 볼륨";
+"guard.g6.sip" = "SIP 보호 플래그(SF_RESTRICTED)";
+"guard.g6.immutable" = "잠금 플래그(immutable)";
+"guard.g7.noWrite" = "상위 디렉터리에 쓰기 권한 없음";
+"protected.byName" = "경로에 보호 대상 이름 '%@' 포함";
+"protected.insideBundle" = "보호 대상 번들 '%@' 내부";
+
+/* MARK: - 명령 실행 · 업데이트 */
+"shell.notAllowed" = "허용되지 않은 실행 파일입니다: %@";
+"shell.notFound" = "실행 파일을 찾을 수 없습니다: %@";
+"shell.failed" = "명령 실행 실패: %@";
+"shell.timeout" = "명령이 제한 시간 안에 끝나지 않았습니다.";
+"update.httpStatus" = "서버 응답 %d";
+"update.badVersionFormat" = "버전 형식을 읽지 못했습니다";

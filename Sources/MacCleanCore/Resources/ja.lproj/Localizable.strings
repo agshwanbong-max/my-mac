@@ -341,3 +341,220 @@
 "rule.appsupport.partitionCache.title" = "%@ のパーティションキャッシュ";
 "rule.appsupport.partitionCache.explanation" = "%@ が Web コンテンツごとに分けて作ったキャッシュです。";
 "rule.appsupport.partitionCache.consequence" = "アプリが作り直します。";
+
+/* MARK: - 判断の根拠 */
+"signal.credentialFile" = "認証情報ファイル";
+"signal.credentialFile.detail" = "拡張子 .%@ — 証明書または鍵です。";
+"signal.credentialFolder" = "認証情報フォルダ";
+"signal.credentialFolder.detail" = "~/%@ の中です。";
+"signal.generatedFolder" = "自動生成フォルダ";
+"signal.generatedFolder.detail" = "パスに「%@」があります。ツールが作ったものです。";
+"signal.buildArtifact" = "ビルド生成物";
+"signal.buildArtifact.detail" = "拡張子 .%@ — 再ビルドすれば作られます。";
+"signal.userFolder" = "ユーザフォルダ";
+"signal.userFolder.detail" = "~/%@ の中です。ご自身で置いたものとみなします。";
+"signal.workFile" = "作業ファイル";
+"signal.workFile.detail" = "拡張子 .%@ — 自分で作る種類のファイルです。";
+"signal.fetchedFile" = "取得したファイル";
+"signal.fetchedFile.detail" = "拡張子 .%@ — インストーラまたは圧縮ファイルです。";
+"signal.fromInternet" = "インターネットから取得";
+"signal.fromInternet.detail" = "ダウンロード印（quarantine）が付いています。";
+"signal.cloudFolder" = "クラウド同期フォルダ";
+"signal.cloudFolder.detail" = "~/%@ の中です。ここで削除するとクラウドからも消える場合があります。";
+"signal.gitWithRemote" = "git リポジトリ（リモートあり）";
+"signal.gitWithRemote.detail" = "%@ — コミット・push 済みの内容は取得し直せます。";
+"signal.gitNoRemote" = "git リポジトリ（リモートなし）";
+"signal.gitNoRemote.detail" = "%@ — 上げ先がないため、この Mac にしかありません。";
+"signal.notOpenedLong" = "長く開いていない";
+"signal.notOpenedLong.detail" = "最後に開いてから %d 日経過しています。";
+"signal.recentlyUsed" = "最近使用";
+"signal.recentlyUsed.detail" = "%d 日前に開いています。今使用中かもしれません。";
+"signal.lastUsed" = "最終使用";
+"signal.lastUsed.detail" = "%d 日前";
+
+/* MARK: - 判定の結論 */
+"assess.critical.headline" = "認証情報か唯一のコピーです。このアプリはこうした項目を削除しません。";
+"assess.critical.cost" = "取り戻す方法がありません。";
+"assess.personalInVCS.headline" = "ご自身で作ったものですが、リモートリポジトリに push 済みです。";
+"assess.personalInVCS.cost" = "clone し直せば戻ります。コミットしていない変更は失われます。";
+"assess.personalInCloud.headline" = "ご自身で作ったもので、クラウド同期フォルダの中にあります。";
+"assess.personalInCloud.cost" = "ここで削除すると他のデバイスとクラウドからも消えます。";
+"assess.personalOnly.headline" = "ご自身で作ったものと見られ、他のコピーが見つかりませんでした。";
+"assess.personalOnly.cost" = "削除すると同じものを作り直せません。";
+"assess.redownloadable.headline" = "再ダウンロードできるファイルです。";
+"assess.redownloadable.cost.sized" = "%@ を再ダウンロードする必要があります。";
+"assess.redownloadable.cost" = "再ダウンロードする必要があります。";
+"assess.inVCS.headline" = "リモートリポジトリにある内容です。";
+"assess.inVCS.cost" = "取得し直せば戻ります。";
+"assess.inCloud.headline" = "クラウド同期フォルダの中です。";
+"assess.inCloud.cost" = "ここで削除すると他のデバイスからも消えます。";
+"assess.noCopy.headline" = "コピーもリモートも見つかりませんでした。";
+"assess.noCopy.cost" = "削除すると取り戻す方法がない可能性があります。";
+"assess.probablyReplaceable.headline" = "作り直せる、または再取得できそうですが、確実ではありません。";
+"assess.probablyReplaceable.cost" = "取り直すのに時間がかかります。";
+"assess.disposable.headline" = "ツールが作ったものです。必要になれば作り直されます。";
+"assess.disposable.cost.slow" = "なし。次に使うとき一度だけ遅くなることがあります。";
+"assess.disposable.cost" = "なし。";
+
+/* MARK: - 共通（コア） */
+"common.fileCount" = "%d 個のファイル";
+"progress.walkingHome" = "ホームをスキャン中… %d 千個のファイル";
+"progress.measuring" = "%@ を計測中…";
+"progress.measuringApp" = "アプリのサイズを確認中… %@";
+"progress.finished" = "%@ 完了";
+"progress.duplicateCandidates" = "重複候補を収集中… ~/%@";
+"progress.duplicateVerify" = "重複を確認中… %d グループ";
+
+/* MARK: - リスク区分 */
+"risk.safe" = "安全";
+"risk.review" = "要確認";
+"risk.advisory" = "案内のみ";
+"risk.safe.detail" = "削除してもシステムやアプリが自動で作り直すキャッシュ・ログです。それでも実行前に承認を求めます。";
+"risk.review.detail" = "削除すると再ダウンロードや再ビルドが必要です。唯一のコピーの可能性もあるため、項目ごとにご自身で選んでください。";
+"risk.advisory.detail" = "このアプリは触りません。容量を占めている理由と、ご自身で対処する方法だけをお伝えします。";
+
+/* MARK: - スキャン中に組み立てる文言 */
+"scan.wildcardTitle" = "%1$@ — %2$@";
+"scan.detailWithName" = "%1$@ — %2$@";
+"scan.partialRead" = "（一部の項目を読み取れなかったため、実際のサイズはこれより大きい可能性があります。）";
+"scan.partialCount" = "（権限やサイズの都合で一部しか数えていません — 実際にはもっと大きい可能性があります）";
+"scan.costlyNote" = " この項目は作り直すのに時間がかかるか、数百 MB を再ダウンロードする必要があります。";
+
+/* MARK: - スキャンの警告 */
+"warn.needsFullDiskAccess" = "「%@」はフルディスクアクセスがないためスキップしました。";
+"warn.appRunning" = "「%@」は該当アプリが実行中のためスキップしました。アプリを終了してから再スキャンしてください。";
+"warn.skippedByAge" = "「%1$@」で %2$d 件（%3$@）を、直近 %4$d 日以内に変更されたという理由で除外しました。";
+"warn.skippedByAge.hidden" = " そのためこの項目は一覧に出ていません。";
+"warn.skippedByRunningApp" = "「%1$@」で %2$d 件を、該当アプリが実行中のためスキップしました。そのアプリを終了して再スキャンすれば整理できます。";
+"warn.breakdownIncomplete" = "ファイルが多すぎて容量の内訳を最後まで数えられませんでした。表示値は実際より小さくなっています。";
+"warn.duplicateIncomplete" = "ファイルが多すぎて重複検査を最後まで行えませんでした。一部しか見つかっていません。";
+"warn.duplicateTruncated" = "重複グループが %1$d 件ありますが、大きいものから %2$d 件だけ表示しています。";
+"warn.simulatorRunning" = "シミュレータが実行中のため、シミュレータ項目をスキップしました。終了してから再スキャンしてください。";
+"warn.xcrunUnavailable" = "xcrun を実行できなかったため、シミュレータの検査をスキップしました。";
+"warn.iosBackupUnreadable" = "iOS バックアップフォルダを読み取れませんでした。システム設定 → プライバシーとセキュリティ → フルディスクアクセス でこのアプリを許可してください。";
+
+/* MARK: - 容量の内訳 */
+"breakdown.total.title" = "ホーム内のシステムデータ合計";
+"breakdown.total.detail" = "以下の項目の合計です。各フォルダを展開し「開いて自分で選ぶ」で中身を確認できます。";
+"breakdown.total.consequence" = "システム設定 > ストレージ の「システムデータ」の数値と比べてみてください。あちらの方が大きければ、その差はホーム外（/Library、/private/var）とローカルスナップショットです。そちらは管理者権限が必要なので、このアプリは触りません。macOS の集計方法は公開されていないため、この値は概算です。";
+"breakdown.folder.detail" = "%1$d 個のファイル · macOS 分類: %2$@";
+"breakdown.largeFile.consequence" = "ユーザファイルなのでこのアプリは触りません。Finder で確認してご自身で判断してください。";
+"breakdown.hint.wallpaper" = "macOS の動画壁紙・スクリーンセーバのアセットです。1本で数 GB あり、使わなくなった後も残り続けます。システム設定 → 壁紙 で静止画の壁紙に切り替えると macOS が自分で整理します。システム管理領域なので、このアプリは直接削除しません。";
+"breakdown.hint.claude" = "大半は vm_bundles 内の仮想マシンイメージ（rootfs.img）です。キャッシュではなくアプリが使う実イメージなので、このアプリは触りません。不要ならアプリの設定でその機能をオフにし、アプリ自身に整理させてください。中の Cache / Code Cache / GPUCache は整理対象として扱います。";
+"breakdown.hint.electron" = "Electron アプリのデータフォルダです。中の Cache / Code Cache / GPUCache は整理対象として扱います。残りはログイン状態とローカルデータなので触りません。";
+"breakdown.hint.chrome" = "Chrome のプロファイルです。履歴・ブックマーク・パスワード・拡張機能が入っているため、このアプリは触りません。大きくなる原因はたいてい OptGuideOnDeviceModel（端末内 AI モデル、数 GB）とアップデータのキャッシュです。Chrome 側で整理してください: 設定 → プライバシー → 閲覧履歴データの削除 → キャッシュされた画像とファイル。";
+"breakdown.hint.developer" = "Xcode が使う場所です。DerivedData、iOS デバイスサポートファイル、アーカイブがここに入ります。開発者の Mac で最も大きく膨らむフォルダです。";
+"breakdown.hint.coreSimulator" = "シミュレータのデバイスとランタイムです。Xcode → Settings → Platforms で使っていないバージョンを削除できます。";
+"breakdown.hint.appSupport" = "アプリが実データを置く場所です。キャッシュではなくデータなので、ほとんど触りません。";
+"breakdown.hint.xcodeShared" = "Xcode とシミュレータが使う場所です。";
+"breakdown.hint.caches" = "アプリのキャッシュです。このアプリが整理対象として扱う場所です。";
+"breakdown.hint.containers" = "サンドボックスアプリのデータです。キャッシュのみ整理対象で、残りはアプリのデータです。";
+"breakdown.hint.groupContainers" = "複数のアプリが共有するデータです。アプリのデータなので触りません。";
+"breakdown.hint.pictures" = "写真ライブラリです。写真アプリで整理してください。";
+"breakdown.hint.downloads" = "ダウンロードフォルダです。古いインストーラは整理対象として扱います。";
+"breakdown.hint.userFiles" = "ユーザのファイルです。このアプリは絶対に触りません。";
+"breakdown.hint.generic" = "容量の使用状況です。このアプリはこのフォルダを触りません。";
+
+/* MARK: - ホーム外の領域 */
+"systemArea.hint.libraryCaches" = "システム全体が使うキャッシュです。macOS のストレージ画面では「システムデータ」に数えられます。管理者権限が必要なため、このアプリは触りません。";
+"systemArea.hint.libraryAppSupport" = "全ユーザで共有するアプリのデータです。Adobe・仮想マシン・開発ツールがここを大きく占めます。「システムデータ」に数えられます。";
+"systemArea.hint.libraryDeveloper" = "システムにインストールされた開発者ツールです。Xcode 15 からはシミュレータのランタイムがここに入ります。Xcode → Settings → Platforms で使っていないバージョンを削除できます。";
+"systemArea.hint.libraryLogs" = "システムログです。通常は大きくありません。";
+"systemArea.hint.varFolders" = "システムが管理する一時フォルダです。再起動でかなりの部分が整理されます。「システムデータ」に数えられます。";
+"systemArea.installedApp.detail" = "インストール済みアプリ · /Applications";
+"systemArea.installedApp.consequence" = "macOS のストレージ画面では「アプリケーション」に数えられます。使っていないアプリなら Finder でゴミ箱に移してください。このアプリはインストール済みのプログラムを削除しません。";
+"systemArea.categoryMap.title" = "macOS のストレージ分類と実際のフォルダ";
+"systemArea.categoryMap.detail" = "システム設定のストレージ画面に出る各分類が、実際にどこを指しているかです。\nどの数字を減らしたいかによって、手を付ける場所が変わります。";
+"systemArea.categoryMap.consequence" = "· デベロッパ  →  ~/Library/Developer\n  iOS DeviceSupport、シミュレータ、DerivedData。ここを消すと「デベロッパ」が減り、「システムデータ」は変わりません。\n\n· アプリケーション  →  /Applications\n  Xcode ひとつで 15〜20GB あります。アプリを削除しない限り減りません。\n\n· システムデータ  →  それ以外すべて\n  ~/Library/Application Support、~/Library/Caches、~/Library/Containers、\n  /Library、/private/var、ローカルスナップショットがここに入ります。";
+
+/* MARK: - システムデータの診断 */
+"systemData.tmSnapshots.title" = "Time Machine のローカルスナップショット %d 件";
+"systemData.updateSnapshots.title" = "macOS アップデートのスナップショット %d 件";
+"systemData.purgeable.title" = "解放可能（purgeable）な容量 約 %@";
+"systemData.purgeable.consequence" = "ディスクユーティリティと Finder で空き容量の表示が食い違う理由でもあります。";
+"systemData.volume.title" = "ディスクの状況";
+"systemData.volume.consequence" = "「システムデータ」はひとつのフォルダではなく、macOS が分類できなかったものすべての合計です。スナップショット・キャッシュ・ログ・シミュレータ・デバイスバックアップがすべてここに入ります。";
+
+/* MARK: - シミュレータ・バックアップ・node_modules */
+"simulator.unavailable.title" = "使用できないシミュレータデバイス %d 台";
+"simulator.unavailable.detail" = "使っていたランタイムがもうインストールされておらず、Xcode で起動できないデバイスです。";
+"simulator.unavailable.consequence" = "`xcrun simctl delete unavailable` で一度に正しく削除できます。必要なら Xcode で同じデバイスを作り直せます。";
+"simulator.runtimes.title" = "インストール済みシミュレータランタイム %1$d 件 · %2$@";
+"simulator.runtimes.detail" = "iOS のバージョンごとにランタイムが1組ずつ入ります。1つ 7〜10GB あります。";
+"simulator.runtimes.consequence" = "Xcode → Settings → Platforms で使っていないバージョンを削除してください。ファイルを直接消すと Xcode の一覧とずれるため、このアプリは触りません。";
+"iosBackup.title" = "%@ のバックアップ";
+"iosBackup.device" = "デバイス: %@";
+"iosBackup.lastBackup" = " · 最終バックアップ %@";
+"nodeModules.detail" = "%1$@ · 最終変更から %2$d 日経過";
+"nodeModules.consequence" = "プロジェクトフォルダで `npm install`（または yarn/pnpm）をやり直せばそのまま復元されます。ソースコードと package.json は触りません。";
+"duplicate.oneOf" = " · 同一ファイル %d 個のうちの1つ";
+
+/* MARK: - 実行結果 */
+"outcome.removed" = "ゴミ箱に移動";
+"outcome.deleted" = "削除完了";
+"outcome.simulated" = "プレビュー";
+"outcome.skipped" = "スキップ";
+"outcome.failed" = "失敗";
+"outcome.planned" = "%1$@ 予定 · %2$@";
+"outcome.trashed" = "ゴミ箱に移しました · %@";
+"outcome.trashFailed" = "ゴミ箱に移せませんでした: %@";
+"outcome.deletedDetail" = "削除しました · %@";
+"outcome.deleteFailed" = "削除できませんでした: %@";
+"outcome.commandPlanned" = "実行予定: %@";
+"outcome.commandDone" = "%1$@ 実行完了 · %2$@";
+"outcome.commandFailed" = "コマンド失敗: %@";
+"outcome.commandError" = "コマンドを実行できませんでした: %@";
+
+/* MARK: - スキップの理由 */
+"skip.cancelled" = "実行を中止しました。";
+"skip.adviseOnly" = "案内のみの項目です。このアプリは触りません。";
+"skip.noPath" = "パスがありません。";
+"skip.noConstraints" = "安全制約の情報がなく、検証できません。";
+"skip.gate" = "安全チェックで止めました [%1$@] %2$@";
+"skip.critical" = "認証情報か唯一のコピーに見えるため削除しませんでした: %@";
+"skip.survivorGone" = "残っているはずのコピーが消えています。これを消すと最後の1つがなくなります。";
+"skip.survivorChanged" = "残っているはずのコピーの内容がスキャン後に変わりました。もう同じファイルではありません。";
+"skip.notDuplicateAnymore" = "このファイルの内容がスキャン後に変わりました。もう重複ではありません。";
+"skip.changedSinceScan" = "スキャン後に内容が変わりました。使用中の可能性があるためスキップします。再スキャンしてください。";
+"skip.unreachable" = "ここまで到達しないはずのパスです。";
+"skip.noCommand" = "実行するコマンドがありません。";
+"skip.commandNotAllowed" = "許可されていないコマンドです: %@";
+
+/* MARK: - 元に戻す */
+"restore.blocked.gone" = "ゴミ箱から消えています。ゴミ箱を空にした場合は元に戻せません。";
+"restore.blocked.occupied" = "元の場所に既に別のものがあります。上書きはしません。";
+"restore.failed.gone" = "ゴミ箱から消えています。";
+"restore.failed.occupied" = "元の場所に既に別のものがあります。上書きしませんでした。";
+"restore.failed.mkdir" = "元のフォルダを作り直せませんでした: %@";
+"restore.failed.generic" = "元に戻せませんでした: %@";
+"restore.audit.message" = "ゴミ箱から復元";
+
+/* MARK: - 安全ゲート */
+"guard.pass" = "通過";
+"guard.g1.notAbsolute" = "絶対ファイルパスではない";
+"guard.g1.parentRef" = "親パス参照（..）を含む";
+"guard.g1.volumeRoot" = "ボリュームのルート";
+"guard.g2.missing" = "パスが存在しない";
+"guard.g2.symlink" = "シンボリックリンク — リンクは対象にしない";
+"guard.g2.resolvedProtected" = "リンクの解決先が保護パス: %@";
+"guard.g3.protected" = "保護対象: %@";
+"guard.g3.protectedPrefix" = "保護パス: %@";
+"guard.g4.outsideRoot" = "ルールが許可したルートの外";
+"guard.g4.homeItself" = "ホームディレクトリそのもの";
+"guard.g4.aboveHome" = "ホームディレクトリの上位パス";
+"guard.g5.tooShallow" = "パスの深さ %1$d < 最小 %2$d";
+"guard.g6.notOwned" = "現在のユーザの所有ではない（uid %d）";
+"guard.g6.otherVolume" = "ホームとは別のボリューム";
+"guard.g6.sip" = "SIP 保護フラグ（SF_RESTRICTED）";
+"guard.g6.immutable" = "ロックフラグ（immutable）";
+"guard.g7.noWrite" = "親ディレクトリに書き込み権限がない";
+"protected.byName" = "パスに保護対象の名前「%@」を含む";
+"protected.insideBundle" = "保護対象バンドル「%@」の内部";
+
+/* MARK: - コマンド実行・アップデート */
+"shell.notAllowed" = "許可されていない実行ファイルです: %@";
+"shell.notFound" = "実行ファイルが見つかりません: %@";
+"shell.failed" = "コマンドの実行に失敗しました: %@";
+"shell.timeout" = "コマンドが制限時間内に終わりませんでした。";
+"update.httpStatus" = "サーバ応答 %d";
+"update.badVersionFormat" = "バージョンの形式を読み取れませんでした";

@@ -85,6 +85,25 @@ final class LocalizationTests: XCTestCase {
         }
     }
 
+    /// 번역하다 원문이 섞여 들어간 것을 잡는다.
+    ///
+    /// 실제로 일본어 문장 안에 한글 한 글자가 남은 적이 있다("%d 日경過").
+    /// 한 글자라 눈으로는 안 보이고, 그 언어를 읽는 사람만 이상하게 여긴다.
+    /// 한국어가 원본이라 이 방향의 오염만 확인하면 된다.
+    func testTranslationsContainNoLeftoverKorean() throws {
+        let hangul = try NSRegularExpression(pattern: "[가-힣]")
+
+        for language in languages where language != base {
+            for (key, value) in try table(language) {
+                let range = NSRange(value.startIndex..., in: value)
+                XCTAssertNil(
+                    hangul.firstMatch(in: value, range: range),
+                    "[\(language)] \(key) 에 한국어가 남아 있습니다: \(value)"
+                )
+            }
+        }
+    }
+
     /// 코드가 실제로 부르는 키가 카탈로그에 있는지.
     ///
     /// 소스를 직접 읽어서 확인한다. `L("...")` 는 컴파일러가 검사해 주지 않으므로,

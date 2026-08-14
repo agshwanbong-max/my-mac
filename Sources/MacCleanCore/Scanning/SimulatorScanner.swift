@@ -28,7 +28,7 @@ public struct SimulatorScanner: Scanner {
         if context.isRunning("com.apple.iphonesimulator") || context.isRunning("com.apple.CoreSimulator.SimulatorTrampoline") {
             warnings.append(ScanWarning(
                 ruleID: "simulator.devices",
-                message: "시뮬레이터가 실행 중이라 시뮬레이터 항목을 건너뛰었습니다. 종료 후 다시 검사하세요."
+                message: L("warn.simulatorRunning")
             ))
             return ([], warnings)
         }
@@ -39,7 +39,7 @@ public struct SimulatorScanner: Scanner {
             if !simctlAvailable() {
                 warnings.append(ScanWarning(
                     ruleID: "simulator.devices",
-                    message: "xcrun 을 실행할 수 없어 시뮬레이터 검사를 건너뛰었습니다."
+                    message: L("warn.xcrunUnavailable")
                 ))
             }
             return (findings, warnings)
@@ -72,10 +72,9 @@ public struct SimulatorScanner: Scanner {
                 ruleID: "simulator.unavailable",
                 category: .simulators,
                 risk: .safe,
-                title: "사용할 수 없는 시뮬레이터 기기 \(counted)대",
-                detail: "쓰던 런타임이 더 이상 설치돼 있지 않아 Xcode 에서 실행할 수 없는 기기들입니다.",
-                consequence: "`xcrun simctl delete unavailable` 로 한 번에 정상 삭제됩니다. "
-                    + "필요하면 Xcode 에서 같은 기기를 새로 만들 수 있습니다.",
+                title: L("simulator.unavailable.title", counted),
+                detail: L("simulator.unavailable.detail"),
+                consequence: L("simulator.unavailable.consequence"),
                 path: devicesRoot,
                 reclaimableBytes: totalBytes,
                 itemCount: totalFiles,
@@ -97,10 +96,9 @@ public struct SimulatorScanner: Scanner {
                     ruleID: "simulator.runtimes",
                     category: .simulators,
                     risk: .advisory,
-                    title: "설치된 시뮬레이터 런타임 \(children.count)개 · \(ByteFormat.string(measurement.allocatedBytes))",
-                    detail: "iOS 버전마다 런타임이 한 벌씩 설치됩니다. 하나에 7~10GB 씩 합니다.",
-                    consequence: "Xcode → Settings → Platforms 에서 안 쓰는 버전을 지우세요. "
-                        + "파일을 직접 지우면 Xcode 의 목록과 어긋나므로 이 앱은 건드리지 않습니다.",
+                    title: L("simulator.runtimes.title", children.count, ByteFormat.string(measurement.allocatedBytes)),
+                    detail: L("simulator.runtimes.detail"),
+                    consequence: L("simulator.runtimes.consequence"),
                     path: runtimes,
                     reclaimableBytes: 0,
                     itemCount: children.count,

@@ -22,7 +22,7 @@ public struct IOSBackupScanner: Scanner {
         ) else {
             return ([], [ScanWarning(
                 ruleID: "ios.backups",
-                message: "iOS 백업 폴더를 읽지 못했습니다. 시스템 설정 → 개인정보 보호 및 보안 → 전체 디스크 접근에서 이 앱을 허용해 주세요."
+                message: L("warn.iosBackupUnreadable")
             )])
         }
 
@@ -55,12 +55,12 @@ public struct IOSBackupScanner: Scanner {
             let deviceName = info.deviceName ?? child.lastPathComponent
             let backupDate = info.lastBackupDate
 
-            var detail = "기기: \(deviceName)"
+            var detail = L("iosBackup.device", deviceName)
             if let productName = info.productName { detail += " (\(productName))" }
             if let date = backupDate {
                 let formatter = DateFormatter()
                 formatter.dateFormat = "yyyy-MM-dd"
-                detail += " · 마지막 백업 \(formatter.string(from: date))"
+                detail += L("iosBackup.lastBackup", formatter.string(from: date))
             }
 
             findings.append(Finding(
@@ -68,7 +68,7 @@ public struct IOSBackupScanner: Scanner {
                 ruleID: "ios.backups",
                 category: .iosBackup,
                 risk: .review,
-                title: "\(deviceName) 백업",
+                title: L("iosBackup.title", deviceName),
                 detail: detail,
                 consequence: """
                 ⚠️ 이게 이 기기의 유일한 백업이라면 복원할 방법이 사라집니다.

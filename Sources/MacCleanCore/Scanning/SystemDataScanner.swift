@@ -59,7 +59,7 @@ public struct SystemDataScanner: Scanner {
             ruleID: "systemData.localSnapshots",
             category: .systemDataDiagnosis,
             risk: .advisory,
-            title: "Time Machine 로컬 스냅샷 \(names.count)개",
+            title: L("systemData.tmSnapshots.title", names.count),
             detail: """
             \(oldest) ~ \(newest) 사이에 만들어진 스냅샷이 내장 디스크에 남아 있습니다.
             이 스냅샷들은 그동안 지운 파일의 데이터를 그대로 붙잡고 있습니다.
@@ -108,7 +108,7 @@ public struct SystemDataScanner: Scanner {
             ruleID: "systemData.osUpdateSnapshots",
             category: .systemDataDiagnosis,
             risk: .advisory,
-            title: "macOS 업데이트 스냅샷 \(names.count)개",
+            title: L("systemData.updateSnapshots.title", names.count),
             detail: detail,
             consequence: """
             업데이트를 끝내면 대부분 저절로 정리됩니다.
@@ -120,7 +120,7 @@ public struct SystemDataScanner: Scanner {
             itemCount: names.count,
             lastModified: nil,
             removal: .adviseOnly,
-            suggestedCommand: "tmutil listlocalsnapshots /\nsudo tmutil deletelocalsnapshots <스냅샷이름>"
+            suggestedCommand: "tmutil listlocalsnapshots /\nsudo tmutil deletelocalsnapshots <snapshot-name>"
         )
     }
 
@@ -130,13 +130,13 @@ public struct SystemDataScanner: Scanner {
             ruleID: "systemData.purgeable",
             category: .systemDataDiagnosis,
             risk: .advisory,
-            title: "회수 가능(purgeable) 공간 약 \(ByteFormat.string(volume.purgeableEstimate))",
+            title: L("systemData.purgeable.title", ByteFormat.string(volume.purgeableEstimate)),
             detail: """
             macOS 가 '사용 가능'이라고 표시하는 용량과 실제 빈 공간의 차이입니다.
             스냅샷, 캐시, iCloud 로 올려둔 파일의 로컬 사본 등이 여기 들어갑니다.
             시스템은 공간이 정말 필요할 때 이걸 알아서 회수합니다.
             """,
-            consequence: "디스크 유틸리티나 파인더가 보여주는 여유 공간이 서로 다르게 보이는 이유이기도 합니다.",
+            consequence: L("systemData.purgeable.consequence"),
             path: nil,
             reclaimableBytes: 0,
             itemCount: 0,
@@ -152,15 +152,14 @@ public struct SystemDataScanner: Scanner {
             ruleID: "systemData.explainer",
             category: .systemDataDiagnosis,
             risk: .advisory,
-            title: "디스크 현황",
+            title: L("systemData.volume.title"),
             detail: """
             전체 \(ByteFormat.string(volume.totalCapacity)) 중 \(ByteFormat.string(used)) 사용 중.
             실제 빈 공간 \(ByteFormat.string(volume.availableCapacity)),
             시스템이 회수 가능한 공간까지 포함하면 \(ByteFormat.string(volume.availableForImportantUsage)).
             로컬 스냅샷 \(snapshotCount)개.
             """,
-            consequence: "'시스템 데이터'는 하나의 폴더가 아니라, macOS 가 분류하지 못한 모든 것의 합계입니다. "
-                + "스냅샷·캐시·로그·시뮬레이터·기기 백업이 전부 여기로 들어갑니다.",
+            consequence: L("systemData.volume.consequence"),
             path: nil,
             reclaimableBytes: 0,
             itemCount: 0,

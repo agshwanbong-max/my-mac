@@ -24,13 +24,13 @@ public struct ShellRunner: Sendable {
         public var errorDescription: String? {
             switch self {
             case .executableNotAllowed(let path):
-                return "허용되지 않은 실행 파일입니다: \(path)"
+                return L("shell.notAllowed", path)
             case .executableMissing(let path):
-                return "실행 파일을 찾을 수 없습니다: \(path)"
+                return L("shell.notFound", path)
             case .launchFailed(let message):
-                return "명령 실행 실패: \(message)"
+                return L("shell.failed", message)
             case .timedOut:
-                return "명령이 제한 시간 안에 끝나지 않았습니다."
+                return L("shell.timeout")
             }
         }
     }

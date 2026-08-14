@@ -25,7 +25,7 @@ public struct RuleScanner: Scanner {
             if rule.requiresFullDiskAccess && !context.hasFullDiskAccess {
                 warnings.append(ScanWarning(
                     ruleID: rule.id,
-                    message: "'\(rule.title)' 은(는) 전체 디스크 접근 권한이 없어 건너뛰었습니다."
+                    message: L("warn.needsFullDiskAccess", rule.title)
                 ))
                 continue
             }
@@ -33,7 +33,7 @@ public struct RuleScanner: Scanner {
             if context.isRunning(rule.ownerBundleIdentifier) {
                 warnings.append(ScanWarning(
                     ruleID: rule.id,
-                    message: "'\(rule.title)' 은(는) 해당 앱이 실행 중이라 건너뛰었습니다. 앱을 종료한 뒤 다시 검사하세요."
+                    message: L("warn.appRunning", rule.title)
                 ))
                 continue
             }
@@ -65,7 +65,7 @@ public struct RuleScanner: Scanner {
     /// 전부 "앱 내부 캐시" 라는 같은 제목으로 늘어서서 어느 앱 것인지 알 수 없다.
     static func title(rule: CleanupRule, target: URL, wildcardMatch: String?) -> String {
         guard rule.mode == .wholeDirectory else { return target.lastPathComponent }
-        if let match = wildcardMatch { return "\(match) — \(rule.title)" }
+        if let match = wildcardMatch { return L("scan.wildcardTitle", match, rule.title) }
         return rule.title
     }
 
@@ -174,17 +174,15 @@ public struct RuleScanner: Scanner {
         if tally.byAge > 0, tally.byAgeBytes >= 500_000_000 {
             messages.append(ScanWarning(
                 ruleID: rule.id,
-                message: "'\(rule.title)' 에서 \(tally.byAge)개(\(ByteFormat.string(tally.byAgeBytes)))를 "
-                    + "최근 \(rule.minimumAgeDays)일 이내에 변경됐다는 이유로 제외했습니다."
-                    + (foundCount == 0 ? " 그래서 이 항목은 목록에 나오지 않습니다." : "")
+                message: L("warn.skippedByAge", rule.title, tally.byAge, ByteFormat.string(tally.byAgeBytes), rule.minimumAgeDays)
+                    + (foundCount == 0 ? L("warn.skippedByAge.hidden") : "")
             ))
         }
 
         if tally.byRunningApp > 0 {
             messages.append(ScanWarning(
                 ruleID: rule.id,
-                message: "'\(rule.title)' 에서 \(tally.byRunningApp)개를 해당 앱이 실행 중이라 건너뛰었습니다. "
-                    + "그 앱을 종료하고 다시 검사하면 정리할 수 있습니다."
+                message: L("warn.skippedByRunningApp", rule.title, tally.byRunningApp)
             ))
         }
 
@@ -295,17 +293,17 @@ public struct RuleScanner: Scanner {
 
         var detail = rule.explanation
         if rule.mode != .wholeDirectory {
-            detail = "\(target.lastPathComponent) — \(rule.explanation)"
+            detail = L("scan.detailWithName", target.lastPathComponent, rule.explanation)
         }
         detail += " (\(context.paths.abbreviate(target)))"
         if measurement.incomplete {
-            detail += " (일부 항목을 읽지 못해 실제 크기는 이보다 클 수 있습니다.)"
+            detail += L("scan.partialRead")
         }
 
         // 재생성 비용이 큰 항목은 등급을 낮춰 기본 선택에서 빼고, 결과 설명도 덧붙인다.
         let risk = isCostly ? max(rule.risk, RiskLevel.review) : rule.risk
         let consequence = isCostly
-            ? rule.consequence + " 이 항목은 다시 만드는 데 시간이 오래 걸리거나 수백 MB 를 다시 내려받아야 합니다."
+            ? rule.consequence + L("scan.costlyNote")
             : rule.consequence
 
         return Finding(

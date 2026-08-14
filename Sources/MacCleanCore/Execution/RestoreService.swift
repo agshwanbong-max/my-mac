@@ -54,9 +54,9 @@ public struct RestoreService: Sendable {
 
                 var blocked: String?
                 if !fileManager.fileExists(atPath: trashedPath.path) {
-                    blocked = "휴지통에서 사라졌습니다. 휴지통을 비우셨다면 되돌릴 수 없습니다."
+                    blocked = L("restore.blocked.gone")
                 } else if fileManager.fileExists(atPath: originalPath.path) {
-                    blocked = "원래 자리에 이미 다른 것이 있습니다. 덮어쓰지 않습니다."
+                    blocked = L("restore.blocked.occupied")
                 }
 
                 return Entry(
@@ -78,10 +78,10 @@ public struct RestoreService: Sendable {
     @discardableResult
     public func restore(_ entry: Entry) -> Outcome {
         guard fileManager.fileExists(atPath: entry.trashedTo.path) else {
-            return .failed("휴지통에서 사라졌습니다.")
+            return .failed(L("restore.failed.gone"))
         }
         guard !fileManager.fileExists(atPath: entry.originalPath.path) else {
-            return .failed("원래 자리에 이미 다른 것이 있습니다. 덮어쓰지 않았습니다.")
+            return .failed(L("restore.failed.occupied"))
         }
 
         // 원래 있던 폴더가 그새 없어졌을 수 있다. 그럼 다시 만든다.
@@ -90,14 +90,14 @@ public struct RestoreService: Sendable {
             do {
                 try fileManager.createDirectory(at: parent, withIntermediateDirectories: true)
             } catch {
-                return .failed("원래 폴더를 다시 만들지 못했습니다: \(error.localizedDescription)")
+                return .failed(L("restore.failed.mkdir", error.localizedDescription))
             }
         }
 
         do {
             try fileManager.moveItem(at: entry.trashedTo, to: entry.originalPath)
         } catch {
-            return .failed("되돌리지 못했습니다: \(error.localizedDescription)")
+            return .failed(L("restore.failed.generic", error.localizedDescription))
         }
 
         audit.append(AuditLog.Entry(
@@ -109,7 +109,7 @@ public struct RestoreService: Sendable {
             removal: RemovalMode.trashItem.rawValue,
             trashedTo: nil,
             succeeded: true,
-            message: "휴지통에서 되돌림"
+            message: L("restore.audit.message")
         ))
 
         return .restored(to: entry.originalPath)

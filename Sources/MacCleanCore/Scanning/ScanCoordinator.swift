@@ -137,7 +137,7 @@ public struct ScanCoordinator: Sendable {
     ) async -> ScanReport {
         let startedAt = Date()
         let total = scanners.count
-        progress(ScanProgress(completed: 0, total: total, detail: "검사를 시작합니다"))
+        progress(ScanProgress(completed: 0, total: total, detail: L("progress.starting")))
 
         let outputs: [ScannerOutput] = await withTaskGroup(of: ScannerOutput.self) { group in
             for scanner in scanners {
@@ -157,7 +157,7 @@ public struct ScanCoordinator: Sendable {
                 progress(ScanProgress(
                     completed: collected.count,
                     total: total,
-                    detail: "\(output.identifier) 완료"
+                    detail: L("progress.finished", output.identifier)
                 ))
             }
             return collected

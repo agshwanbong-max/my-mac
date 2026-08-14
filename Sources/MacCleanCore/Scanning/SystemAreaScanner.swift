@@ -17,21 +17,12 @@ public struct SystemAreaScanner: Scanner {
     public let identifier = "systemArea"
 
     /// 홈 밖에서 재볼 곳. 전부 읽기만 한다.
-    private static let systemPaths: [(path: String, title: String, hint: String)] = [
-        ("/Library/Caches", "/Library/Caches",
-         "시스템 전체가 쓰는 캐시입니다. macOS 저장 공간 화면에서는 '시스템 데이터'로 잡힙니다. "
-            + "관리자 권한이 필요해 이 앱은 건드리지 않습니다."),
-        ("/Library/Application Support", "/Library/Application Support",
-         "모든 사용자가 함께 쓰는 앱 데이터입니다. Adobe·가상머신·개발 도구가 여기 크게 자리잡습니다. "
-            + "'시스템 데이터'로 잡힙니다."),
-        ("/Library/Developer", "/Library/Developer",
-         "시스템에 설치된 개발자 도구입니다. Xcode 15 부터는 시뮬레이터 런타임이 여기 들어갑니다. "
-            + "Xcode → Settings → Platforms 에서 안 쓰는 버전을 지울 수 있습니다."),
-        ("/Library/Logs", "/Library/Logs",
-         "시스템 로그입니다. 보통 크지 않습니다."),
-        ("/private/var/folders", "/private/var/folders",
-         "시스템이 관리하는 임시 폴더입니다. 재부팅하면 상당 부분 정리됩니다. "
-            + "'시스템 데이터'로 잡힙니다."),
+    private static let systemPaths: [(path: String, title: String, hintKey: String)] = [
+        ("/Library/Caches", "/Library/Caches", "systemArea.hint.libraryCaches"),
+        ("/Library/Application Support", "/Library/Application Support", "systemArea.hint.libraryAppSupport"),
+        ("/Library/Developer", "/Library/Developer", "systemArea.hint.libraryDeveloper"),
+        ("/Library/Logs", "/Library/Logs", "systemArea.hint.libraryLogs"),
+        ("/private/var/folders", "/private/var/folders", "systemArea.hint.varFolders"),
     ]
 
     /// 홈 밖은 파일이 많아 기본 상한으로는 중간에 끊긴다.
@@ -58,14 +49,14 @@ public struct SystemAreaScanner: Scanner {
 
             let url = URL(fileURLWithPath: entry.path)
             guard FileManager.default.fileExists(atPath: url.path) else { continue }
-            context.progress.note("\(entry.title) 재는 중…")
+            context.progress.note(L("progress.measuring", entry.title))
 
             let measurement = usage.measure(url, limit: SystemAreaScanner.nodeLimit, isCancelled: isCancelled)
             guard measurement.allocatedBytes >= 500_000_000 else { continue }
 
-            var detail = "\(measurement.fileCount)개 파일"
+            var detail = L("common.fileCount", measurement.fileCount)
             if measurement.incomplete {
-                detail += " (권한이나 크기 때문에 일부만 셌습니다 — 실제로는 더 클 수 있습니다)"
+                detail += L("scan.partialCount")
             }
 
             findings.append(Finding(
@@ -75,7 +66,7 @@ public struct SystemAreaScanner: Scanner {
                 risk: .advisory,
                 title: entry.title,
                 detail: detail,
-                consequence: entry.hint,
+                consequence: L(entry.hintKey),
                 path: url,
                 reclaimableBytes: measurement.allocatedBytes,
                 itemCount: measurement.fileCount,
@@ -101,7 +92,7 @@ public struct SystemAreaScanner: Scanner {
         var sized: [(url: URL, bytes: Int64)] = []
         for child in children {
             if isCancelled() { break }
-            context.progress.note("앱 크기 확인 중… \(child.deletingPathExtension().lastPathComponent)")
+            context.progress.note(L("progress.measuringApp", child.deletingPathExtension().lastPathComponent))
             let measurement = usage.measure(child, limit: SystemAreaScanner.nodeLimit, isCancelled: isCancelled)
             if measurement.allocatedBytes >= 500_000_000 {
                 sized.append((child, measurement.allocatedBytes))
@@ -118,9 +109,8 @@ public struct SystemAreaScanner: Scanner {
                     category: .spaceBreakdown,
                     risk: .advisory,
                     title: entry.url.deletingPathExtension().lastPathComponent,
-                    detail: "설치된 앱 · /Applications",
-                    consequence: "macOS 저장 공간 화면의 '응용 프로그램' 칸에 잡힙니다. "
-                        + "안 쓰는 앱이면 파인더에서 휴지통으로 옮기세요. 이 앱은 설치된 프로그램을 지우지 않습니다.",
+                    detail: L("systemArea.installedApp.detail"),
+                    consequence: L("systemArea.installedApp.consequence"),
                     path: entry.url,
                     reclaimableBytes: entry.bytes,
                     itemCount: 1,
@@ -140,26 +130,9 @@ public struct SystemAreaScanner: Scanner {
             ruleID: "advice.categoryMap",
             category: .systemDataDiagnosis,
             risk: .advisory,
-            title: "macOS 저장 공간 화면의 칸과 실제 폴더",
-            detail: """
-            시스템 설정의 저장 공간 화면에 나오는 칸이 각각 어디를 가리키는지입니다.
-            어느 숫자를 줄이려는지에 따라 손댈 곳이 다릅니다.
-            """,
-            consequence: """
-            · 개발자  →  ~/Library/Developer
-              iOS DeviceSupport, 시뮬레이터, DerivedData. 여기를 지우면 '개발자' 칸이 줄고 '시스템 데이터'는 그대로입니다.
-
-            · 응용 프로그램  →  /Applications
-              Xcode 하나가 15~20GB 입니다. 앱을 지워야 줄어듭니다.
-
-            · 시스템 데이터  →  나머지 전부
-              ~/Library/Application Support, ~/Library/Caches, ~/Library/Containers,
-              /Library, /private/var, 로컬 스냅샷이 여기로 들어갑니다.
-              개발자 맥에서 이 칸을 크게 만드는 건 보통 Application Support 입니다 —
-              동영상 배경화면, Electron 앱의 데이터, 브라우저 프로필.
-
-            · macOS  →  시스템 볼륨. 건드릴 수 없고 건드릴 필요도 없습니다.
-            """,
+            title: L("systemArea.categoryMap.title"),
+            detail: L("systemArea.categoryMap.detail"),
+            consequence: L("systemArea.categoryMap.consequence"),
             path: nil,
             reclaimableBytes: 0,
             itemCount: 0,

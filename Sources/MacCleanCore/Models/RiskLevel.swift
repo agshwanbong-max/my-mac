@@ -36,20 +36,20 @@ public enum RiskLevel: String, Codable, Sendable, CaseIterable, Comparable {
 
     public var localizedTitle: String {
         switch self {
-        case .safe: return "안전"
-        case .review: return "확인 필요"
-        case .advisory: return "안내 전용"
+        case .safe: return L("risk.safe")
+        case .review: return L("risk.review")
+        case .advisory: return L("risk.advisory")
         }
     }
 
     public var localizedExplanation: String {
         switch self {
         case .safe:
-            return "지워도 시스템이나 앱이 자동으로 다시 만드는 캐시·로그입니다. 그래도 실행 전 승인을 받습니다."
+            return L("risk.safe.detail")
         case .review:
-            return "지우면 다시 받거나 다시 빌드해야 합니다. 유일본일 수도 있어 항목마다 직접 선택해야 합니다."
+            return L("risk.review.detail")
         case .advisory:
-            return "이 앱은 이 항목을 건드리지 않습니다. 용량을 차지하는 이유와 직접 처리하는 방법만 알려줍니다."
+            return L("risk.advisory.detail")
         }
     }
 }

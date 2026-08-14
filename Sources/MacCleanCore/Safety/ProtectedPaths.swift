@@ -156,11 +156,11 @@ public struct ProtectedPaths: Sendable {
     public func matchedUnwaivableRule(for url: URL) -> String? {
         for component in url.pathComponents {
             if ProtectedPaths.forbiddenComponents.contains(component) {
-                return "경로에 보호 대상 이름 '\(component)' 포함"
+                return L("protected.byName", component)
             }
             let ext = (component as NSString).pathExtension.lowercased()
             if !ext.isEmpty, ProtectedPaths.forbiddenBundleExtensions.contains(ext) {
-                return "보호 대상 번들 '\(component)' 내부"
+                return L("protected.insideBundle", component)
             }
         }
         return nil

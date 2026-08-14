@@ -121,9 +121,8 @@ public struct NodeModulesScanner: Scanner {
             category: .nodeModules,
             risk: .review,
             title: "\(projectName)/node_modules",
-            detail: "\(context.paths.abbreviate(parent)) · 마지막 변경 후 \(days)일 경과",
-            consequence: "프로젝트 폴더에서 `npm install` (또는 yarn/pnpm) 을 다시 돌리면 그대로 복구됩니다. "
-                + "소스 코드와 package.json 은 건드리지 않습니다.",
+            detail: L("nodeModules.detail", context.paths.abbreviate(parent), days),
+            consequence: L("nodeModules.consequence"),
             path: target,
             reclaimableBytes: measurement.allocatedBytes,
             itemCount: measurement.fileCount,

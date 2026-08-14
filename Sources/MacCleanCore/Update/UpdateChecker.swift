@@ -60,7 +60,7 @@ public struct UpdateChecker: Sendable {
         do {
             let (data, response) = try await session.data(for: request)
             if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
-                return .unavailable("서버 응답 \(http.statusCode)")
+                return .unavailable(L("update.httpStatus", http.statusCode))
             }
 
             let decoder = JSONDecoder()
@@ -79,7 +79,7 @@ public struct UpdateChecker: Sendable {
             let currentVersion = AppVersion(current),
             let latest = AppVersion(manifest.version)
         else {
-            return .unavailable("버전 형식을 읽지 못했습니다")
+            return .unavailable(L("update.badVersionFormat"))
         }
         return latest > currentVersion ? .available(manifest) : .upToDate
     }

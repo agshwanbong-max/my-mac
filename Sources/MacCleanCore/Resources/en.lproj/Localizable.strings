@@ -344,3 +344,220 @@
 "rule.appsupport.partitionCache.title" = "%@ partition cache";
 "rule.appsupport.partitionCache.explanation" = "Caches %@ keeps separately for each piece of web content.";
 "rule.appsupport.partitionCache.consequence" = "The app rebuilds it.";
+
+/* MARK: - Verdict signals */
+"signal.credentialFile" = "Credential file";
+"signal.credentialFile.detail" = ".%@ extension — a certificate or key.";
+"signal.credentialFolder" = "Credential folder";
+"signal.credentialFolder.detail" = "Inside ~/%@.";
+"signal.generatedFolder" = "Generated folder";
+"signal.generatedFolder.detail" = "'%@' appears in the path. A tool produced this.";
+"signal.buildArtifact" = "Build artifact";
+"signal.buildArtifact.detail" = ".%@ extension — produced again when you rebuild.";
+"signal.userFolder" = "User folder";
+"signal.userFolder.detail" = "Inside ~/%@. Assumed to be something you put there.";
+"signal.workFile" = "Work file";
+"signal.workFile.detail" = ".%@ extension — the kind of file people author themselves.";
+"signal.fetchedFile" = "Fetched file";
+"signal.fetchedFile.detail" = ".%@ extension — an installer or an archive.";
+"signal.fromInternet" = "Downloaded from the internet";
+"signal.fromInternet.detail" = "Carries the download (quarantine) marker.";
+"signal.cloudFolder" = "Cloud-synced folder";
+"signal.cloudFolder.detail" = "Inside ~/%@. Deleting it here may delete it from the cloud too.";
+"signal.gitWithRemote" = "git repository (has a remote)";
+"signal.gitWithRemote.detail" = "%@ — anything committed and pushed can be fetched again.";
+"signal.gitNoRemote" = "git repository (no remote)";
+"signal.gitNoRemote.detail" = "%@ — nowhere to pull it back from. It exists only on this Mac.";
+"signal.notOpenedLong" = "Not opened in a while";
+"signal.notOpenedLong.detail" = "Last opened %d days ago.";
+"signal.recentlyUsed" = "Recently used";
+"signal.recentlyUsed.detail" = "Opened %d days ago. You may be using it right now.";
+"signal.lastUsed" = "Last used";
+"signal.lastUsed.detail" = "%d days ago";
+
+/* MARK: - Verdict conclusions */
+"assess.critical.headline" = "A credential or the only copy. This app does not delete these.";
+"assess.critical.cost" = "There is no way to get it back.";
+"assess.personalInVCS.headline" = "You made this, but it is pushed to a remote repository.";
+"assess.personalInVCS.cost" = "Just clone it again. Uncommitted changes are gone.";
+"assess.personalInCloud.headline" = "You made this, and it sits in a cloud-synced folder.";
+"assess.personalInCloud.cost" = "Deleting it here removes it from your other devices and the cloud.";
+"assess.personalOnly.headline" = "Looks like something you made, and no other copy was found.";
+"assess.personalOnly.cost" = "Delete it and you cannot recreate it.";
+"assess.redownloadable.headline" = "A file you can download again.";
+"assess.redownloadable.cost.sized" = "You will have to download %@ again.";
+"assess.redownloadable.cost" = "You will have to download it again.";
+"assess.inVCS.headline" = "This content lives in a remote repository.";
+"assess.inVCS.cost" = "Just fetch it again.";
+"assess.inCloud.headline" = "Inside a cloud-synced folder.";
+"assess.inCloud.cost" = "Deleting it here removes it from your other devices.";
+"assess.noCopy.headline" = "No copy and no remote was found.";
+"assess.noCopy.cost" = "There may be no way to get it back.";
+"assess.probablyReplaceable.headline" = "Probably regenerable or re-downloadable, but not certain.";
+"assess.probablyReplaceable.cost" = "Getting it back takes time.";
+"assess.disposable.headline" = "A tool produced this. It comes back when needed.";
+"assess.disposable.cost.slow" = "None. Might be slow once the next time you use it.";
+"assess.disposable.cost" = "None.";
+
+/* MARK: - Common (core) */
+"common.fileCount" = "%d files";
+"progress.walkingHome" = "Walking your home folder… %dk files";
+"progress.measuring" = "Measuring %@…";
+"progress.measuringApp" = "Measuring app size… %@";
+"progress.finished" = "%@ done";
+"progress.duplicateCandidates" = "Collecting duplicate candidates… ~/%@";
+"progress.duplicateVerify" = "Verifying duplicates… %d groups";
+
+/* MARK: - Risk level */
+"risk.safe" = "Safe";
+"risk.review" = "Needs review";
+"risk.advisory" = "Advice only";
+"risk.safe.detail" = "Caches and logs the system or the app rebuilds on its own. You still approve before anything runs.";
+"risk.review.detail" = "Deleting means downloading or rebuilding again. It may be the only copy, so you pick these one by one.";
+"risk.advisory.detail" = "This app will not touch it. It only tells you why it takes up space and how to handle it yourself.";
+
+/* MARK: - Text assembled during a scan */
+"scan.wildcardTitle" = "%1$@ — %2$@";
+"scan.detailWithName" = "%1$@ — %2$@";
+"scan.partialRead" = " (Some items could not be read, so the real size may be larger.)";
+"scan.partialCount" = " (Counted only partially, due to permissions or size — the real figure may be larger)";
+"scan.costlyNote" = " This one takes a long time to rebuild, or hundreds of MB to download again.";
+
+/* MARK: - Scan warnings */
+"warn.needsFullDiskAccess" = "'%@' was skipped: it needs Full Disk Access.";
+"warn.appRunning" = "'%@' was skipped because its app is running. Quit the app and scan again.";
+"warn.skippedByAge" = "'%1$@' excluded %2$d items (%3$@) because they changed within the last %4$d days.";
+"warn.skippedByAge.hidden" = " That is why this entry does not appear in the list.";
+"warn.skippedByRunningApp" = "'%1$@' skipped %2$d items because their app is running. Quit it and scan again to clean them up.";
+"warn.breakdownIncomplete" = "Too many files to finish the space breakdown. The numbers shown are lower than reality.";
+"warn.duplicateIncomplete" = "Too many files to finish the duplicate scan. Only some were found.";
+"warn.duplicateTruncated" = "There are %1$d duplicate groups; showing the %2$d largest.";
+"warn.simulatorRunning" = "Simulator entries were skipped because the Simulator is running. Quit it and scan again.";
+"warn.xcrunUnavailable" = "The simulator scan was skipped because xcrun could not be run.";
+"warn.iosBackupUnreadable" = "The iOS backup folder could not be read. Allow this app under System Settings → Privacy & Security → Full Disk Access.";
+
+/* MARK: - Space breakdown */
+"breakdown.total.title" = "System Data inside your home folder";
+"breakdown.total.detail" = "The sum of the entries below. Expand a folder and use 'Open and pick manually' to look inside.";
+"breakdown.total.consequence" = "Compare this with the 'System Data' figure in System Settings > Storage. If theirs is bigger, the difference is outside your home folder (/Library, /private/var) plus local snapshots. Those need administrator privileges, so this app leaves them alone. Apple does not document how it counts, so treat this as an approximation.";
+"breakdown.folder.detail" = "%1$d files · macOS category: %2$@";
+"breakdown.largeFile.consequence" = "A user file, so this app will not touch it. Check it in Finder and decide for yourself.";
+"breakdown.hint.wallpaper" = "macOS video wallpaper and screen saver assets. Several GB each, and they stay even after you stop using them. Switching to a still image under System Settings → Wallpaper lets macOS clean them up on its own. This is a system-managed area, so the app does not delete it directly.";
+"breakdown.hint.claude" = "Mostly virtual machine images (rootfs.img) inside vm_bundles. These are live images the app uses, not caches, so this app leaves them alone. If you don't need them, turn the feature off in the app's settings and let it clean up after itself. The Cache / Code Cache / GPUCache inside are handled as cleanup targets.";
+"breakdown.hint.electron" = "An Electron app's data folder. The Cache / Code Cache / GPUCache inside are handled as cleanup targets. The rest is sign-in state and local data, so it is left alone.";
+"breakdown.hint.chrome" = "A Chrome profile. It holds history, bookmarks, passwords and extensions, so this app leaves it alone. When it gets big, it is usually OptGuideOnDeviceModel (on-device AI models, several GB) and the updater cache. Clear it from Chrome: Settings → Privacy → Delete browsing data → Cached images and files.";
+"breakdown.hint.developer" = "Where Xcode lives. DerivedData, iOS device support files and archives all land here. The fastest-growing folder on a developer's Mac.";
+"breakdown.hint.coreSimulator" = "Simulator devices and runtimes. Remove versions you don't use under Xcode → Settings → Platforms.";
+"breakdown.hint.appSupport" = "Where apps keep their real data. This is data, not cache, so most of it is left alone.";
+"breakdown.hint.xcodeShared" = "Used by Xcode and the simulators.";
+"breakdown.hint.caches" = "App caches. This is the area the app treats as a cleanup target.";
+"breakdown.hint.containers" = "Data belonging to sandboxed apps. Only the caches are cleanup targets; the rest is app data.";
+"breakdown.hint.groupContainers" = "Data shared between several apps. It is app data, so it is left alone.";
+"breakdown.hint.pictures" = "Your photo library. Clean it up in the Photos app.";
+"breakdown.hint.downloads" = "Your Downloads folder. Old installers are treated as cleanup targets.";
+"breakdown.hint.userFiles" = "Your own files. This app never touches them.";
+"breakdown.hint.generic" = "What is using the space. This app does not touch this folder.";
+
+/* MARK: - Outside the home folder */
+"systemArea.hint.libraryCaches" = "Caches used by the whole system. macOS counts this as 'System Data'. It needs administrator privileges, so this app leaves it alone.";
+"systemArea.hint.libraryAppSupport" = "App data shared by all users. Adobe, virtual machines and developer tools take up a lot of room here. Counted as 'System Data'.";
+"systemArea.hint.libraryDeveloper" = "Developer tools installed system-wide. From Xcode 15 on, simulator runtimes live here. Remove versions you don't use under Xcode → Settings → Platforms.";
+"systemArea.hint.libraryLogs" = "System logs. Usually not large.";
+"systemArea.hint.varFolders" = "A system-managed temporary folder. A reboot clears much of it. Counted as 'System Data'.";
+"systemArea.installedApp.detail" = "Installed app · /Applications";
+"systemArea.installedApp.consequence" = "Counted under 'Applications' in the macOS storage screen. If you don't use the app, drag it to the Trash in Finder. This app does not delete installed programs.";
+"systemArea.categoryMap.title" = "How the macOS storage categories map to real folders";
+"systemArea.categoryMap.detail" = "What each category in the System Settings storage screen actually points at.\nWhich number you're trying to shrink decides where to look.";
+"systemArea.categoryMap.consequence" = "· Developer  →  ~/Library/Developer\n  iOS DeviceSupport, simulators, DerivedData. Clearing these shrinks 'Developer' and leaves 'System Data' untouched.\n\n· Applications  →  /Applications\n  Xcode alone is 15–20GB. Only deleting apps shrinks it.\n\n· System Data  →  everything else\n  ~/Library/Application Support, ~/Library/Caches, ~/Library/Containers,\n  /Library, /private/var and local snapshots all land here.";
+
+/* MARK: - System Data diagnosis */
+"systemData.tmSnapshots.title" = "%d Time Machine local snapshots";
+"systemData.updateSnapshots.title" = "%d macOS update snapshots";
+"systemData.purgeable.title" = "About %@ of purgeable space";
+"systemData.purgeable.consequence" = "This is also why Disk Utility and Finder disagree about how much free space you have.";
+"systemData.volume.title" = "Disk overview";
+"systemData.volume.consequence" = "'System Data' is not one folder. It is the sum of everything macOS could not classify — snapshots, caches, logs, simulators and device backups all land there.";
+
+/* MARK: - Simulators, backups, node_modules */
+"simulator.unavailable.title" = "%d unavailable simulator devices";
+"simulator.unavailable.detail" = "Devices Xcode can no longer boot because the runtime they used is not installed anymore.";
+"simulator.unavailable.consequence" = "`xcrun simctl delete unavailable` removes them all cleanly in one go. You can recreate the same devices in Xcode if you need them.";
+"simulator.runtimes.title" = "%1$d installed simulator runtimes · %2$@";
+"simulator.runtimes.detail" = "One runtime per iOS version, 7–10GB each.";
+"simulator.runtimes.consequence" = "Remove versions you don't use under Xcode → Settings → Platforms. Deleting the files directly puts Xcode's list out of sync, so this app leaves them alone.";
+"iosBackup.title" = "%@ backup";
+"iosBackup.device" = "Device: %@";
+"iosBackup.lastBackup" = " · last backed up %@";
+"nodeModules.detail" = "%1$@ · %2$d days since the last change";
+"nodeModules.consequence" = "Running `npm install` (or yarn/pnpm) again in the project folder restores it exactly. Your source code and package.json are untouched.";
+"duplicate.oneOf" = " · one of %d identical files";
+
+/* MARK: - Execution outcome */
+"outcome.removed" = "Moved to Trash";
+"outcome.deleted" = "Deleted";
+"outcome.simulated" = "Preview";
+"outcome.skipped" = "Skipped";
+"outcome.failed" = "Failed";
+"outcome.planned" = "%1$@ pending · %2$@";
+"outcome.trashed" = "Moved to the Trash · %@";
+"outcome.trashFailed" = "Could not move it to the Trash: %@";
+"outcome.deletedDetail" = "Deleted · %@";
+"outcome.deleteFailed" = "Could not delete it: %@";
+"outcome.commandPlanned" = "Would run: %@";
+"outcome.commandDone" = "%1$@ finished · %2$@";
+"outcome.commandFailed" = "Command failed: %@";
+"outcome.commandError" = "Could not run the command: %@";
+
+/* MARK: - Skip reasons */
+"skip.cancelled" = "You stopped the run.";
+"skip.adviseOnly" = "An advice-only entry. This app does not touch it.";
+"skip.noPath" = "No path.";
+"skip.noConstraints" = "No safety constraints recorded, so it cannot be verified.";
+"skip.gate" = "Stopped by a safety check [%1$@] %2$@";
+"skip.critical" = "Left alone: it looks like a credential or the only copy — %@";
+"skip.survivorGone" = "The copy that was supposed to survive is gone. Deleting this would remove the last one.";
+"skip.survivorChanged" = "The copy that was supposed to survive changed after the scan. It is no longer the same file.";
+"skip.notDuplicateAnymore" = "This file changed after the scan. It is no longer a duplicate.";
+"skip.changedSinceScan" = "It changed after the scan. It may be in use right now, so it was skipped. Please scan again.";
+"skip.unreachable" = "A path that should not have been reachable here.";
+"skip.noCommand" = "No command to run.";
+"skip.commandNotAllowed" = "Command not allowed: %@";
+
+/* MARK: - Restore */
+"restore.blocked.gone" = "Gone from the Trash. If you emptied it, this cannot be restored.";
+"restore.blocked.occupied" = "Something else already sits in the original location. It will not be overwritten.";
+"restore.failed.gone" = "Gone from the Trash.";
+"restore.failed.occupied" = "Something else already sits in the original location. Nothing was overwritten.";
+"restore.failed.mkdir" = "Could not recreate the original folder: %@";
+"restore.failed.generic" = "Could not restore it: %@";
+"restore.audit.message" = "Restored from the Trash";
+
+/* MARK: - Safety gates */
+"guard.pass" = "passed";
+"guard.g1.notAbsolute" = "not an absolute file path";
+"guard.g1.parentRef" = "contains a parent reference (..)";
+"guard.g1.volumeRoot" = "volume root";
+"guard.g2.missing" = "path does not exist";
+"guard.g2.symlink" = "symbolic link — links are never targeted";
+"guard.g2.resolvedProtected" = "the link resolves into a protected path: %@";
+"guard.g3.protected" = "protected: %@";
+"guard.g3.protectedPrefix" = "protected path: %@";
+"guard.g4.outsideRoot" = "outside the root the rule allows";
+"guard.g4.homeItself" = "the home directory itself";
+"guard.g4.aboveHome" = "above the home directory";
+"guard.g5.tooShallow" = "path depth %1$d < minimum %2$d";
+"guard.g6.notOwned" = "not owned by the current user (uid %d)";
+"guard.g6.otherVolume" = "a different volume from home";
+"guard.g6.sip" = "SIP protection flag (SF_RESTRICTED)";
+"guard.g6.immutable" = "locked flag (immutable)";
+"guard.g7.noWrite" = "no write permission on the parent directory";
+"protected.byName" = "the path contains the protected name '%@'";
+"protected.insideBundle" = "inside the protected bundle '%@'";
+
+/* MARK: - Commands & updates */
+"shell.notAllowed" = "Executable not allowed: %@";
+"shell.notFound" = "Executable not found: %@";
+"shell.failed" = "Command failed: %@";
+"shell.timeout" = "The command did not finish within the time limit.";
+"update.httpStatus" = "server responded %d";
+"update.badVersionFormat" = "could not read the version format";

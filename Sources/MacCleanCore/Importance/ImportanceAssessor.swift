@@ -86,14 +86,14 @@ public struct ImportanceAssessor: Sendable {
 
         // ── 자격 증명이면 여기서 끝. 다른 신호를 볼 것도 없다. ──────────
         if ImportanceAssessor.credentialExtensions.contains(ext) {
-            signals.append(.init(direction: .raises, title: "자격 증명 파일",
-                                 detail: "확장자 .\(ext) — 인증서나 키입니다."))
+            signals.append(.init(direction: .raises, title: L("signal.credentialFile"),
+                                 detail: L("signal.credentialFile.detail", ext)))
             level = .critical
         }
         for directory in ImportanceAssessor.credentialDirectories
         where path.hasPrefix(paths.resolve(directory).path + "/") || path == paths.resolve(directory).path {
-            signals.append(.init(direction: .raises, title: "자격 증명 폴더",
-                                 detail: "~/\(directory) 안입니다."))
+            signals.append(.init(direction: .raises, title: L("signal.credentialFolder"),
+                                 detail: L("signal.credentialFolder.detail", directory)))
             level = .critical
         }
 
@@ -105,13 +105,13 @@ public struct ImportanceAssessor: Sendable {
                 break
             }
             if let hit = generatedHit {
-                signals.append(.init(direction: .lowers, title: "자동 생성 폴더",
-                                     detail: "경로에 '\(hit)' 가 있습니다. 도구가 만들어낸 것입니다."))
+                signals.append(.init(direction: .lowers, title: L("signal.generatedFolder"),
+                                     detail: L("signal.generatedFolder.detail", hit)))
                 level = .disposable
                 recoverability = .regenerates
             } else if ImportanceAssessor.generatedExtensions.contains(ext) {
-                signals.append(.init(direction: .lowers, title: "빌드 산출물",
-                                     detail: "확장자 .\(ext) — 다시 빌드하면 만들어집니다."))
+                signals.append(.init(direction: .lowers, title: L("signal.buildArtifact"),
+                                     detail: L("signal.buildArtifact.detail", ext)))
                 level = .disposable
                 recoverability = .regenerates
             }
@@ -119,26 +119,26 @@ public struct ImportanceAssessor: Sendable {
             // ── 사용자가 직접 만든 것인가 ─────────────────────────────
             for directory in ImportanceAssessor.authoredDirectories
             where path.hasPrefix(paths.resolve(directory).path + "/") {
-                signals.append(.init(direction: .raises, title: "사용자 폴더",
-                                     detail: "~/\(directory) 안입니다. 직접 넣어둔 것으로 봅니다."))
+                signals.append(.init(direction: .raises, title: L("signal.userFolder"),
+                                     detail: L("signal.userFolder.detail", directory)))
                 level = max(level, .personal)
             }
             if ImportanceAssessor.authoredExtensions.contains(ext) {
-                signals.append(.init(direction: .raises, title: "작업 파일",
-                                     detail: "확장자 .\(ext) — 직접 만드는 종류의 파일입니다."))
+                signals.append(.init(direction: .raises, title: L("signal.workFile"),
+                                     detail: L("signal.workFile.detail", ext)))
                 level = max(level, .personal)
             }
 
             // ── 받아온 것인가 ─────────────────────────────────────────
             if ImportanceAssessor.acquiredExtensions.contains(ext) {
-                signals.append(.init(direction: .lowers, title: "받아온 파일",
-                                     detail: "확장자 .\(ext) — 설치 파일이나 압축 파일입니다."))
+                signals.append(.init(direction: .lowers, title: L("signal.fetchedFile"),
+                                     detail: L("signal.fetchedFile.detail", ext)))
                 level = min(level, .replaceable)
                 if recoverability == .unknown { recoverability = .redownloadable }
             }
             if ExtendedAttributes.exists("com.apple.quarantine", at: path) {
-                signals.append(.init(direction: .lowers, title: "인터넷에서 받음",
-                                     detail: "다운로드 표시(quarantine)가 붙어 있습니다."))
+                signals.append(.init(direction: .lowers, title: L("signal.fromInternet"),
+                                     detail: L("signal.fromInternet.detail")))
                 level = min(level, .replaceable)
                 if recoverability == .unknown { recoverability = .redownloadable }
             }
@@ -147,19 +147,19 @@ public struct ImportanceAssessor: Sendable {
         // ── 되찾을 수 있는가 ──────────────────────────────────────────
         for directory in ImportanceAssessor.cloudDirectories
         where path.hasPrefix(paths.resolve(directory).path + "/") {
-            signals.append(.init(direction: .context, title: "클라우드 동기화 폴더",
-                                 detail: "~/\(directory) 안입니다. 여기서 지우면 클라우드에서도 지워질 수 있습니다."))
+            signals.append(.init(direction: .context, title: L("signal.cloudFolder"),
+                                 detail: L("signal.cloudFolder.detail", directory)))
             recoverability = .syncedElsewhere
         }
 
         switch GitRepository.state(for: target) {
         case .withRemote(let root):
-            signals.append(.init(direction: .context, title: "git 저장소 (원격 있음)",
-                                 detail: "\(paths.abbreviate(root)) — 커밋·푸시된 내용은 다시 받을 수 있습니다."))
+            signals.append(.init(direction: .context, title: L("signal.gitWithRemote"),
+                                 detail: L("signal.gitWithRemote.detail", paths.abbreviate(root))))
             if recoverability == .unknown { recoverability = .inVersionControl }
         case .withoutRemote(let root):
-            signals.append(.init(direction: .raises, title: "git 저장소 (원격 없음)",
-                                 detail: "\(paths.abbreviate(root)) — 올려둔 곳이 없어 이 맥에만 있습니다."))
+            signals.append(.init(direction: .raises, title: L("signal.gitNoRemote"),
+                                 detail: L("signal.gitNoRemote.detail", paths.abbreviate(root))))
             level = max(level, .personal)
             recoverability = .onlyCopy
         case .none:
@@ -169,15 +169,15 @@ public struct ImportanceAssessor: Sendable {
         // ── 마지막으로 연 시각 ────────────────────────────────────────
         if let days = daysSinceLastAccess(path) {
             if days >= 365 {
-                signals.append(.init(direction: .lowers, title: "오래 열지 않음",
-                                     detail: "마지막으로 연 지 \(days)일 지났습니다."))
+                signals.append(.init(direction: .lowers, title: L("signal.notOpenedLong"),
+                                     detail: L("signal.notOpenedLong.detail", days)))
             } else if days <= 7 {
-                signals.append(.init(direction: .raises, title: "최근에 사용",
-                                     detail: "\(days)일 전에 열었습니다. 지금 쓰는 중일 수 있습니다."))
+                signals.append(.init(direction: .raises, title: L("signal.recentlyUsed"),
+                                     detail: L("signal.recentlyUsed.detail", days)))
                 level = max(level, .replaceable)
             } else {
-                signals.append(.init(direction: .context, title: "마지막 사용",
-                                     detail: "\(days)일 전"))
+                signals.append(.init(direction: .context, title: L("signal.lastUsed"),
+                                     detail: L("signal.lastUsed.detail", days)))
             }
         }
 
@@ -209,57 +209,57 @@ public struct ImportanceAssessor: Sendable {
         switch level {
         case .critical:
             verdict = .keep
-            headline = "자격 증명이거나 유일본입니다. 이 앱은 이런 항목을 지우지 않습니다."
-            cost = "되돌릴 방법이 없습니다."
+            headline = L("assess.critical.headline")
+            cost = L("assess.critical.cost")
 
         case .personal:
             switch recoverability {
             case .inVersionControl:
                 verdict = .checkFirst
-                headline = "직접 만든 것이지만 원격 저장소에 올라가 있습니다."
-                cost = "다시 받으면 됩니다. 커밋하지 않은 변경은 사라집니다."
+                headline = L("assess.personalInVCS.headline")
+                cost = L("assess.personalInVCS.cost")
             case .syncedElsewhere:
                 verdict = .checkFirst
-                headline = "직접 만든 것이고, 클라우드 동기화 폴더 안입니다."
-                cost = "여기서 지우면 다른 기기와 클라우드에서도 사라집니다."
+                headline = L("assess.personalInCloud.headline")
+                cost = L("assess.personalInCloud.cost")
             default:
                 verdict = .keep
-                headline = "직접 만든 것으로 보이고, 다른 사본을 찾지 못했습니다."
-                cost = "지우면 같은 걸 다시 만들 수 없습니다."
+                headline = L("assess.personalOnly.headline")
+                cost = L("assess.personalOnly.cost")
             }
 
         case .replaceable:
             verdict = .checkFirst
             switch recoverability {
             case .redownloadable:
-                headline = "다시 받을 수 있는 파일입니다."
+                headline = L("assess.redownloadable.headline")
                 cost = sizeBytes > 0
-                    ? "\(ByteFormat.string(sizeBytes)) 를 다시 내려받아야 합니다."
-                    : "다시 내려받아야 합니다."
+                    ? L("assess.redownloadable.cost.sized", ByteFormat.string(sizeBytes))
+                    : L("assess.redownloadable.cost")
             case .inVersionControl:
-                headline = "원격 저장소에 있는 내용입니다."
-                cost = "다시 받으면 됩니다."
+                headline = L("assess.inVCS.headline")
+                cost = L("assess.inVCS.cost")
             case .syncedElsewhere:
-                headline = "클라우드 동기화 폴더 안입니다."
-                cost = "여기서 지우면 다른 기기에서도 사라집니다."
+                headline = L("assess.inCloud.headline")
+                cost = L("assess.inCloud.cost")
             case .onlyCopy:
                 return ImportanceAssessment(
                     verdict: .keep,
-                    headline: "사본이나 원격을 찾지 못했습니다.",
-                    cost: "지우면 되돌릴 방법이 없을 수 있습니다.",
+                    headline: L("assess.noCopy.headline"),
+                    cost: L("assess.noCopy.cost"),
                     level: level, recoverability: recoverability, signals: signals
                 )
             default:
-                headline = "다시 만들거나 다시 받을 수 있어 보이지만, 확실하지는 않습니다."
-                cost = "다시 구하는 데 시간이 걸립니다."
+                headline = L("assess.probablyReplaceable.headline")
+                cost = L("assess.probablyReplaceable.cost")
             }
 
         case .disposable:
             verdict = .safe
-            headline = "도구가 만들어낸 것입니다. 필요하면 다시 만들어집니다."
+            headline = L("assess.disposable.headline")
             cost = sizeBytes > 0
-                ? "없음. 다음에 쓸 때 한 번 느려질 수 있습니다."
-                : "없음."
+                ? L("assess.disposable.cost.slow")
+                : L("assess.disposable.cost")
         }
 
         return ImportanceAssessment(

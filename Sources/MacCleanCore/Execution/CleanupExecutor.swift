@@ -11,11 +11,11 @@ public struct CleanupOutcome: Sendable, Identifiable {
 
         public var localizedTitle: String {
             switch self {
-            case .removed: return "휴지통으로 이동"
-            case .deleted: return "삭제 완료"
-            case .simulated: return "미리보기"
-            case .skipped: return "건너뜀"
-            case .failed: return "실패"
+            case .removed: return L("outcome.removed")
+            case .deleted: return L("outcome.deleted")
+            case .simulated: return L("outcome.simulated")
+            case .skipped: return L("outcome.skipped")
+            case .failed: return L("outcome.failed")
             }
         }
     }
@@ -70,7 +70,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
 
         for (index, finding) in findings.enumerated() {
             if isCancelled() {
-                outcomes.append(skip(finding, "사용자가 중단했습니다."))
+                outcomes.append(skip(finding, L("skip.cancelled")))
                 continue
             }
             progress(index + 1, total)
@@ -85,7 +85,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
     private func process(_ finding: Finding) -> CleanupOutcome {
         // ── 1. 애초에 손대면 안 되는 항목인가 ─────────────────────────
         guard finding.isSelectable else {
-            return skip(finding, "안내 전용 항목입니다. 이 앱은 이 항목을 건드리지 않습니다.")
+            return skip(finding, L("skip.adviseOnly"))
         }
 
         // ── 2. 도구 명령으로 처리하는 항목 ───────────────────────────
@@ -95,17 +95,17 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
 
         // ── 3. 경로와 제약이 둘 다 있어야 한다 ───────────────────────
         guard let path = finding.path else {
-            return skip(finding, "경로가 없습니다.")
+            return skip(finding, L("skip.noPath"))
         }
         guard let constraints = finding.constraints else {
             // 제약 없이 만들어진 후보는 검증할 방법이 없다. 지우지 않는다.
-            return skip(finding, "안전 제약 정보가 없어 검증할 수 없습니다.")
+            return skip(finding, L("skip.noConstraints"))
         }
 
         // ── 4. 관문 재통과 (스캔 때와 똑같은 제약으로) ───────────────
         let decision = guardian.evaluate(path, constraints: constraints)
         guard decision.allowed else {
-            return skip(finding, "안전 검사에서 걸렀습니다 [\(decision.gate)] \(decision.reason)")
+            return skip(finding, L("skip.gate", decision.gate, decision.reason))
         }
 
         // ── 5. 자격 증명·유일본이 아닌가 (마지막 그물) ────────────────
@@ -114,7 +114,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
         // `.critical` 만 막는다 — 그 아래는 사용자가 판단할 몫이라 여기서 가로채지 않는다.
         let assessment = ImportanceAssessor(paths: paths).assess(path)
         if assessment.level == .critical {
-            return skip(finding, "자격 증명이나 유일본으로 보여 삭제하지 않았습니다: \(assessment.headline)")
+            return skip(finding, L("skip.critical", assessment.headline))
         }
 
         // ── 6. 남아야 할 사본이 정말 남아 있는가 ─────────────────────
@@ -125,13 +125,13 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
         // 마지막 하나를 지우는 것일 수 있다. 그 경우 아무것도 하지 않는다.
         if let requirement = finding.mustSurvive {
             guard FileManager.default.fileExists(atPath: requirement.path.path) else {
-                return skip(finding, "남아 있어야 할 사본이 사라졌습니다. 이걸 지우면 마지막 하나가 없어집니다.")
+                return skip(finding, L("skip.survivorGone"))
             }
             guard FileHash.sha256(of: requirement.path) == requirement.sha256 else {
-                return skip(finding, "남아 있어야 할 사본의 내용이 검사 이후 바뀌었습니다. 이제 같은 파일이 아닙니다.")
+                return skip(finding, L("skip.survivorChanged"))
             }
             guard FileHash.sha256(of: path) == requirement.sha256 else {
-                return skip(finding, "이 파일의 내용이 검사 이후 바뀌었습니다. 더 이상 중복이 아닙니다.")
+                return skip(finding, L("skip.notDuplicateAnymore"))
             }
         }
 
@@ -140,7 +140,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
         if let scanned = finding.lastModified, let current = measurement.newestModification {
             // 1초 오차는 파일시스템 타임스탬프 정밀도 문제로 흔하다.
             if current.timeIntervalSince(scanned) > 1 {
-                return skip(finding, "검사한 뒤에 내용이 바뀌었습니다. 지금 사용 중일 수 있어 건너뜁니다. 다시 검사해 주세요.")
+                return skip(finding, L("skip.changedSinceScan"))
             }
         }
 
@@ -153,7 +153,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
                 finding: finding,
                 status: .simulated,
                 bytes: bytes,
-                message: "\(finding.removal.localizedTitle) 예정 · \(ByteFormat.string(bytes))",
+                message: L("outcome.planned", finding.removal.localizedTitle, ByteFormat.string(bytes)),
                 trashedTo: nil
             )
         }
@@ -165,7 +165,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
         case .permanentDelete:
             return permanentlyDelete(finding, path: path, bytes: bytes)
         case .adviseOnly, .toolCommand:
-            return skip(finding, "여기까지 올 수 없는 경로입니다.")
+            return skip(finding, L("skip.unreachable"))
         }
     }
 
@@ -180,7 +180,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
                 finding: finding,
                 status: .removed,
                 bytes: bytes,
-                message: "휴지통으로 옮겼습니다 · \(ByteFormat.string(bytes))",
+                message: L("outcome.trashed", ByteFormat.string(bytes)),
                 trashedTo: destination
             )
         } catch {
@@ -191,7 +191,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
                 finding: finding,
                 status: .failed,
                 bytes: 0,
-                message: "휴지통으로 옮기지 못했습니다: \(error.localizedDescription)",
+                message: L("outcome.trashFailed", error.localizedDescription),
                 trashedTo: nil
             )
         }
@@ -205,7 +205,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
                 finding: finding,
                 status: .deleted,
                 bytes: bytes,
-                message: "삭제했습니다 · \(ByteFormat.string(bytes))",
+                message: L("outcome.deletedDetail", ByteFormat.string(bytes)),
                 trashedTo: nil
             )
         } catch {
@@ -214,7 +214,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
                 finding: finding,
                 status: .failed,
                 bytes: 0,
-                message: "삭제하지 못했습니다: \(error.localizedDescription)",
+                message: L("outcome.deleteFailed", error.localizedDescription),
                 trashedTo: nil
             )
         }
@@ -222,10 +222,10 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
 
     private func processToolCommand(_ finding: Finding) -> CleanupOutcome {
         guard let command = finding.toolCommand else {
-            return skip(finding, "실행할 명령이 없습니다.")
+            return skip(finding, L("skip.noCommand"))
         }
         guard command.isAllowed else {
-            return skip(finding, "허용되지 않은 명령입니다: \(command.displayString)")
+            return skip(finding, L("skip.commandNotAllowed", command.displayString))
         }
 
         if dryRun {
@@ -233,7 +233,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
                 finding: finding,
                 status: .simulated,
                 bytes: finding.reclaimableBytes,
-                message: "실행 예정: \(command.displayString)",
+                message: L("outcome.commandPlanned", command.displayString),
                 trashedTo: nil
             )
         }
@@ -248,8 +248,8 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
                 status: succeeded ? .deleted : .failed,
                 bytes: succeeded ? finding.reclaimableBytes : 0,
                 message: succeeded
-                    ? "\(command.displayString) 실행 완료 · \(ByteFormat.string(finding.reclaimableBytes))"
-                    : "명령 실패: \(result.standardError.trimmingCharacters(in: .whitespacesAndNewlines))",
+                    ? L("outcome.commandDone", command.displayString, ByteFormat.string(finding.reclaimableBytes))
+                    : L("outcome.commandFailed", result.standardError.trimmingCharacters(in: .whitespacesAndNewlines)),
                 trashedTo: nil
             )
         } catch {
@@ -258,7 +258,7 @@ public struct CleanupExecutor: @unchecked Sendable {   // FileManager 보관 —
                 finding: finding,
                 status: .failed,
                 bytes: 0,
-                message: "명령을 실행하지 못했습니다: \(error.localizedDescription)",
+                message: L("outcome.commandError", error.localizedDescription),
                 trashedTo: nil
             )
         }

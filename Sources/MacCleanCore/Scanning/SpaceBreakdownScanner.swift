@@ -70,7 +70,7 @@ public struct SpaceBreakdownScanner: Scanner {
             // 스캐너 단위 진행률만으로는 이 스캐너가 도는 20~30초 동안 화면이 멈춘 것처럼 보인다.
             // 파일 수를 흘려보내서 뭔가 돌아가고 있다는 걸 알린다.
             if visited % 20_000 == 0 {
-                context.progress.note("홈을 훑는 중… \(visited / 1000)천 개 파일")
+                context.progress.note(L("progress.walkingHome", visited / 1000))
             }
 
             guard let values = try? url.resourceValues(forKeys: keys) else { continue }
@@ -109,7 +109,7 @@ public struct SpaceBreakdownScanner: Scanner {
         if truncated {
             warnings.append(ScanWarning(
                 ruleID: "spaceBreakdown",
-                message: "파일이 너무 많아 용량 분포를 끝까지 세지 못했습니다. 표시된 값은 실제보다 작습니다."
+                message: L("warn.breakdownIncomplete")
             ))
         }
 
@@ -126,12 +126,9 @@ public struct SpaceBreakdownScanner: Scanner {
                 ruleID: "advice.systemDataSummary",
                 category: .systemData,
                 risk: .advisory,
-                title: "홈 안의 시스템 데이터 합계",
-                detail: "아래 항목들의 합입니다. 각 폴더를 펼쳐 '열어서 직접 고르기' 로 안을 볼 수 있습니다.",
-                consequence: "시스템 설정 > 저장 공간 의 '시스템 데이터' 숫자와 비교해 보세요. "
-                    + "여기 나온 것보다 시스템 설정 숫자가 크다면, 차이는 홈 밖(/Library, /private/var)과 "
-                    + "로컬 스냅샷입니다. 그쪽은 관리자 권한이 필요해 이 앱이 손대지 않습니다. "
-                    + "macOS 가 정확히 어떻게 세는지는 공개돼 있지 않아 이 값은 근사치입니다.",
+                title: L("breakdown.total.title"),
+                detail: L("breakdown.total.detail"),
+                consequence: L("breakdown.total.consequence"),
                 path: nil,
                 reclaimableBytes: systemDataTotal,
                 itemCount: 0,
@@ -156,7 +153,7 @@ public struct SpaceBreakdownScanner: Scanner {
                 category: storageCategory == .systemData ? .systemData : .spaceBreakdown,
                 risk: .advisory,
                 title: "~/\(entry.key)",
-                detail: "\(folderFileCounts[entry.key] ?? 0)개 파일 · macOS 분류: \(storageCategory.localizedTitle)",
+                detail: L("breakdown.folder.detail", folderFileCounts[entry.key] ?? 0, storageCategory.localizedTitle),
                 consequence: SpaceBreakdownScanner.hint(for: entry.key),
                 path: url,
                 // 안내 항목의 이 값은 '회수 가능량'이 아니라 '차지하는 용량'이다.
@@ -178,7 +175,7 @@ public struct SpaceBreakdownScanner: Scanner {
                 risk: .advisory,
                 title: file.url.lastPathComponent,
                 detail: context.paths.abbreviate(file.url.deletingLastPathComponent()),
-                consequence: "사용자 파일이라 이 앱은 건드리지 않습니다. 파인더에서 직접 확인하고 판단하세요.",
+                consequence: L("breakdown.largeFile.consequence"),
                 path: file.url,
                 reclaimableBytes: file.size,
                 itemCount: 1,
@@ -235,44 +232,36 @@ public struct SpaceBreakdownScanner: Scanner {
     static func hint(for bucket: String) -> String {
         switch bucket {
         case "Library/Application Support/com.apple.wallpaper":
-            return "macOS 의 동영상 배경화면·화면 보호기 에셋입니다. 하나에 수 GB 씩 하고, 한 번 쓴 것도 계속 남습니다. "
-                + "시스템 설정 → 배경화면 에서 정지 이미지 배경으로 바꾸면 macOS 가 스스로 정리합니다. "
-                + "시스템이 관리하는 영역이라 이 앱은 직접 지우지 않습니다."
+            return L("breakdown.hint.wallpaper")
         case "Library/Application Support/Claude":
-            return "대부분이 vm_bundles 안의 가상머신 이미지(rootfs.img)입니다. 캐시가 아니라 앱이 쓰는 실제 이미지라 "
-                + "이 앱은 건드리지 않습니다. 필요 없다면 Claude 앱 설정에서 해당 기능을 끄고 앱이 스스로 정리하게 하세요. "
-                + "안의 Cache / Code Cache / GPUCache 는 이 앱이 정리 대상으로 다룹니다."
+            return L("breakdown.hint.claude")
         case "Library/Application Support/Notion", "Library/Application Support/Slack",
              "Library/Application Support/Code":
-            return "Electron 앱의 데이터 폴더입니다. 안의 Cache / Code Cache / GPUCache 는 이 앱이 정리 대상으로 다룹니다. "
-                + "나머지는 로그인 상태와 로컬 데이터라 건드리지 않습니다."
+            return L("breakdown.hint.electron")
         case "Library/Application Support/Google":
-            return "Chrome 프로필입니다. 방문 기록·북마크·비밀번호·확장 프로그램이 들어 있어 이 앱은 건드리지 않습니다. "
-                + "덩치가 크면 보통 OptGuideOnDeviceModel(기기 내 AI 모델, 수 GB)과 업데이터 캐시 때문입니다. "
-                + "크롬에서 직접 정리하세요: 설정 → 개인정보 보호 → 인터넷 사용 기록 삭제 → 캐시된 이미지 및 파일."
+            return L("breakdown.hint.chrome")
         case "Library/Developer/Xcode":
-            return "Xcode 가 쓰는 곳입니다. DerivedData, iOS 기기 지원 파일, 아카이브가 여기 들어갑니다. "
-                + "개발자 맥에서 가장 크게 부푸는 폴더입니다."
+            return L("breakdown.hint.developer")
         case "Library/Developer/CoreSimulator":
-            return "시뮬레이터 기기와 런타임입니다. Xcode → Settings → Platforms 에서 안 쓰는 버전을 지울 수 있습니다."
+            return L("breakdown.hint.coreSimulator")
         case "Library/Application Support":
-            return "앱들이 실제 데이터를 넣어두는 곳입니다. 캐시가 아니라 데이터라서 대부분 건드리지 않습니다."
+            return L("breakdown.hint.appSupport")
         case "Library/Developer":
-            return "Xcode 와 시뮬레이터가 쓰는 곳입니다."
+            return L("breakdown.hint.xcodeShared")
         case "Library/Caches":
-            return "앱 캐시입니다. 이 앱이 정리 대상으로 다루는 곳입니다."
+            return L("breakdown.hint.caches")
         case "Library/Containers":
-            return "샌드박스 앱들의 데이터입니다. 캐시만 정리 대상이고 나머지는 앱 데이터입니다."
+            return L("breakdown.hint.containers")
         case "Library/Group Containers":
-            return "여러 앱이 공유하는 데이터입니다. 앱 데이터라 건드리지 않습니다."
+            return L("breakdown.hint.groupContainers")
         case "Pictures":
-            return "사진 보관함입니다. 사진 앱에서 정리하세요."
+            return L("breakdown.hint.pictures")
         case "Downloads":
-            return "다운로드 폴더입니다. 오래된 설치 파일은 이 앱이 정리 대상으로 다룹니다."
+            return L("breakdown.hint.downloads")
         case "Documents", "Desktop", "Movies", "Music":
-            return "사용자 파일입니다. 이 앱은 절대 건드리지 않습니다."
+            return L("breakdown.hint.userFiles")
         default:
-            return "용량 차지 현황입니다. 이 앱은 이 폴더를 건드리지 않습니다."
+            return L("breakdown.hint.generic")
         }
     }
 }

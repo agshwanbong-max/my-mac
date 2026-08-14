@@ -8,7 +8,7 @@ public struct GuardDecision: Sendable, Equatable {
     public let gate: String
 
     public static func allow() -> GuardDecision {
-        GuardDecision(allowed: true, reason: "통과", gate: "-")
+        GuardDecision(allowed: true, reason: L("guard.pass"), gate: "-")
     }
 
     public static func deny(_ gate: String, _ reason: String) -> GuardDecision {
@@ -61,33 +61,33 @@ public struct PathGuard: @unchecked Sendable {
 
         // ── G1. 형태 검사 ────────────────────────────────────────────────
         guard target.isFileURL, path.hasPrefix("/") else {
-            return .deny("G1", "절대 파일 경로가 아님")
+            return .deny("G1", L("guard.g1.notAbsolute"))
         }
         if path.contains("..") {
-            return .deny("G1", "상위 경로 참조(..) 포함")
+            return .deny("G1", L("guard.g1.parentRef"))
         }
         if path == "/" {
-            return .deny("G1", "볼륨 루트")
+            return .deny("G1", L("guard.g1.volumeRoot"))
         }
 
         // ── G2. 존재 · 심볼릭 링크 ──────────────────────────────────────
         var lst = stat()
         guard lstat(path, &lst) == 0 else {
-            return .deny("G2", "경로가 존재하지 않음")
+            return .deny("G2", L("guard.g2.missing"))
         }
         // `S_IFMT` 계열 상수는 Swift 로 넘어올 때 정수 타입이 애매해서 쓰지 않는다.
         // `lstat` 이 성공한 경로에 대해 Foundation 으로 링크 여부를 묻는다.
         let linkCheck = try? target.resourceValues(forKeys: [.isSymbolicLinkKey])
         if linkCheck?.isSymbolicLink == true {
             // 링크 자체는 지워도 무해하지만, 링크를 따라 엉뚱한 곳을 지우는 사고를 원천 차단한다.
-            return .deny("G2", "심볼릭 링크 — 링크는 대상으로 삼지 않음")
+            return .deny("G2", L("guard.g2.symlink"))
         }
 
         // 링크를 해석한 실제 경로도 같은 검사를 통과해야 한다 (경로 바꿔치기 방어).
         let resolved = URL(fileURLWithPath: path).resolvingSymlinksInPath().standardizedFileURL
         if resolved.path != path {
             if let hit = protected.matchedDenyRule(for: resolved) {
-                return .deny("G2", "링크 해석 결과가 보호 경로: \(hit)")
+                return .deny("G2", L("guard.g2.resolvedProtected", hit))
             }
         }
 
@@ -97,7 +97,7 @@ public struct PathGuard: @unchecked Sendable {
         // 이 둘을 한 검사로 합쳐두면, 접두사에 먼저 걸린 경로가 예외로 통과하면서
         // 이름 기반 차단(.git 등)을 건너뛰게 된다. 실제로 그 구멍이 있었다.
         if let hit = protected.matchedUnwaivableRule(for: target) {
-            return .deny("G3", "보호 대상: \(hit)")
+            return .deny("G3", L("guard.g3.protected", hit))
         }
 
         // 접두사 차단. 규칙이 명시한 예외 **하나만** 열 수 있다.
@@ -106,7 +106,7 @@ public struct PathGuard: @unchecked Sendable {
         if !prefixHits.isEmpty {
             let exempt = constraints.exemptProtectedPrefix?.standardizedFileURL.path
             if let blocked = prefixHits.first(where: { $0 != exempt }) {
-                return .deny("G3", "보호 경로: \(blocked)")
+                return .deny("G3", L("guard.g3.protectedPrefix", blocked))
             }
         }
 
@@ -120,43 +120,43 @@ public struct PathGuard: @unchecked Sendable {
             }
         }
         if !insideAllowedRoot {
-            return .deny("G4", "규칙이 허용한 루트 밖")
+            return .deny("G4", L("guard.g4.outsideRoot"))
         }
 
         // 홈이나 볼륨 루트 자체, 혹은 그 직계 조상은 절대 안 된다.
         if path == paths.home.path {
-            return .deny("G4", "홈 디렉터리 자체")
+            return .deny("G4", L("guard.g4.homeItself"))
         }
         if paths.home.path.hasPrefix(path + "/") {
-            return .deny("G4", "홈 디렉터리의 상위 경로")
+            return .deny("G4", L("guard.g4.aboveHome"))
         }
 
         // ── G5. 깊이 ────────────────────────────────────────────────────
         // 컴포넌트 수가 얕을수록 파괴력이 크다. 규칙마다 최소 깊이를 요구한다.
         let depth = target.pathComponents.count - 1   // 맨 앞 "/" 제외
         if depth < constraints.minimumDepth {
-            return .deny("G5", "경로 깊이 \(depth) < 최소 \(constraints.minimumDepth)")
+            return .deny("G5", L("guard.g5.tooShallow", depth, constraints.minimumDepth))
         }
 
         // ── G6. 소유권 · 볼륨 · 잠금 플래그 ─────────────────────────────
         if lst.st_uid != getuid() {
-            return .deny("G6", "현재 사용자 소유가 아님 (uid \(lst.st_uid))")
+            return .deny("G6", L("guard.g6.notOwned", Int(lst.st_uid)))
         }
         if let homeDevice = homeDeviceID, lst.st_dev != homeDevice, !constraints.allowsOtherVolumes {
-            return .deny("G6", "홈과 다른 볼륨")
+            return .deny("G6", L("guard.g6.otherVolume"))
         }
         if lst.st_flags & PathGuard.sfRestricted != 0 {
-            return .deny("G6", "SIP 보호 플래그(SF_RESTRICTED)")
+            return .deny("G6", L("guard.g6.sip"))
         }
         if lst.st_flags & (PathGuard.ufImmutable | PathGuard.sfImmutable) != 0 {
-            return .deny("G6", "잠금 플래그(immutable)")
+            return .deny("G6", L("guard.g6.immutable"))
         }
 
         // ── G7. 쓰기 권한 ───────────────────────────────────────────────
         // 부모 디렉터리에 쓰기 권한이 없으면 어차피 실패한다. 미리 걸러 실행 단계를 깨끗하게 유지한다.
         let parent = target.deletingLastPathComponent().path
         if !fileManager.isWritableFile(atPath: parent) {
-            return .deny("G7", "상위 디렉터리에 쓰기 권한 없음")
+            return .deny("G7", L("guard.g7.noWrite"))
         }
 
         return .allow()
