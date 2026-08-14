@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MacClean — 맥 저장 공간 정리</title>
+<meta name="description" content="macOS 의 '시스템 데이터'가 무엇으로 차 있는지 보여주고, 지워도 되는 것만 골라 정리합니다. 무료·오픈소스·Apple 공증 완료.">
+<link rel="icon" href="assets/icon.png">
+<link rel="stylesheet" href="assets/site.css">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="MacClean — 맥 저장 공간 정리">
+<meta property="og:description" content="'시스템 데이터'가 무엇으로 차 있는지 보여주고, 지워도 되는 것만 골라 정리합니다.">
+<meta property="og:image" content="https://agshwanbong-max.github.io/my-mac/assets/icon.png">
+<meta property="og:locale" content="ko_KR">
+</head>
+<body>
+
+<nav class="bar">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="assets/icon.png" alt="">MacClean</a>
+    <a href="#install">설치</a>
+    <a href="#safety">안전</a>
+    <a href="support.html">후원</a>
+    <a href="https://github.com/agshwanbong-max/my-mac">GitHub</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <section class="hero">
+    <img class="icon" src="assets/icon.png" alt="MacClean 아이콘">
+    <h1>시스템 데이터,<br>정체를 알고 지웁니다</h1>
+    <p class="lead">
+      macOS 저장 공간 설정에서 <strong>'시스템 데이터'</strong>로만 뭉뚱그려 표시되는
+      수십 GB 가 실제로 무엇인지 폴더 단위로 보여주고, 그중 지워도 되는 것만 골라줍니다.
+    </p>
+
+    <div class="btn-row">
+      <a class="btn" data-download
+         href="https://github.com/agshwanbong-max/my-mac/releases/latest">
+        무료로 내려받기
+      </a>
+      <a class="btn ghost" href="https://github.com/agshwanbong-max/my-mac">소스 코드 보기</a>
+    </div>
+    <p class="meta" data-release-meta>macOS 13 이상 · Apple 공증 완료</p>
+  </section>
+
+  <div class="ad" data-slot="top"></div>
+
+  <h2>무엇을 하는가</h2>
+
+  <div class="grid">
+    <div class="card">
+      <h3>용량 지도</h3>
+      <p>홈 폴더 전체를 한 번 훑어 어느 폴더가 몇 GB 를 쓰는지, 큰 파일이 어디 있는지 목록으로 만듭니다. 애플이 '시스템 데이터'로 감춘 항목도 그대로 나옵니다.</p>
+    </div>
+    <div class="card">
+      <h3>지워도 되는 것만</h3>
+      <p>휴리스틱으로 추측하지 않습니다. 코드에 적힌 <strong>허용 목록</strong>에 있는 항목만 후보로 올립니다. 목록에 없으면 아무리 커도 건드리지 않습니다.</p>
+    </div>
+    <div class="card">
+      <h3>지워도 되는지 판정</h3>
+      <p>항목마다 <em>지워도 됨 / 확인 후 / 두는 게 좋음</em> 을 이유와 함께 표시합니다. 다시 만들어지는지, 이게 유일한 사본인지를 같이 봅니다.</p>
+    </div>
+    <div class="card">
+      <h3>중복 파일 찾기</h3>
+      <p>문서·다운로드·사진 폴더에서 내용이 완전히 같은 파일을 SHA-256 으로 찾아냅니다. 남길 사본이 그대로 있는지 지우기 직전에 다시 확인합니다.</p>
+    </div>
+    <div class="card">
+      <h3>휴지통 되돌리기</h3>
+      <p>이 앱이 옮긴 것은 기록에 남습니다. 목록에서 골라 원래 자리로 되돌릴 수 있고, 자리에 다른 파일이 있으면 덮어쓰지 않고 멈춥니다.</p>
+    </div>
+    <div class="card">
+      <h3>가볍습니다</h3>
+      <p>순수 SwiftUI + Foundation. 외부 라이브러리도, 백그라운드 상주 프로세스도, 계정 가입도 없습니다.</p>
+    </div>
+  </div>
+
+  <h2 id="safety">지우면 안 되는 것을 지우지 않는 방법</h2>
+
+  <p>
+    파일을 지우는 앱은 신뢰를 얻는 방법이 하나뿐입니다 — <strong>무엇을 절대 하지 않는지</strong>를
+    코드로 못 박고, 그걸 공개하는 것. 이 앱은 다음이 코드에 박혀 있고 설정으로도 풀 수 없습니다.
+  </p>
+
+  <div class="card">
+    <ul>
+      <li><strong>문서·사진·바탕화면·iCloud Drive</strong> 는 대상에서 원천 차단됩니다.</li>
+      <li><strong>자격 증명</strong>(키체인, SSH 키, <code>.env</code>, 클라우드 토큰)은 삭제 직전 마지막 관문에서 한 번 더 걸러냅니다.</li>
+      <li><code>.git</code>, 백업, 볼륨 밖 경로, 심볼릭 링크는 어떤 규칙으로도 열 수 없습니다.</li>
+      <li>기본 처리는 <strong>휴지통 이동</strong>입니다. 휴지통 이동이 실패해도 완전 삭제로 넘어가지 않습니다.</li>
+      <li><strong>관리자 권한(sudo)을 요구하지 않습니다.</strong> 요구하는 정리 앱은 의심하십시오.</li>
+      <li>실행 전 목록을 보여주고 확인을 받습니다. 지운 내역은 감사 기록으로 남습니다.</li>
+    </ul>
+  </div>
+
+  <p>
+    삭제 후보 하나가 실제로 지워지기까지 <strong>9개의 관문</strong>을 순서대로 통과해야 합니다.
+    검사할 때 한 번, 지울 때 한 번 — 같은 검사를 두 번 합니다.
+    자세한 내용은 저장소의
+    <a href="https://github.com/agshwanbong-max/my-mac/blob/main/docs/DESIGN.md">설계 문서</a>에 있습니다.
+  </p>
+
+  <h2 id="install">설치</h2>
+
+  <ol class="steps">
+    <li>위 단추로 <code>MacClean-*.dmg</code> 를 내려받습니다.</li>
+    <li>DMG 를 열고 <strong>MacClean</strong> 을 <strong>Applications</strong> 폴더로 끌어다 놓습니다.</li>
+    <li>
+      <strong>시스템 설정 → 개인정보 보호 및 보안 → 전체 디스크 접근</strong> 에서
+      MacClean 을 켭니다.
+      <p class="meta" style="margin-top:6px">
+        앱을 처음 열면 이 화면으로 바로 가는 단추가 나옵니다.
+      </p>
+    </li>
+    <li>앱을 실행합니다.</li>
+  </ol>
+
+  <div class="note">
+    <strong>전체 디스크 접근이 왜 필요한가요?</strong><br>
+    macOS 는 이 권한 없이는 <code>~/Library</code> 의 상당 부분을 아예 안 보이게 가립니다.
+    오류도 나지 않고 그냥 빈 폴더처럼 보여서, 권한이 없으면 앱이 조용히 절반만 찾습니다.
+    이 권한으로는 <strong>읽기만</strong> 합니다. 무엇을 지울지는 화면에서 직접 고릅니다.
+  </div>
+
+  <p>
+    Apple Developer ID 로 서명하고 <strong>공증(notarization)까지 마쳤습니다.</strong>
+    "확인되지 않은 개발자" 경고 없이 바로 열립니다.
+    내려받은 파일이 온전한지 확인하려면 릴리스에 함께 올라온
+    <code>.sha256</code> 파일과 비교하세요.
+  </p>
+
+  <pre><code>shasum -a 256 ~/Downloads/MacClean-*.dmg</code></pre>
+
+  <div class="ad" data-slot="inline"></div>
+
+  <h2>자주 묻는 것</h2>
+
+  <div class="card">
+    <h3>지웠는데 저장 공간이 안 늘어납니다</h3>
+    <p>
+      Time Machine 이나 macOS 업데이트가 만든 <strong>로컬 스냅샷</strong>이 지워진 블록을
+      붙잡고 있어서입니다. 터미널에서 <code>tmutil listlocalsnapshots /</code> 로 확인할 수 있고,
+      보통 며칠 안에 macOS 가 알아서 지웁니다. 앱의 검사 결과 화면에도 이 안내가 뜹니다.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>왜 무료인가요?</h3>
+    <p>
+      제 256GB 맥북에어 용량이 부족해서 만들었습니다. 유료화 계획은 없습니다.
+      쓸 만했다면 <a href="support.html">후원 페이지</a>를 한 번 봐주세요.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>앱이 제 데이터를 어디로 보내나요?</h3>
+    <p>
+      아무 데도 안 보냅니다. 네트워크는 <strong>새 버전 확인</strong> 한 가지 용도로만 씁니다
+      (하루 한 번, GitHub 릴리스의 <code>appcast.json</code> 을 읽습니다).
+      계정도, 원격 분석도, 광고도 앱 안에는 없습니다.
+      광고는 이 웹사이트에만 있습니다 — 전체 디스크 접근을 요구하는 앱 안에 광고를 넣는 건
+      선을 넘는 일이라고 봤습니다.
+    </p>
+  </div>
+
+</main>
+
+<footer class="wrap">
+  <div class="links">
+    <a href="https://github.com/agshwanbong-max/my-mac">GitHub</a>
+    <a href="https://github.com/agshwanbong-max/my-mac/releases">릴리스</a>
+    <a href="https://github.com/agshwanbong-max/my-mac/issues">문제 신고</a>
+    <a href="support.html">후원하기</a>
+  </div>
+  <p>MacClean · MIT License · 이 사이트는 광고 수익으로 운영됩니다.</p>
+</footer>
+
+<script type="module" src="assets/release.js"></script>
+<script type="module" src="assets/ads.js"></script>
+</body>
+</html>

@@ -11,21 +11,38 @@ struct ContentView: View {
             SidebarView()
                 .navigationSplitViewColumnWidth(min: 220, ideal: 240, max: 300)
         } detail: {
-            DetailView()
+            VStack(spacing: 0) {
+                // 새 버전 알림은 목록 위에 얹는다. 시트로 띄우면 하던 일을 끊는다.
+                if model.availableUpdate != nil {
+                    UpdateBanner()
+                    Divider()
+                }
+                DetailView()
+            }
         }
         .navigationTitle("MacClean")
         .toolbar { toolbarContent }
         .onAppear {
-            if model.report == nil { model.startScan() }
+            // 첫 실행이면 안내를 먼저 본다. 검사는 안내를 닫은 뒤에 시작한다.
+            if model.report == nil && !model.isShowingOnboarding { model.startScan() }
+            model.checkForUpdatesIfDue()
         }
         .sheet(isPresented: $model.isConfirming) { ConfirmSheet() }
         .sheet(isPresented: $model.isShowingResults) { ResultsSheet() }
+        .sheet(isPresented: $model.isShowingOnboarding) {
+            OnboardingView().environmentObject(model)
+        }
         .sheet(isPresented: $model.isShowingRestore) {
             RestoreSheet().environmentObject(model)
         }
         .sheet(item: $model.browsingDirectory) { directory in
             BrowserSheet(directory: directory.url)
                 .environmentObject(model)
+        }
+        .alert("업데이트", isPresented: .constant(model.updateMessage != nil)) {
+            Button("확인") { model.updateMessage = nil }
+        } message: {
+            Text(model.updateMessage ?? "")
         }
     }
 

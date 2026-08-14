@@ -1,4 +1,5 @@
 #if os(macOS)
+import AppKit
 import SwiftUI
 
 struct MacCleanApp: App {
@@ -18,6 +19,12 @@ struct MacCleanApp: App {
             CommandGroup(after: .toolbar) {
                 Button("다시 검사") { model.startScan() }
                     .keyboardShortcut("r")
+            }
+            CommandGroup(after: .appInfo) {
+                Button("업데이트 확인…") { model.checkForUpdates(announceNoUpdate: true) }
+                Divider()
+                Button("후원하기…") { NSWorkspace.shared.open(SupportLinks.support) }
+                Button("소스 코드 보기") { NSWorkspace.shared.open(SupportLinks.repository) }
             }
         }
     }

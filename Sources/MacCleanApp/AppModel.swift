@@ -64,12 +64,85 @@ final class AppModel: ObservableObject {
     /// 되돌리기 창을 띄울지.
     @Published var isShowingRestore = false
 
+    /// 첫 실행 안내를 띄울지.
+    @Published var isShowingOnboarding = false
+    /// 새 버전이 나왔으면 여기 담긴다.
+    @Published private(set) var availableUpdate: UpdateChecker.Manifest?
+
     @Published var isConfirming = false
     @Published var isShowingResults = false
 
     private let paths = UserPaths.current()
     private var scanTask: Task<Void, Never>?
     private var cleanupTask: Task<Void, Never>?
+
+    private static let onboardingKey = "MacClean.hasCompletedOnboarding"
+    private static let lastUpdateCheckKey = "MacClean.lastUpdateCheck"
+
+    /// 배포 서버에 올려두는 최신 버전 안내문.
+    /// GitHub Releases 는 `latest/download/<파일명>` 을 항상 최신 릴리스로 넘겨준다.
+    private static let manifestURL = URL(
+        string: "https://github.com/agshwanbong-max/my-mac/releases/latest/download/appcast.json"
+    )!
+
+    var currentVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+    }
+
+    init() {
+        // 첫 실행이면 검사보다 안내가 먼저다.
+        // 권한 없이 검사부터 돌리면 절반만 찾아놓고 "이게 다인가" 하게 만든다.
+        isShowingOnboarding = !UserDefaults.standard.bool(forKey: AppModel.onboardingKey)
+    }
+
+    func completeOnboarding() {
+        UserDefaults.standard.set(true, forKey: AppModel.onboardingKey)
+        isShowingOnboarding = false
+        if report == nil { startScan() }
+    }
+
+    // MARK: - 업데이트
+
+    /// 하루에 한 번만 확인한다. 실패는 조용히 넘어간다 —
+    /// 업데이트 확인이 안 됐다고 사용자를 귀찮게 할 이유가 없다.
+    func checkForUpdatesIfDue() {
+        let defaults = UserDefaults.standard
+        let last = defaults.object(forKey: AppModel.lastUpdateCheckKey) as? Date
+        if let last, Date().timeIntervalSince(last) < 86_400 { return }
+        defaults.set(Date(), forKey: AppModel.lastUpdateCheckKey)
+        checkForUpdates(announceNoUpdate: false)
+    }
+
+    func checkForUpdates(announceNoUpdate: Bool) {
+        let checker = UpdateChecker(manifestURL: AppModel.manifestURL, currentVersion: currentVersion)
+
+        Task { [weak self] in
+            let result = await checker.check()
+            guard let self else { return }
+
+            switch result {
+            case .available(let manifest):
+                self.availableUpdate = manifest
+            case .upToDate:
+                self.availableUpdate = nil
+                if announceNoUpdate { self.updateMessage = "최신 버전을 쓰고 계십니다." }
+            case .unavailable(let reason):
+                if announceNoUpdate { self.updateMessage = "업데이트를 확인하지 못했습니다: \(reason)" }
+            }
+        }
+    }
+
+    /// 사용자가 직접 확인했을 때만 보여줄 메시지. 자동 확인에서는 쓰지 않는다.
+    @Published var updateMessage: String?
+
+    func openDownloadPage() {
+        guard let manifest = availableUpdate else { return }
+        NSWorkspace.shared.open(manifest.releaseNotesURL ?? manifest.downloadURL)
+    }
+
+    func dismissUpdate() {
+        availableUpdate = nil
+    }
 
     // MARK: - 파생 상태
 

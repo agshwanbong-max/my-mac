@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MacClean 후원하기</title>
+<meta name="description" content="MacClean 은 무료이고 앞으로도 무료입니다. 계속 만들 수 있게 도와주세요.">
+<link rel="icon" href="assets/icon.png">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+  .donate {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    color: inherit;
+    margin: 0;
+    transition: transform 0.12s ease, border-color 0.12s ease;
+  }
+  .donate:hover { transform: translateY(-2px); border-color: var(--tint); }
+  .donate-mark {
+    width: 46px;
+    height: 46px;
+    flex: none;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    background: #db61a2;
+    color: #ffffff;
+  }
+  /* 후원 카드는 하나뿐이라 격자로 늘어뜨리지 않는다. */
+  .grid[data-donate] { grid-template-columns: 1fr; max-width: 420px; margin-inline: auto; }
+  .donate-text { display: flex; flex-direction: column; line-height: 1.35; }
+  .donate-text small { color: var(--text-dim); font-size: 13px; }
+  .thanks {
+    text-align: center;
+    padding: 56px 0 8px;
+  }
+  .thanks h1 { font-size: 36px; }
+</style>
+</head>
+<body>
+
+<nav class="bar">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="assets/icon.png" alt="">MacClean</a>
+    <a href="./">홈</a>
+    <a href="./#install">설치</a>
+    <a href="https://github.com/agshwanbong-max/my-mac">GitHub</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <section class="thanks">
+    <h1>고맙습니다</h1>
+    <p class="lead" style="color:var(--text-dim);font-size:19px">
+      MacClean 은 무료이고, 앞으로도 무료입니다.<br>
+      기능을 잠가 두거나 앱 안에 광고를 넣을 생각도 없습니다.
+    </p>
+  </section>
+
+  <div class="grid" data-donate></div>
+
+  <div class="note" data-donate-empty>
+    <strong>후원 링크는 아직 준비 중입니다.</strong><br>
+    그동안은 아래의 "돈 안 드는 방법" 쪽이 훨씬 도움이 됩니다.
+  </div>
+
+  <p class="meta" style="text-align:center" data-donate-note>
+    금액은 자유입니다. 커피 한 잔이면 충분하고, 안 하셔도 아무것도 달라지지 않습니다.
+  </p>
+
+  <!-- 광고는 페이지가 열리면 그냥 보입니다. 광고를 보게 하려고
+       무언가를 잠그거나 대가를 걸지 않습니다 — 애드센스 정책에도 어긋나고,
+       그런 식으로 벌 돈이면 안 버는 게 낫습니다. -->
+  <div class="ad" data-slot="top"></div>
+
+  <h2>돈 안 드는 방법 (이쪽이 더 큽니다)</h2>
+
+  <div class="card">
+    <ul>
+      <li>
+        <a href="https://github.com/agshwanbong-max/my-mac">저장소에 별표</a> —
+        비슷한 문제를 겪는 사람이 검색으로 찾아옵니다.
+      </li>
+      <li>
+        <a href="https://github.com/agshwanbong-max/my-mac/issues">문제 신고</a> —
+        "이건 지우면 안 되는 건데 목록에 떴다" 는 제보가 제일 값집니다.
+        이 앱에서 그건 버그가 아니라 사고입니다.
+      </li>
+      <li>
+        용량 때문에 고생하는 지인에게 <a href="./">이 페이지</a>를 알려주세요.
+      </li>
+    </ul>
+  </div>
+
+  <div class="ad" data-slot="inline"></div>
+
+  <h2>후원금은 어디에 쓰이나요</h2>
+
+  <div class="card">
+    <ul>
+      <li><strong>Apple Developer Program</strong> — 연 $99. 서명과 공증에 필요합니다. 이게 없으면 내려받은 앱이 "확인되지 않은 개발자" 경고와 함께 막힙니다.</li>
+      <li><strong>테스트용 macOS 버전</strong> — 정리 규칙은 macOS 버전마다 경로가 바뀝니다. 확인 없이 규칙을 추가할 수는 없습니다.</li>
+      <li>남으면 그대로 둡니다. 이 앱으로 생활할 계획은 없습니다.</li>
+    </ul>
+  </div>
+
+  <p style="margin-top:32px">
+    <a class="btn ghost" href="./">← MacClean 내려받기</a>
+  </p>
+
+</main>
+
+<footer class="wrap">
+  <div class="links">
+    <a href="https://github.com/agshwanbong-max/my-mac">GitHub</a>
+    <a href="https://github.com/agshwanbong-max/my-mac/releases">릴리스</a>
+    <a href="./">홈</a>
+  </div>
+  <p>MacClean · MIT License · 이 사이트는 광고 수익으로 운영됩니다.</p>
+</footer>
+
+<script type="module" src="assets/support.js"></script>
+<script type="module" src="assets/ads.js"></script>
+</body>
+</html>
