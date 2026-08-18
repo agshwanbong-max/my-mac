@@ -1,0 +1,294 @@
+/* MacClean 배포 페이지 공통 스타일.
+   외부 폰트·프레임워크를 쓰지 않는다. 다운로드 페이지가 무거우면
+   받으러 온 사람이 기다린다. */
+
+:root {
+  color-scheme: light dark;
+
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface-2: #f0f0f3;
+  --border: rgba(0, 0, 0, 0.1);
+  --text: #1d1d1f;
+  --text-dim: #6e6e73;
+  --tint: #0071e3;
+  --tint-text: #ffffff;
+  --good: #1a7f37;
+  --warn: #9a6700;
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 8px 28px rgba(0, 0, 0, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --surface: #1c1c1e;
+    --surface-2: #2c2c2e;
+    --border: rgba(255, 255, 255, 0.12);
+    --text: #f5f5f7;
+    --text-dim: #98989d;
+    --tint: #0a84ff;
+    --good: #3fb950;
+    --warn: #d29922;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 28px rgba(0, 0, 0, 0.5);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Pretendard",
+    "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ── 상단 막대 ─────────────────────────────────────────── */
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.bar .wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 52px;
+}
+
+.bar a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.bar a:hover { color: var(--text); }
+
+.bar .brand {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 15px;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.bar .brand img { width: 22px; height: 22px; border-radius: 5px; }
+
+/* ── 머리말 ────────────────────────────────────────────── */
+
+.hero {
+  text-align: center;
+  padding: 72px 0 56px;
+}
+
+.hero img.icon {
+  width: 116px;
+  height: 116px;
+  margin-bottom: 24px;
+  filter: drop-shadow(0 10px 26px rgba(0, 0, 0, 0.18));
+}
+
+h1 {
+  font-size: 44px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+  font-weight: 700;
+}
+
+.hero p.lead {
+  font-size: 20px;
+  color: var(--text-dim);
+  margin: 0 auto 32px;
+  max-width: 30em;
+}
+
+h2 {
+  font-size: 26px;
+  letter-spacing: -0.01em;
+  margin: 56px 0 16px;
+  font-weight: 650;
+}
+
+h3 {
+  font-size: 18px;
+  margin: 28px 0 8px;
+  font-weight: 620;
+}
+
+p { margin: 0 0 16px; }
+
+a { color: var(--tint); }
+
+/* ── 단추 ──────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 26px;
+  border-radius: 980px;
+  background: var(--tint);
+  color: var(--tint-text);
+  font-size: 17px;
+  font-weight: 550;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.12s ease;
+  font-family: inherit;
+}
+
+.btn:hover { filter: brightness(1.08); }
+.btn:active { transform: scale(0.97); }
+
+.btn.ghost {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.meta {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* ── 카드 ──────────────────────────────────────────────── */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  box-shadow: var(--shadow);
+  margin: 18px 0;
+}
+
+.card h3 { margin-top: 0; }
+.card :last-child { margin-bottom: 0; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.grid .card { margin: 0; }
+
+.note {
+  border-left: 3px solid var(--warn);
+  background: var(--surface-2);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 18px;
+  font-size: 15px;
+  color: var(--text-dim);
+  margin: 20px 0;
+}
+
+.note strong { color: var(--text); }
+
+ol, ul { padding-left: 1.3em; margin: 0 0 16px; }
+li { margin-bottom: 7px; }
+
+code, pre {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.86em;
+}
+
+code {
+  background: var(--surface-2);
+  padding: 0.15em 0.45em;
+  border-radius: 5px;
+}
+
+pre {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  overflow-x: auto;
+}
+
+pre code { background: none; padding: 0; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; }
+
+.steps li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 40px;
+  margin-bottom: 14px;
+}
+
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--tint);
+  color: var(--tint-text);
+  font-size: 14px;
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+}
+
+/* ── 꼬리말 ────────────────────────────────────────────── */
+
+footer {
+  margin-top: 72px;
+  padding: 28px 0 48px;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+footer a { color: var(--text-dim); }
+
+footer .links {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 540px) {
+  body { font-size: 16px; }
+  h1 { font-size: 34px; }
+  .hero { padding: 48px 0 40px; }
+  .hero p.lead { font-size: 18px; }
+}
