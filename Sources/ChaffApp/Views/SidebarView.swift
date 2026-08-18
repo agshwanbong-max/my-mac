@@ -1,4 +1,5 @@
 #if os(macOS)
+import AppKit
 import ChaffCore
 import SwiftUI
 
@@ -6,18 +7,20 @@ import SwiftUI
 struct SidebarView: View {
     @EnvironmentObject private var model: AppModel
 
+    /// 사이드바 위쪽이 제목 줄에 가려진 높이. `TitleBarProbe` 가 채워 준다.
+    ///
+    /// macOS 26 에서 NavigationSplitView 의 사이드바가 제목 줄만큼의 안전 영역을
+    /// 못 받는 일이 있다. 그러면 목록이 창 맨 위에서 시작해 첫 줄이 신호등 단추에
+    /// 가리고, 붙박이 구역 머리글이 그 위에 겹쳐 찍힌다. 항목이 몇 개 없으면
+    /// 스크롤도 안 되니 가려진 첫 줄에 아예 손이 닿지 않는다.
+    ///
+    /// macOS 가 제대로 밀어주면 이 값은 0 이 되고 보정도 저절로 사라진다.
+    @State private var hiddenUnderTitleBar: CGFloat = 0
+
     var body: some View {
-        // 바닥에 붙는 것들은 `.safeAreaInset(edge: .bottom)` 으로 달면 안 된다.
-        //
-        // 사이드바 List 에 바닥 inset 을 주면 SwiftUI 가 그 List 의 **위쪽** 안전 영역까지
-        // 같이 0 으로 만든다. 그러면 첫 줄이 제목 줄 밑으로 파고들어 신호등 단추에 가리고,
-        // 붙박이 구역 머리글("분류")이 그 위에 겹쳐 찍힌다.
-        //
-        // 예전에는 권한이 없을 때만 inset 에 내용이 있어서 티가 안 났는데,
-        // 후원 단추를 항상 띄우기로 하면서 상시 증상이 됐다.
-        // inset 을 쓰지 말고 List 아래에 그냥 나란히 두면 이 문제가 사라진다.
         VStack(spacing: 0) {
             categoryList
+                .padding(.top, hiddenUnderTitleBar)
 
             if !model.hasFullDiskAccess {
                 Divider()
@@ -27,6 +30,9 @@ struct SidebarView: View {
             Divider()
             SupportFooter()
         }
+        // 재는 자는 바깥에 둔다. 안쪽 여백을 바꿔도 이 뷰의 위치는 그대로여서
+        // 여백과 측정이 서로를 물고 늘어지지 않는다.
+        .background(TitleBarProbe(hidden: $hiddenUnderTitleBar))
     }
 
     private var categoryList: some View {
@@ -147,6 +153,61 @@ private struct PermissionNotice: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
         .padding(10)
+    }
+}
+
+/// 사이드바 위쪽이 제목 줄에 얼마나 가려졌는지 창에 직접 물어보는, 보이지 않는 자.
+///
+/// SwiftUI 좌표 공간으로는 이 질문에 답할 수 없다. 어느 조상 뷰를 기준으로 재느냐에 따라
+/// 값이 달라지는데, 정작 알아야 하는 건 **창 자체**와의 관계이기 때문이다.
+///
+/// `contentLayoutRect` 는 창에서 제목 줄과 도구 막대를 뺀 영역이다.
+/// 이 뷰의 위쪽 끝이 그보다 얼마나 위로 올라가 있는지가 곧 가려진 높이다.
+/// 창에 붙어 있는 한 도구 막대 모양이 바뀌든 창 크기가 바뀌든 따라간다.
+private struct TitleBarProbe: NSViewRepresentable {
+    @Binding var hidden: CGFloat
+
+    func makeNSView(context: Context) -> ProbeView { ProbeView() }
+
+    func updateNSView(_ view: ProbeView, context: Context) {
+        // 여기서 매번 다시 매단다. 그래야 콜백이 낡은 바인딩을 붙잡고 있지 않는다.
+        // 뷰를 약하게 잡아야 뷰와 콜백이 서로를 붙들고 안 놓아주는 일이 없다.
+        view.onGeometryChange = { [weak view] in
+            guard let view else { return }
+            measure(view)
+        }
+        measure(view)
+    }
+
+    private func measure(_ view: ProbeView) {
+        // 배치 도중에 상태를 건드리면 SwiftUI 가 같은 판을 다시 그린다. 한 차례 미룬다.
+        DispatchQueue.main.async {
+            guard let window = view.window, let content = window.contentView else { return }
+
+            // 둘 다 창 기준 좌표로 옮겨서 비교한다. macOS 는 y 가 위로 자란다.
+            let layout = content.convert(window.contentLayoutRect, to: nil)
+            let mine = view.convert(view.bounds, to: nil)
+            let measured = max(0, layout.maxY - mine.maxY)
+
+            // 소수점 떨림으로 다시 그리지 않게 한다.
+            if abs(measured - hidden) > 0.5 { hidden = measured }
+        }
+    }
+
+    /// 창에 붙을 때와 배치가 바뀔 때마다 알려준다.
+    /// `updateNSView` 만으로는 창 크기 변화를 놓친다 — SwiftUI 가 다시 그리지 않기 때문이다.
+    final class ProbeView: NSView {
+        var onGeometryChange: (() -> Void)?
+
+        override func layout() {
+            super.layout()
+            onGeometryChange?()
+        }
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            onGeometryChange?()
+        }
     }
 }
 #endif
