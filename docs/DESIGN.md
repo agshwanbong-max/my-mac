@@ -1,4 +1,4 @@
-# MacClean 설계 문서
+# Chaff 설계 문서
 
 256GB MacBook Air 를 위한 저장 공간 정리 도구.
 
@@ -140,7 +140,7 @@ APFS 파일 복제(clone)와 스파스 파일도 같은 문제를 만든다.
 ## 3. 구조
 
 ```
-MacCleanCore (순수 Foundation · UI 의존 없음)
+ChaffCore (순수 Foundation · UI 의존 없음)
 ├─ Models/       Finding, RiskLevel, RemovalMode, FindingCategory
 ├─ Safety/       ProtectedPaths, PathGuard          ← 마지막 방어선
 ├─ Rules/        CleanupRule, RuleCatalog           ← "무엇을 지울지"의 전부
@@ -148,8 +148,8 @@ MacCleanCore (순수 Foundation · UI 의존 없음)
 ├─ Execution/    CleanupExecutor, AuditLog
 └─ Support/      DiskUsage, ShellRunner, VolumeProbe, UserPaths
 
-MacCleanApp (SwiftUI)     — 코어를 화면에 붙인다
-maccleanctl (CLI)         — 코어를 GUI 없이 검증한다
+ChaffApp (SwiftUI)     — 코어를 화면에 붙인다
+chaffctl (CLI)         — 코어를 GUI 없이 검증한다
 ```
 
 의존 방향은 한 방향이다. 코어는 앱을 모른다.
@@ -159,7 +159,7 @@ maccleanctl (CLI)         — 코어를 GUI 없이 검증한다
 
 `CleanupRule` 은 `Codable` 구조체다. 이렇게 한 이유:
 
-- 전체 규칙을 한 화면에서 검토할 수 있다 (`maccleanctl rules`)
+- 전체 규칙을 한 화면에서 검토할 수 있다 (`chaffctl rules`)
 - 테스트가 규칙을 순회하며 불변식을 검사할 수 있다
 - 규칙이 아무리 잘못 쓰여도 `PathGuard` 를 우회할 방법이 없다
 

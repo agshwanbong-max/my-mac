@@ -1,16 +1,16 @@
 #!/bin/bash
 #
-# MacClean.app 번들을 만든다. Xcode 프로젝트 없이 SPM 만으로 동작한다.
+# Chaff.app 번들을 만든다. Xcode 프로젝트 없이 SPM 만으로 동작한다.
 #
-#   ./Scripts/build_app.sh            릴리즈 빌드 후 ./build/MacClean.app 생성
+#   ./Scripts/build_app.sh            릴리즈 빌드 후 ./build/Chaff.app 생성
 #   ./Scripts/build_app.sh --run      만들고 바로 실행
 #
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-APP_NAME="MacClean"
-BUNDLE_ID="${MACCLEAN_BUNDLE_ID:-local.macclean.app}"
+APP_NAME="Chaff"
+BUNDLE_ID="${CHAFF_BUNDLE_ID:-local.chaff.app}"
 BUILD_DIR="build"
 APP_DIR="${BUILD_DIR}/${APP_NAME}.app"
 VERSION="$(cat VERSION)"
@@ -35,7 +35,7 @@ mkdir -p "${APP_DIR}/Contents/Resources"
 
 cp "${BINARY}" "${APP_DIR}/Contents/MacOS/${APP_NAME}"
 
-# 번역 파일. SPM 은 리소스를 `MacClean_MacCleanCore.bundle` 로 묶어 빌드 폴더에 둔다.
+# 번역 파일. SPM 은 리소스를 `Chaff_ChaffCore.bundle` 로 묶어 빌드 폴더에 둔다.
 # 이걸 Contents/Resources 에 넣어야 `Bundle.module` 이 찾는다.
 # 빠뜨리면 앱이 조용히 키 이름("verdict.safe")을 화면에 찍는다.
 BIN_PATH="$(swift build -c release --product "${APP_NAME}" --show-bin-path)"
@@ -50,7 +50,7 @@ if [ "${BUNDLE_COUNT}" -eq 0 ]; then
   exit 1
 fi
 
-ICON_SOURCE="Sources/MacCleanApp/Resources/AppIcon.icns"
+ICON_SOURCE="Sources/ChaffApp/Resources/AppIcon.icns"
 if [ -f "${ICON_SOURCE}" ]; then
   cp "${ICON_SOURCE}" "${APP_DIR}/Contents/Resources/AppIcon.icns"
 else

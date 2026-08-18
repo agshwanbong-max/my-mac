@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MacClean — 맥 저장 공간 정리</title>
+<title>Chaff — 맥 저장 공간 정리</title>
 <meta name="description" content="macOS 의 '시스템 데이터'가 무엇으로 차 있는지 보여주고, 지워도 되는 것만 골라 정리합니다. 무료·오픈소스·Apple 공증 완료.">
 <link rel="icon" href="assets/icon.png">
 <link rel="stylesheet" href="assets/site.css">
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="MacClean — 맥 저장 공간 정리">
+<meta property="og:title" content="Chaff — 맥 저장 공간 정리">
 <meta property="og:description" content="'시스템 데이터'가 무엇으로 차 있는지 보여주고, 지워도 되는 것만 골라 정리합니다.">
 <meta property="og:image" content="https://agshwanbong-max.github.io/my-mac/assets/icon.png">
 <meta property="og:locale" content="ko_KR">
@@ -18,7 +18,7 @@
 
 <nav class="bar">
   <div class="wrap">
-    <a class="brand" href="./"><img src="assets/icon.png" alt="">MacClean</a>
+    <a class="brand" href="./"><img src="assets/icon.png" alt="">Chaff</a>
     <a href="#install">설치</a>
     <a href="#safety">안전</a>
     <a href="support.html">후원</a>
@@ -29,7 +29,7 @@
 <main class="wrap">
 
   <section class="hero">
-    <img class="icon" src="assets/icon.png" alt="MacClean 아이콘">
+    <img class="icon" src="assets/icon.png" alt="Chaff 아이콘">
     <h1>시스템 데이터,<br>정체를 알고 지웁니다</h1>
     <p class="lead">
       macOS 저장 공간 설정에서 <strong>'시스템 데이터'</strong>로만 뭉뚱그려 표시되는
@@ -107,11 +107,11 @@
   <h2 id="install">설치</h2>
 
   <ol class="steps">
-    <li>위 단추로 <code>MacClean-*.dmg</code> 를 내려받습니다.</li>
-    <li>DMG 를 열고 <strong>MacClean</strong> 을 <strong>Applications</strong> 폴더로 끌어다 놓습니다.</li>
+    <li>위 단추로 <code>Chaff-*.dmg</code> 를 내려받습니다.</li>
+    <li>DMG 를 열고 <strong>Chaff</strong> 를 <strong>Applications</strong> 폴더로 끌어다 놓습니다.</li>
     <li>
       <strong>시스템 설정 → 개인정보 보호 및 보안 → 전체 디스크 접근</strong> 에서
-      MacClean 을 켭니다.
+      Chaff 를 켭니다.
       <p class="meta" style="margin-top:6px">
         앱을 처음 열면 이 화면으로 바로 가는 단추가 나옵니다.
       </p>
@@ -133,7 +133,7 @@
     <code>.sha256</code> 파일과 비교하세요.
   </p>
 
-  <pre><code>shasum -a 256 ~/Downloads/MacClean-*.dmg</code></pre>
+  <pre><code>shasum -a 256 ~/Downloads/Chaff-*.dmg</code></pre>
 
   <h2>자주 묻는 것</h2>
 
@@ -143,6 +143,16 @@
       Time Machine 이나 macOS 업데이트가 만든 <strong>로컬 스냅샷</strong>이 지워진 블록을
       붙잡고 있어서입니다. 터미널에서 <code>tmutil listlocalsnapshots /</code> 로 확인할 수 있고,
       보통 며칠 안에 macOS 가 알아서 지웁니다. 앱의 검사 결과 화면에도 이 안내가 뜹니다.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>왜 이름이 Chaff 인가요?</h3>
+    <p>
+      영어 표현 <em>separate the wheat from the chaff</em> — '알곡과 겨를 가른다' — 에서 왔습니다.
+      겨(chaff)는 곡식을 털고 남는 껍질입니다. 쌓이지만 쓸모는 없고, 골라내도 곡식은 그대로입니다.
+      캐시와 빌드 찌꺼기가 저장 공간에서 하는 일이 정확히 그것입니다.
+      <strong>겨만 골라내고 알곡은 건드리지 않는 것</strong>이 이 앱의 설계 원칙 전부입니다.
     </p>
   </div>
 
@@ -173,7 +183,7 @@
     <a href="https://github.com/agshwanbong-max/my-mac/issues">문제 신고</a>
     <a href="support.html">후원하기</a>
   </div>
-  <p>MacClean · MIT License · 광고도 추적도 없습니다.</p>
+  <p>Chaff · MIT License · 광고도 추적도 없습니다.</p>
 </footer>
 
 <script type="module" src="assets/release.js"></script>
