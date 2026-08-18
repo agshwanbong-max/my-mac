@@ -8,22 +8,6 @@ struct SidebarView: View {
     @EnvironmentObject private var model: AppModel
 
     var body: some View {
-        VStack(spacing: 0) {
-            categoryList
-
-            if !model.hasFullDiskAccess {
-                Divider()
-                PermissionNotice()
-            }
-
-            Divider()
-            SupportFooter()
-        }
-        // 목록 첫 줄이 제목 줄 밑에 깔리는 것을 막는다. 사정은 아래에 적어 뒀다.
-        .background(SidebarTopInset())
-    }
-
-    private var categoryList: some View {
         List(selection: $model.sidebarSelection) {
             Section {
                 row(
@@ -65,6 +49,15 @@ struct SidebarView: View {
             }
         }
         .listStyle(.sidebar)
+        .safeAreaInset(edge: .bottom) {
+            VStack(spacing: 0) {
+                if !model.hasFullDiskAccess {
+                    PermissionNotice()
+                }
+                SupportFooter()
+            }
+        }
+        .background(LayoutReport())
     }
 
     private func row(title: String, symbol: String, tint: Color, bytes: Int64, count: Int) -> some View {
@@ -144,97 +137,81 @@ private struct PermissionNotice: View {
     }
 }
 
-/// 사이드바 목록이 제목 줄 아래에서 시작하게 만든다.
+/// 사이드바 목록이 어디에 어떻게 놓였는지 그대로 받아 적는다. 화면은 바꾸지 않는다.
 ///
-/// **왜 SwiftUI 로는 안 되는가**
-/// `.listStyle(.sidebar)` 의 스크롤 뷰는 자기 틀 위로 넘어가서 그린다. macOS 26 의
-/// 떠 있는 도구 막대 밑으로 내용이 흐르게 하려는 의도된 동작이고, 대신 스크롤 뷰가
-/// 콘텐츠 인셋을 받아 첫 줄을 밀어내야 하는데 사이드바에는 그게 들어오지 않는다.
+/// 첫 줄이 제목 줄 밑에 깔려 보이는 문제를 다섯 번 고치려다 다섯 번 빗나갔다.
+/// 전부 화면을 눈으로 보고 원인을 짐작해서 손댄 것이었다. 그러다 한국어에서는
+/// 멀쩡하다는 사실이 나왔고, 그러면 제목 줄이나 안전 영역 문제일 수가 없다.
 ///
-/// 위쪽에 여백을 주는 걸로는 고쳐지지 않는다. 여백은 **틀만** 줄이고 내용은 여전히
-/// 창 꼭대기에서 그려져서, 첫 줄이 내려오는 게 아니라 잘려 나간다.
-/// (여백을 크게 줬더니 목록이 통째로 사라진 것이 그 증거였다.)
+/// 그래서 고치기 전에 재기부터 한다. 두 언어를 같은 자로 재서 다른 값을 찾는다.
 ///
-/// 창에 물어봐도 소용없다. `contentLayoutRect` 도, 사이드바 칸의 좌표도 전부
-/// "가려진 것 없음"이라고 답한다 — AppKit 기준으로는 그게 맞는 답이기 때문이다.
+///     CHAFF_LAYOUT_DEBUG=1 build/Chaff.app/Contents/MacOS/Chaff
 ///
-/// 그래서 macOS 가 이 일에 쓰는 장치를 직접 쓴다. 스크롤 뷰의 `contentInsets` 이다.
-/// 이건 내용이 시작하는 자리를 옮기는 것이라, 잘라내지 않고 밀어낸다.
-private struct SidebarTopInset: NSViewRepresentable {
+private struct LayoutReport: NSViewRepresentable {
 
-    func makeNSView(context: Context) -> ProbeView { ProbeView() }
+    func makeNSView(context: Context) -> ReportView { ReportView() }
 
-    func updateNSView(_ view: ProbeView, context: Context) {
+    func updateNSView(_ view: ReportView, context: Context) {
         view.onGeometryChange = { [weak view] in
             guard let view else { return }
-            apply(around: view)
+            report(around: view)
         }
-        apply(around: view)
+        report(around: view)
     }
 
-    private func apply(around view: ProbeView) {
-        // 배치 도중에 스크롤 뷰를 건드리면 그 판이 어긋난다. 한 차례 미룬다.
+    private func report(around view: ReportView) {
+        guard ProcessInfo.processInfo.environment["CHAFF_LAYOUT_DEBUG"] != nil else { return }
+
         DispatchQueue.main.async {
-            guard let window = view.window,
-                  // 신호등 단추의 부모가 제목 줄 뷰다. 도구 막대까지 품고 있어서
-                  // 필요한 높이가 여기서 정확히 나온다.
-                  let titleBar = window.standardWindowButton(.closeButton)?.superview,
-                  let scroll = sidebarScrollView(near: view)
-            else { return }
+            guard let window = view.window else { return }
 
-            let wanted = titleBar.frame.height
+            var lines = ["", "── 사이드바 측정 ──"]
+            lines.append("언어: \(L10n.currentLanguage)")
+            lines.append("창 높이: \(window.frame.height)")
 
-            if ProcessInfo.processInfo.environment["CHAFF_LAYOUT_DEBUG"] != nil {
-                let line = "[layout] 제목 줄 \(wanted)"
-                    + " / 지금 인셋 \(scroll.contentInsets.top)"
-                    + " / 자동조정 \(scroll.automaticallyAdjustsContentInsets)\n"
-                FileHandle.standardError.write(Data(line.utf8))
+            if let titleBar = window.standardWindowButton(.closeButton)?.superview {
+                lines.append("제목 줄 높이: \(titleBar.frame.height)")
             }
 
-            // 이미 맞으면 손대지 않는다. 매번 건드리면 사용자가 스크롤한 위치를 빼앗는다.
-            guard abs(scroll.contentInsets.top - wanted) > 0.5 else { return }
+            let mine = view.convert(view.bounds, to: nil)
+            lines.append("사이드바 칸: 위 \(mine.maxY) 아래 \(mine.minY) 높이 \(mine.height)")
 
-            scroll.automaticallyAdjustsContentInsets = false
-            scroll.contentInsets = NSEdgeInsets(top: wanted, left: 0, bottom: 0, right: 0)
+            if let scroll = firstScrollView(near: view) {
+                let visible = scroll.documentVisibleRect
+                lines.append("스크롤 뷰 높이: \(scroll.frame.height)")
+                lines.append("콘텐츠 인셋 위: \(scroll.contentInsets.top) (자동조정 \(scroll.automaticallyAdjustsContentInsets))")
+                lines.append("보이는 구간: y \(visible.minY) ~ \(visible.maxY)")
+                if let document = scroll.documentView {
+                    lines.append("내용 높이: \(document.frame.height)")
+                    lines.append("내용이 뷰포트보다 큰가: \(document.frame.height > visible.height)")
+                }
+            } else {
+                lines.append("스크롤 뷰: 못 찾음")
+            }
 
-            // 인셋만 바꾸면 보이는 위치는 그대로다. 새로 생긴 위쪽까지 한 번 되감아야
-            // 첫 줄이 실제로 내려온다.
-            scroll.contentView.scroll(to: NSPoint(x: 0, y: -wanted))
-            scroll.reflectScrolledClipView(scroll.contentView)
+            FileHandle.standardError.write(Data((lines.joined(separator: "\n") + "\n").utf8))
         }
     }
 
-    /// 사이드바 목록의 스크롤 뷰를 찾는다.
-    ///
-    /// 이 뷰는 사이드바 칸의 배경으로 놓이므로, 조상을 한 단계씩 올라가며 그 아래에서
-    /// 스크롤 뷰를 찾으면 가장 먼저 걸리는 것이 목록이다. 오른쪽 상세 칸까지 올라가기
-    /// 전에 멈추므로 엉뚱한 스크롤 뷰를 잡지 않는다.
-    private func sidebarScrollView(near view: NSView) -> NSScrollView? {
+    private func firstScrollView(near view: NSView) -> NSScrollView? {
         var ancestor = view.superview
         while let current = ancestor {
-            if let found = firstScrollView(in: current) { return found }
+            if let found = descendantScrollView(in: current) { return found }
             ancestor = current.superview
         }
         return nil
     }
 
-    private func firstScrollView(in view: NSView) -> NSScrollView? {
+    private func descendantScrollView(in view: NSView) -> NSScrollView? {
         for subview in view.subviews {
             if let scroll = subview as? NSScrollView { return scroll }
-            if let found = firstScrollView(in: subview) { return found }
+            if let found = descendantScrollView(in: subview) { return found }
         }
         return nil
     }
 
-    /// 창에 붙을 때와 배치가 바뀔 때마다 알려준다.
-    /// `updateNSView` 만으로는 창 크기 변화를 놓친다 — SwiftUI 가 다시 그리지 않기 때문이다.
-    final class ProbeView: NSView {
+    final class ReportView: NSView {
         var onGeometryChange: (() -> Void)?
-
-        override func layout() {
-            super.layout()
-            onGeometryChange?()
-        }
 
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
