@@ -3,6 +3,9 @@ import PackageDescription
 
 let package = Package(
     name: "MacClean",
+    // 번역의 원본 언어. `.lproj` 리소스가 있으면 SPM 이 이걸 요구한다 —
+    // 사용자의 언어에 번역이 없을 때 어디로 되돌아갈지를 알아야 하기 때문이다.
+    defaultLocalization: "ko",
     platforms: [.macOS(.v13)],
     products: [
         .library(name: "MacCleanCore", targets: ["MacCleanCore"]),
