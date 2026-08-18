@@ -173,7 +173,15 @@ public struct ImportanceAssessor: Sendable {
             } else if days <= 7 {
                 signals.append(.init(direction: .raises, title: L("signal.recentlyUsed"),
                                      detail: L("signal.recentlyUsed.detail", days)))
-                level = max(level, .replaceable)
+                // 최근에 썼다는 사실이 **다시 만들어지는 것**을 소중하게 만들지는 않는다.
+                // DerivedData 는 오늘 빌드했든 한 달 전에 빌드했든 다음 빌드에 다시 생긴다.
+                // 이걸 안 걸러내면 한창 개발 중인 프로젝트의 빌드 산출물이 전부
+                // '확인 후' 로 내려앉는다 — 정작 가장 확실하게 지워도 되는 것들인데.
+                //
+                // 최근 사용 여부는 **정체를 모르는 파일**을 판단할 때만 의미가 있다.
+                if recoverability != .regenerates {
+                    level = max(level, .replaceable)
+                }
             } else {
                 signals.append(.init(direction: .context, title: L("signal.lastUsed"),
                                      detail: L("signal.lastUsed.detail", days)))
