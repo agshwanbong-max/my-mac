@@ -7,6 +7,29 @@ struct SidebarView: View {
     @EnvironmentObject private var model: AppModel
 
     var body: some View {
+        // 바닥에 붙는 것들은 `.safeAreaInset(edge: .bottom)` 으로 달면 안 된다.
+        //
+        // 사이드바 List 에 바닥 inset 을 주면 SwiftUI 가 그 List 의 **위쪽** 안전 영역까지
+        // 같이 0 으로 만든다. 그러면 첫 줄이 제목 줄 밑으로 파고들어 신호등 단추에 가리고,
+        // 붙박이 구역 머리글("분류")이 그 위에 겹쳐 찍힌다.
+        //
+        // 예전에는 권한이 없을 때만 inset 에 내용이 있어서 티가 안 났는데,
+        // 후원 단추를 항상 띄우기로 하면서 상시 증상이 됐다.
+        // inset 을 쓰지 말고 List 아래에 그냥 나란히 두면 이 문제가 사라진다.
+        VStack(spacing: 0) {
+            categoryList
+
+            if !model.hasFullDiskAccess {
+                Divider()
+                PermissionNotice()
+            }
+
+            Divider()
+            SupportFooter()
+        }
+    }
+
+    private var categoryList: some View {
         List(selection: $model.sidebarSelection) {
             Section {
                 row(
@@ -48,14 +71,6 @@ struct SidebarView: View {
             }
         }
         .listStyle(.sidebar)
-        .safeAreaInset(edge: .bottom) {
-            VStack(spacing: 0) {
-                if !model.hasFullDiskAccess {
-                    PermissionNotice()
-                }
-                SupportFooter()
-            }
-        }
     }
 
     private func row(title: String, symbol: String, tint: Color, bytes: Int64, count: Int) -> some View {
