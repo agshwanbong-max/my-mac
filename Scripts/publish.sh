@@ -7,8 +7,8 @@
 # 미리 `./Scripts/release.sh` 로 서명·공증을 끝내 두어야 한다.
 #
 # 함께 올리는 것
-#   MacClean-<버전>.dmg      배포본
-#   MacClean-<버전>.dmg.sha256   내려받은 파일이 온전한지 확인용
+#   Chaff-<버전>.dmg      배포본
+#   Chaff-<버전>.dmg.sha256   내려받은 파일이 온전한지 확인용
 #   appcast.json             앱이 새 버전을 확인하는 안내문
 #
 # `appcast.json` 은 latest/download 경로로 항상 최신 릴리스에서 서빙되므로,
@@ -18,7 +18,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-APP_NAME="MacClean"
+APP_NAME="Chaff"
 VERSION="$(cat VERSION)"
 TAG="v${VERSION}"
 BUILD_DIR="build"
@@ -82,12 +82,12 @@ NOTES_FILE="${BUILD_DIR}/release-notes.md"
 cat > "${NOTES_FILE}" <<NOTES
 ## 설치
 
-\`${APP_NAME}-${VERSION}.dmg\` 를 받아서 열고, MacClean 을 Applications 로 끌어다 놓으세요.
+\`${APP_NAME}-${VERSION}.dmg\` 를 받아서 열고, Chaff 를 Applications 로 끌어다 놓으세요.
 
 Apple Developer ID 로 서명하고 공증까지 마쳤습니다. 경고 없이 열립니다.
 
 설치한 뒤 **시스템 설정 → 개인정보 보호 및 보안 → 전체 디스크 접근** 에
-MacClean 을 추가해 주세요. 이 권한이 없으면 \`~/Library\` 의 상당 부분이
+Chaff 를 추가해 주세요. 이 권한이 없으면 \`~/Library\` 의 상당 부분이
 빈 폴더처럼 보여서 앱이 절반만 찾습니다.
 
 ## 변경 사항

@@ -4,7 +4,7 @@
 #
 #   ./Scripts/release.sh
 #
-# 결과: build/MacClean-<버전>.dmg — 다른 맥에 그냥 옮겨도 경고 없이 열린다.
+# 결과: build/Chaff-<버전>.dmg — 다른 맥에 그냥 옮겨도 경고 없이 열린다.
 #
 # ── 한 번만 해두면 되는 준비 ─────────────────────────────────────────────
 #
@@ -14,7 +14,7 @@
 #
 # 2) 공증 자격증명을 키체인에 저장해 둔다. 이건 딱 한 번만 하면 된다.
 #
-#    xcrun notarytool store-credentials "MacClean" \
+#    xcrun notarytool store-credentials "Chaff" \
 #      --apple-id "<애플 ID>" \
 #      --team-id "<10자리 팀 ID>" \
 #      --password "<앱 암호>"
@@ -26,22 +26,22 @@
 #    이 스크립트는 비밀번호를 묻지도, 파일에 적지도 않는다. 키체인에 맡긴다.
 #
 # ── 환경 변수로 바꿀 수 있는 것 ──────────────────────────────────────────
-#   NOTARY_PROFILE   공증 자격증명 이름 (기본: MacClean)
+#   NOTARY_PROFILE   공증 자격증명 이름 (기본: Chaff)
 #   SIGN_IDENTITY    서명 인증서 (기본: 키체인에서 Developer ID Application 자동 탐색)
-#   MACCLEAN_BUNDLE_ID  번들 ID (기본: local.macclean.app)
+#   CHAFF_BUNDLE_ID  번들 ID (기본: local.chaff.app)
 #
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-APP_NAME="MacClean"
+APP_NAME="Chaff"
 VERSION="$(cat VERSION)"
 BUILD_DIR="build"
 APP_DIR="${BUILD_DIR}/${APP_NAME}.app"
 ZIP_PATH="${BUILD_DIR}/${APP_NAME}-${VERSION}.zip"
 DMG_PATH="${BUILD_DIR}/${APP_NAME}-${VERSION}.dmg"
 STAGING_DIR="${BUILD_DIR}/dmg-staging"
-NOTARY_PROFILE="${NOTARY_PROFILE:-MacClean}"
+NOTARY_PROFILE="${NOTARY_PROFILE:-Chaff}"
 
 fail() { echo "✗ $1" >&2; exit 1; }
 
@@ -166,4 +166,4 @@ echo "  다른 맥에 그대로 옮겨도 경고 없이 열립니다."
 echo "  xattr 로 quarantine 을 풀 필요도 없습니다."
 echo
 echo "  설치: ./Scripts/package.sh --install"
-echo "  또는 DMG 를 열고 MacClean 을 Applications 로 끌어다 놓으세요."
+echo "  또는 DMG 를 열고 Chaff 를 Applications 로 끌어다 놓으세요."

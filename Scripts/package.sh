@@ -2,7 +2,7 @@
 #
 # 설치용 배포본을 만든다.
 #
-#   ./Scripts/package.sh              build/MacClean-<버전>.dmg 생성
+#   ./Scripts/package.sh              build/Chaff-<버전>.dmg 생성
 #   ./Scripts/package.sh --install    만든 뒤 /Applications 에 바로 설치
 #
 # macOS 에서만 동작한다. 맥 앱 바이너리는 맥에서만 만들 수 있다.
@@ -11,7 +11,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-APP_NAME="MacClean"
+APP_NAME="Chaff"
 VERSION="$(cat VERSION)"
 BUILD_DIR="build"
 APP_DIR="${BUILD_DIR}/${APP_NAME}.app"
@@ -60,11 +60,11 @@ if [ "${1:-}" = "--install" ]; then
   echo "     권한은 앱의 위치마다 따로 붙습니다. build 폴더에서 켠 권한은"
   echo "     /Applications 로 옮긴 앱에는 적용되지 않습니다."
   echo "     시스템 설정 → 개인정보 보호 및 보안 → 전체 디스크 접근"
-  echo "     → 목록에서 예전 MacClean 을 빼고, /Applications/${APP_NAME}.app 을 추가하세요."
+  echo "     → 목록에서 예전 Chaff 를 빼고, /Applications/${APP_NAME}.app 을 추가하세요."
   open "/Applications/${APP_NAME}.app"
 else
   echo
-  echo "  설치: DMG 를 열고 MacClean 을 Applications 로 끌어다 놓으세요."
+  echo "  설치: DMG 를 열고 Chaff 를 Applications 로 끌어다 놓으세요."
   echo "  또는: ./Scripts/package.sh --install"
   open "${BUILD_DIR}"
 fi

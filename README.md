@@ -1,6 +1,9 @@
-# MacClean
+# Chaff
 
 256GB MacBook Air 를 위한 저장 공간 정리 도구.
+
+이름은 *separate the wheat from the chaff* — 알곡과 겨를 가른다 — 에서 왔다.
+겨만 골라내는 것, 그리고 알곡은 손대지 않는 것이 이 앱이 하는 일 전부다.
 
 **설계 원칙: 못 지우는 실패는 허용한다. 잘못 지우는 실패는 허용하지 않는다.**
 
@@ -54,7 +57,7 @@ macOS 26 (Tahoe) 의 **Liquid Glass** 디자인 언어를 쓴다.
 - 기본 화면은 조용하게. "지우면 어떻게 되는지"는 항목을 펼쳤을 때만 나온다
 
 **macOS 26 미만에서도 그대로 동작한다.** 유리 재질 대신 머티리얼로 자동 폴백한다.
-macOS 26 전용 API 는 전부 [`DesignSystem.swift`](Sources/MacCleanApp/DesignSystem.swift)
+macOS 26 전용 API 는 전부 [`DesignSystem.swift`](Sources/ChaffApp/DesignSystem.swift)
 한 파일에만 있다 — 문제가 생기면 그 파일만 고치면 된다.
 
 ## 설치
@@ -66,12 +69,12 @@ Xcode 프로젝트 없이 SPM 만으로 만든다. Xcode 15 이상 (또는 Comma
 # /Applications 에 바로 설치
 ./Scripts/package.sh --install
 
-# 또는 배포용 디스크 이미지만 만들기 → build/MacClean-0.1.0.dmg
+# 또는 배포용 디스크 이미지만 만들기 → build/Chaff-0.1.0.dmg
 ./Scripts/package.sh
 ```
 
 설치한 뒤 **시스템 설정 → 개인정보 보호 및 보안 → 전체 디스크 접근**에
-`/Applications/MacClean.app` 을 추가하세요. 이 권한이 없으면 iPhone 백업, 메일 첨부 임시본,
+`/Applications/Chaff.app` 을 추가하세요. 이 권한이 없으면 iPhone 백업, 메일 첨부 임시본,
 샌드박스 앱 캐시를 찾지 못합니다.
 
 > 권한은 **앱의 위치마다 따로** 붙습니다. `build` 폴더에서 켠 권한은
@@ -80,7 +83,7 @@ Xcode 프로젝트 없이 SPM 만으로 만든다. Xcode 15 이상 (또는 Comma
 ### 개발 중이라면
 
 ```bash
-# 앱 번들만 만들기 → build/MacClean.app
+# 앱 번들만 만들기 → build/Chaff.app
 ./Scripts/build_app.sh --run
 
 # 테스트
@@ -108,7 +111,7 @@ python3 Scripts/make_icon.py
 2. **공증 자격증명을 키체인에 저장**
 
    ```bash
-   xcrun notarytool store-credentials "MacClean" \
+   xcrun notarytool store-credentials "Chaff" \
      --apple-id "<애플 ID>" \
      --team-id "<10자리 팀 ID>" \
      --password "<앱 암호>"
@@ -133,7 +136,7 @@ Gatekeeper 가 매번 온라인 확인을 하는데, 앱에 직접 스테이플�
 직접 빌드한 맥에서는 그냥 열리지만, 다른 맥으로 옮기면 Gatekeeper 가 막습니다.
 
 ```bash
-xattr -dr com.apple.quarantine /Applications/MacClean.app
+xattr -dr com.apple.quarantine /Applications/Chaff.app
 ```
 
 ### 웹으로 배포하기
@@ -148,8 +151,8 @@ xattr -dr com.apple.quarantine /Applications/MacClean.app
 
 | 파일 | 쓰임 |
 | --- | --- |
-| `MacClean-<버전>.dmg` | 배포본 |
-| `MacClean-<버전>.dmg.sha256` | 받은 파일이 온전한지 확인 |
+| `Chaff-<버전>.dmg` | 배포본 |
+| `Chaff-<버전>.dmg.sha256` | 받은 파일이 온전한지 확인 |
 | `appcast.json` | 앱과 웹페이지가 읽는 최신 버전 안내문 |
 
 올리기 전에 **공증 티켓이 실제로 붙어 있는지**(`stapler validate`) 확인하고,
@@ -184,7 +187,7 @@ xattr -dr com.apple.quarantine /Applications/MacClean.app
 
 한국어 · English · 日本語 · 简体中文. macOS 의 언어 설정을 따라갑니다.
 
-번역 파일은 `Sources/MacCleanCore/Resources/<언어>.lproj/Localizable.strings` 한 곳에 있습니다.
+번역 파일은 `Sources/ChaffCore/Resources/<언어>.lproj/Localizable.strings` 한 곳에 있습니다.
 화면 문자열의 절반 이상(규칙 설명, 판정 이유)이 코어에서 나오기 때문에,
 앱과 코어로 카탈로그를 나누면 같은 말을 두 번 번역하게 되고 둘이 어긋나면 화면 안에서 용어가 갈립니다.
 
@@ -196,7 +199,7 @@ xattr -dr com.apple.quarantine /Applications/MacClean.app
 
 ### 언어를 추가하려면
 
-1. `Sources/MacCleanCore/Resources/<언어코드>.lproj/Localizable.strings` 를 만들고
+1. `Sources/ChaffCore/Resources/<언어코드>.lproj/Localizable.strings` 를 만들고
    `ko.lproj` 를 통째로 번역합니다 (451개 키).
 2. `Scripts/build_app.sh` 의 `CFBundleLocalizations` 에 언어 코드를 넣습니다.
    이걸 빠뜨리면 번역 파일이 있어도 macOS 가 그 언어를 안 씁니다.
@@ -212,7 +215,7 @@ xattr -dr com.apple.quarantine /Applications/MacClean.app
 - 소스가 부르는 키가 카탈로그에 실제로 있는가 (`L(...)` 는 컴파일러가 안 봐줍니다)
 - 모든 정리 규칙이 모든 언어에서 제목·설명·결과 문구를 갖는가
 
-`maccleanctl` 의 도움말과 머리말은 한국어입니다. 개발자가 엔진을 직접 검증하는 도구고,
+`chaffctl` 의 도움말과 머리말은 한국어입니다. 개발자가 엔진을 직접 검증하는 도구고,
 출력의 알맹이(항목 제목·설명·판정)는 카탈로그를 지나므로 사용자 언어로 나옵니다.
 
 ---
@@ -226,7 +229,7 @@ xattr -dr com.apple.quarantine /Applications/MacClean.app
 번들에 끼워 넣고 중첩 서명까지 맞춰야 하는데, 공증이 조용히 깨지기 쉬운 지점입니다.
 새 버전이 있다고 알려주고 브라우저를 여는 것만으로 "첫 버전에 갇히는" 문제는 해결됩니다.
 
-메뉴의 **MacClean → 업데이트 확인…** 으로 직접 확인할 수도 있습니다.
+메뉴의 **Chaff → 업데이트 확인…** 으로 직접 확인할 수도 있습니다.
 확인에 실패하면(네트워크 없음, 서버 응답 없음) 자동 확인일 때는 조용히 넘어갑니다.
 
 ---
@@ -250,19 +253,19 @@ xattr -dr com.apple.quarantine /Applications/MacClean.app
 GUI 를 믿기 전에 같은 엔진을 터미널에서 돌려볼 수 있습니다.
 
 ```bash
-swift build -c release --product maccleanctl
+swift build -c release --product chaffctl
 BIN=$(swift build -c release --show-bin-path)
 
-$BIN/maccleanctl scan     # 검사만 (아무것도 지우지 않음)
-$BIN/maccleanctl rules    # 등록된 정리 규칙 전부 출력
-$BIN/maccleanctl plan     # 지울 항목 미리보기 (아무것도 지우지 않음)
-$BIN/maccleanctl log      # 최근 작업 기록
+$BIN/chaffctl scan     # 검사만 (아무것도 지우지 않음)
+$BIN/chaffctl rules    # 등록된 정리 규칙 전부 출력
+$BIN/chaffctl plan     # 지울 항목 미리보기 (아무것도 지우지 않음)
+$BIN/chaffctl log      # 최근 작업 기록
 ```
 
 실제로 정리하려면 명시적으로 확인해야 합니다.
 
 ```bash
-$BIN/maccleanctl clean --safe --confirm    # 안전 등급만 휴지통으로
+$BIN/chaffctl clean --safe --confirm    # 안전 등급만 휴지통으로
 ```
 
 ---
@@ -270,7 +273,7 @@ $BIN/maccleanctl clean --safe --confirm    # 안전 등급만 휴지통으로
 ## 중복 파일
 
 내용이 한 바이트도 다르지 않은 파일을 찾습니다. 툴바의 **중복 찾기** 를 켜세요.
-(CLI: `maccleanctl scan --duplicates`)
+(CLI: `chaffctl scan --duplicates`)
 
 **이 앱에서 가장 위험한 기능입니다.** 다른 스캐너는 캐시와 빌드 산출물만 건드리는데
 여기는 사용자 문서를 대상으로 합니다. 그래서 안전의 기준을 다르게 잡았습니다 —
@@ -289,7 +292,7 @@ $BIN/maccleanctl clean --safe --confirm    # 안전 등급만 휴지통으로
 ## 되돌리기
 
 이 앱이 휴지통으로 옮긴 것을 원래 자리로 되돌립니다. 툴바의 **되돌리기**.
-(CLI: `maccleanctl restore`, 전부 되돌리려면 `--all`)
+(CLI: `chaffctl restore`, 전부 되돌리려면 `--all`)
 
 감사 로그에 원래 경로와 휴지통 안의 위치가 남아 있어서 가능합니다.
 **원래 자리에 이미 뭔가 있으면 덮어쓰지 않습니다** — 되돌리기가 새로운 손실을 만들면 안 되니까요.
@@ -322,7 +325,7 @@ $BIN/maccleanctl clean --safe --confirm    # 안전 등급만 휴지통으로
 터미널에서 아무 경로나 물어볼 수 있습니다:
 
 ```bash
-$BIN/maccleanctl inspect ~/Downloads/something.dmg
+$BIN/chaffctl inspect ~/Downloads/something.dmg
 ```
 
 ## 무엇을 정리하는가
@@ -365,7 +368,7 @@ $BIN/maccleanctl inspect ~/Downloads/something.dmg
 
 ## 절대 건드리지 않는 것
 
-`Sources/MacCleanCore/Safety/ProtectedPaths.swift` 에 하드코딩되어 있으며,
+`Sources/ChaffCore/Safety/ProtectedPaths.swift` 에 하드코딩되어 있으며,
 **정리 규칙이 이 목록을 덮어쓸 수 없습니다.**
 
 - `~/Documents`, `~/Desktop`, `~/Pictures`, `~/Movies`, `~/Music`
@@ -413,7 +416,7 @@ $BIN/maccleanctl inspect ~/Downloads/something.dmg
 - iOS 백업 예외가 이름 기반 차단(`.git`)까지 열어주고 있었다. 테스트가 잡았다.
 
 권장 순서는 여전히 같습니다.
-`swift test` → `maccleanctl scan` (읽기만) → `maccleanctl plan` (미리보기) → 실제 정리.
+`swift test` → `chaffctl scan` (읽기만) → `chaffctl plan` (미리보기) → 실제 정리.
 
 ### 아직 안 한 것
 

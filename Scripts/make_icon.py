@@ -30,8 +30,8 @@ MASTER = 4096
 SUPERSAMPLE = MASTER // 1024
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-OUTPUT_ICNS = ROOT / "Sources/MacCleanApp/Resources/AppIcon.icns"
-OUTPUT_PNG = ROOT / "Sources/MacCleanApp/Resources/AppIcon-1024.png"
+OUTPUT_ICNS = ROOT / "Sources/ChaffApp/Resources/AppIcon.icns"
+OUTPUT_PNG = ROOT / "Sources/ChaffApp/Resources/AppIcon-1024.png"
 
 
 def superellipse(cx: float, cy: float, half: float, exponent: float = 5.0, steps: int = 720):
