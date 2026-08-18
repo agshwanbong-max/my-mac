@@ -27,7 +27,14 @@ let package = Package(
         .executableTarget(name: "maccleanctl", dependencies: ["MacCleanCore"]),
 
         // SwiftUI 앱.
-        .executableTarget(name: "MacCleanApp", dependencies: ["MacCleanCore"]),
+        .executableTarget(
+            name: "MacCleanApp",
+            dependencies: ["MacCleanCore"],
+            // 아이콘은 `build_app.sh` 가 소스 경로에서 직접 번들로 복사한다.
+            // SPM 리소스로 넘기면 `MacClean_MacCleanApp.bundle` 안에 들어가는데,
+            // `CFBundleIconFile` 은 Contents/Resources 바로 아래를 본다.
+            exclude: ["Resources"]
+        ),
 
         .testTarget(name: "MacCleanCoreTests", dependencies: ["MacCleanCore"]),
     ]

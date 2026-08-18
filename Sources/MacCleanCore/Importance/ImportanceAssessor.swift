@@ -73,7 +73,6 @@ public struct ImportanceAssessor: Sendable {
     public func assess(_ url: URL) -> ImportanceAssessment {
         let target = url.standardizedFileURL
         let path = target.path
-        let name = target.lastPathComponent
         let ext = target.pathExtension.lowercased()
         let components = target.pathComponents
 

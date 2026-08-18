@@ -126,7 +126,7 @@ final class LocalizationTests: XCTestCase {
             for line in source.split(separator: "\n", omittingEmptySubsequences: false) {
                 // 문서 주석 안의 사용 예시는 실제 호출이 아니다.
                 if line.trimmingCharacters(in: .whitespaces).hasPrefix("///") { continue }
-                used.formUnion(Self.callPattern.matches(in: line))
+                used.formUnion(Self.callPattern.matches(in: String(line)))
             }
         }
 
