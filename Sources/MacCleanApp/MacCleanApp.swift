@@ -1,5 +1,6 @@
 #if os(macOS)
 import AppKit
+import MacCleanCore
 import SwiftUI
 
 struct MacCleanApp: App {
