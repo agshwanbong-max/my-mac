@@ -161,9 +161,13 @@ private struct PermissionNotice: View {
 /// SwiftUI 좌표 공간으로는 이 질문에 답할 수 없다. 어느 조상 뷰를 기준으로 재느냐에 따라
 /// 값이 달라지는데, 정작 알아야 하는 건 **창 자체**와의 관계이기 때문이다.
 ///
-/// `contentLayoutRect` 는 창에서 제목 줄과 도구 막대를 뺀 영역이다.
-/// 이 뷰의 위쪽 끝이 그보다 얼마나 위로 올라가 있는지가 곧 가려진 높이다.
-/// 창에 붙어 있는 한 도구 막대 모양이 바뀌든 창 크기가 바뀌든 따라간다.
+/// `contentLayoutRect` 로는 안 된다. macOS 26 의 떠 있는 도구 막대는 콘텐츠가 그 밑으로
+/// 흐르는 것을 정상으로 보기 때문에, 창은 "가려진 것 없음"이라고 답한다.
+///
+/// 그래서 제목 줄 **뷰 자체**를 기준으로 잰다. 신호등 단추가 얹혀 있는 그 뷰다.
+/// 사이드바의 위쪽 끝이 그 뷰의 아래 모서리보다 얼마나 올라가 있는지가 곧 겹친 높이다.
+/// 순수한 기하 계산이라 도구 막대 모양이나 창 크기가 바뀌어도, 전체 화면으로 들어가
+/// 제목 줄이 사라져도 그대로 따라간다.
 private struct TitleBarProbe: NSViewRepresentable {
     @Binding var hidden: CGFloat
 
@@ -182,12 +186,27 @@ private struct TitleBarProbe: NSViewRepresentable {
     private func measure(_ view: ProbeView) {
         // 배치 도중에 상태를 건드리면 SwiftUI 가 같은 판을 다시 그린다. 한 차례 미룬다.
         DispatchQueue.main.async {
-            guard let window = view.window, let content = window.contentView else { return }
+            guard let window = view.window,
+                  let content = window.contentView,
+                  // 신호등 단추의 부모가 제목 줄 뷰다. 도구 막대까지 품고 있다.
+                  let titleBar = window.standardWindowButton(.closeButton)?.superview
+            else { return }
 
-            // 둘 다 창 기준 좌표로 옮겨서 비교한다. macOS 는 y 가 위로 자란다.
-            let layout = content.convert(window.contentLayoutRect, to: nil)
-            let mine = view.convert(view.bounds, to: nil)
-            let measured = max(0, layout.maxY - mine.maxY)
+            // 같은 자 위에 올려놓고 잰다. macOS 는 y 가 위로 자라므로
+            // 제목 줄의 아래 모서리(minY)가 사이드바가 시작해도 되는 높이다.
+            let titleBarBottom = titleBar.convert(titleBar.bounds, to: content).minY
+            let myTop = view.convert(view.bounds, to: content).maxY
+            let measured = max(0, myTop - titleBarBottom)
+
+            // 이 보정은 눈으로만 확인할 수 있어서, 빗나갔을 때 원인을 좁힐 방법이 필요하다.
+            // 켤 때만 숫자를 흘린다: CHAFF_LAYOUT_DEBUG=1 Chaff.app/Contents/MacOS/Chaff
+            if ProcessInfo.processInfo.environment["CHAFF_LAYOUT_DEBUG"] != nil {
+                let line = "[layout] 제목 줄 높이 \(titleBar.frame.height)"
+                    + " / 제목 줄 아래 \(titleBarBottom)"
+                    + " / 사이드바 위 \(myTop)"
+                    + " → 가려짐 \(measured)\n"
+                FileHandle.standardError.write(Data(line.utf8))
+            }
 
             // 소수점 떨림으로 다시 그리지 않게 한다.
             if abs(measured - hidden) > 0.5 { hidden = measured }
