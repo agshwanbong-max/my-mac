@@ -200,9 +200,22 @@ private struct TitleBarProbe: NSViewRepresentable {
             let myTop = view.convert(view.bounds, to: nil).maxY
             let allowedTop = window.frame.height - titleBarHeight
 
+            let overlap = max(0, myTop - allowedTop)
+
+            // macOS 26 부터 도구 막대는 콘텐츠 **위에 떠서** 그려진다.
+            // 그래서 창은 "가려진 것 없음"이라고 답한다 — AppKit 기준으로는 그게 맞다.
+            // 콘텐츠가 그 밑으로 흐르는 게 의도이고, 대신 스크롤 뷰가 콘텐츠 인셋을 받아
+            // 첫 줄을 밀어내야 한다. 사이드바 목록에는 그 인셋이 들어오지 않는다.
+            //
+            // 재서는 잡을 수 없는 종류다. 창의 좌표는 전부 정상이라고 말하는데
+            // 눈에만 가려 보인다. 그래서 이 버전대에서는 제목 줄 높이를 바닥값으로 깐다.
+            let floatingToolbar = ProcessInfo.processInfo.isOperatingSystemAtLeast(
+                OperatingSystemVersion(majorVersion: 26, minorVersion: 0, patchVersion: 0)
+            )
+
             // 보정은 제목 줄 높이를 넘을 수 없다. 이 못이 없으면 계산이 어긋났을 때
             // 목록이 통째로 화면 밖으로 밀려나 사이드바가 텅 빈 것처럼 보인다.
-            let measured = min(max(0, myTop - allowedTop), titleBarHeight)
+            let measured = min(max(overlap, floatingToolbar ? titleBarHeight : 0), titleBarHeight)
 
             // 이 보정은 눈으로만 확인할 수 있어서, 빗나갔을 때 원인을 좁힐 방법이 필요하다.
             // 켤 때만 숫자를 흘린다: CHAFF_LAYOUT_DEBUG=1 Chaff.app/Contents/MacOS/Chaff
@@ -211,7 +224,9 @@ private struct TitleBarProbe: NSViewRepresentable {
                     + " / 제목 줄 높이 \(titleBarHeight)"
                     + " / 사이드바 위 \(myTop)"
                     + " / 시작해도 되는 높이 \(allowedTop)"
-                    + " → 가려짐 \(measured)\n"
+                    + " / 겹침 \(overlap)"
+                    + " / 떠 있는 도구 막대 \(floatingToolbar)"
+                    + " → 보정 \(measured)\n"
                 FileHandle.standardError.write(Data(line.utf8))
             }
 
