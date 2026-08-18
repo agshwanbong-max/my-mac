@@ -1,17 +1,21 @@
 /*
  * 최신 배포본 정보를 채운다.
  *
- * appcast.json 은 앱이 새 버전을 확인할 때 쓰는 것과 **같은 파일**이다.
- * (`releases/latest/download/appcast.json` — 항상 최신 릴리스를 가리킨다.)
- * 이 페이지도 같은 걸 읽으므로, 릴리스를 하나 올리면 앱과 웹이 같이 갱신된다.
- * 페이지를 손댈 일이 없다.
+ * **왜 appcast.json 을 안 읽는가**
+ * 앱은 `releases/latest/download/appcast.json` 을 읽는다. 그런데 그 주소는
+ * 브라우저에서 쓸 수 없다 — GitHub 이 302 리다이렉트를 **CORS 헤더 없이**
+ * 돌려주기 때문에, 브라우저는 리다이렉트를 따라가기도 전에 요청을 막는다.
+ * (앱의 URLSession 에는 CORS 제약이 없어서 같은 주소가 잘 동작한다.)
+ *
+ * `api.github.com` 은 `Access-Control-Allow-Origin: *` 를 보낸다. 그래서
+ * 페이지는 API 를, 앱은 appcast.json 을 본다. 둘 다 같은 릴리스를 가리킨다.
  *
  * 못 읽어도 화면은 그대로 동작한다 — 단추의 기본 링크가 릴리스 목록이라
  * 받는 데는 지장이 없고, 버전 표시만 비워둔다.
  */
 
-const MANIFEST =
-  "https://github.com/agshwanbong-max/my-mac/releases/latest/download/appcast.json";
+const LATEST_RELEASE =
+  "https://api.github.com/repos/agshwanbong-max/my-mac/releases/latest";
 
 (async function () {
   const button = document.querySelector("[data-download]");
@@ -19,35 +23,40 @@ const MANIFEST =
   if (!button) return;
 
   try {
-    const response = await fetch(MANIFEST, { cache: "no-store" });
+    const response = await fetch(LATEST_RELEASE, {
+      headers: { Accept: "application/vnd.github+json" },
+    });
     if (!response.ok) throw new Error(String(response.status));
 
-    const manifest = await response.json();
-    if (!manifest.downloadURL || !manifest.version) throw new Error("모양이 다릅니다");
+    const release = await response.json();
+    const dmg = (release.assets || []).find((asset) =>
+      asset.name.toLowerCase().endsWith(".dmg")
+    );
+    if (!dmg) throw new Error("DMG 가 릴리스에 없습니다");
 
-    button.href = manifest.downloadURL;
+    button.href = dmg.browser_download_url;
 
     if (meta) {
-      const parts = [`버전 ${manifest.version}`];
-      if (manifest.publishedAt) {
-        const date = new Date(manifest.publishedAt);
-        if (!Number.isNaN(date.getTime())) {
-          parts.push(
-            date.toLocaleDateString("ko-KR", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })
-          );
-        }
+      const version = (release.tag_name || "").replace(/^v/, "");
+      const parts = [];
+      if (version) parts.push(`버전 ${version}`);
+
+      const date = new Date(release.published_at);
+      if (!Number.isNaN(date.getTime())) {
+        parts.push(
+          date.toLocaleDateString("ko-KR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })
+        );
       }
-      if (manifest.minimumSystemVersion) {
-        parts.push(`macOS ${manifest.minimumSystemVersion} 이상`);
-      }
+      parts.push("macOS 13 이상");
       meta.textContent = parts.join(" · ");
     }
   } catch (error) {
-    // 아직 릴리스가 없거나 네트워크가 막힌 경우. 기본 링크로 둔다.
+    // 아직 릴리스가 없거나, 네트워크가 막혔거나, API 한도에 걸린 경우.
+    // 기본 링크(릴리스 목록)로 두면 받는 데는 문제가 없다.
     if (meta) meta.textContent = "macOS 13 이상 · Apple 공증 완료";
   }
 })();
