@@ -7,20 +7,9 @@ import SwiftUI
 struct SidebarView: View {
     @EnvironmentObject private var model: AppModel
 
-    /// 사이드바 위쪽이 제목 줄에 가려진 높이. `TitleBarProbe` 가 채워 준다.
-    ///
-    /// macOS 26 에서 NavigationSplitView 의 사이드바가 제목 줄만큼의 안전 영역을
-    /// 못 받는 일이 있다. 그러면 목록이 창 맨 위에서 시작해 첫 줄이 신호등 단추에
-    /// 가리고, 붙박이 구역 머리글이 그 위에 겹쳐 찍힌다. 항목이 몇 개 없으면
-    /// 스크롤도 안 되니 가려진 첫 줄에 아예 손이 닿지 않는다.
-    ///
-    /// macOS 가 제대로 밀어주면 이 값은 0 이 되고 보정도 저절로 사라진다.
-    @State private var hiddenUnderTitleBar: CGFloat = 0
-
     var body: some View {
         VStack(spacing: 0) {
             categoryList
-                .padding(.top, hiddenUnderTitleBar)
 
             if !model.hasFullDiskAccess {
                 Divider()
@@ -30,9 +19,8 @@ struct SidebarView: View {
             Divider()
             SupportFooter()
         }
-        // 재는 자는 바깥에 둔다. 안쪽 여백을 바꿔도 이 뷰의 위치는 그대로여서
-        // 여백과 측정이 서로를 물고 늘어지지 않는다.
-        .background(TitleBarProbe(hidden: $hiddenUnderTitleBar))
+        // 목록 첫 줄이 제목 줄 밑에 깔리는 것을 막는다. 사정은 아래에 적어 뒀다.
+        .background(SidebarTopInset())
     }
 
     private var categoryList: some View {
@@ -156,83 +144,86 @@ private struct PermissionNotice: View {
     }
 }
 
-/// 사이드바 위쪽이 제목 줄에 얼마나 가려졌는지 창에 직접 물어보는, 보이지 않는 자.
+/// 사이드바 목록이 제목 줄 아래에서 시작하게 만든다.
 ///
-/// SwiftUI 좌표 공간으로는 이 질문에 답할 수 없다. 어느 조상 뷰를 기준으로 재느냐에 따라
-/// 값이 달라지는데, 정작 알아야 하는 건 **창 자체**와의 관계이기 때문이다.
+/// **왜 SwiftUI 로는 안 되는가**
+/// `.listStyle(.sidebar)` 의 스크롤 뷰는 자기 틀 위로 넘어가서 그린다. macOS 26 의
+/// 떠 있는 도구 막대 밑으로 내용이 흐르게 하려는 의도된 동작이고, 대신 스크롤 뷰가
+/// 콘텐츠 인셋을 받아 첫 줄을 밀어내야 하는데 사이드바에는 그게 들어오지 않는다.
 ///
-/// `contentLayoutRect` 로는 안 된다. macOS 26 의 떠 있는 도구 막대는 콘텐츠가 그 밑으로
-/// 흐르는 것을 정상으로 보기 때문에, 창은 "가려진 것 없음"이라고 답한다.
+/// 위쪽에 여백을 주는 걸로는 고쳐지지 않는다. 여백은 **틀만** 줄이고 내용은 여전히
+/// 창 꼭대기에서 그려져서, 첫 줄이 내려오는 게 아니라 잘려 나간다.
+/// (여백을 크게 줬더니 목록이 통째로 사라진 것이 그 증거였다.)
 ///
-/// 그래서 제목 줄 **뷰 자체**를 기준으로 잰다. 신호등 단추가 얹혀 있는 그 뷰다.
-/// 사이드바의 위쪽 끝이 그 뷰의 아래 모서리보다 얼마나 올라가 있는지가 곧 겹친 높이다.
-/// 순수한 기하 계산이라 도구 막대 모양이나 창 크기가 바뀌어도, 전체 화면으로 들어가
-/// 제목 줄이 사라져도 그대로 따라간다.
-private struct TitleBarProbe: NSViewRepresentable {
-    @Binding var hidden: CGFloat
+/// 창에 물어봐도 소용없다. `contentLayoutRect` 도, 사이드바 칸의 좌표도 전부
+/// "가려진 것 없음"이라고 답한다 — AppKit 기준으로는 그게 맞는 답이기 때문이다.
+///
+/// 그래서 macOS 가 이 일에 쓰는 장치를 직접 쓴다. 스크롤 뷰의 `contentInsets` 이다.
+/// 이건 내용이 시작하는 자리를 옮기는 것이라, 잘라내지 않고 밀어낸다.
+private struct SidebarTopInset: NSViewRepresentable {
 
     func makeNSView(context: Context) -> ProbeView { ProbeView() }
 
     func updateNSView(_ view: ProbeView, context: Context) {
-        // 여기서 매번 다시 매단다. 그래야 콜백이 낡은 바인딩을 붙잡고 있지 않는다.
-        // 뷰를 약하게 잡아야 뷰와 콜백이 서로를 붙들고 안 놓아주는 일이 없다.
         view.onGeometryChange = { [weak view] in
             guard let view else { return }
-            measure(view)
+            apply(around: view)
         }
-        measure(view)
+        apply(around: view)
     }
 
-    private func measure(_ view: ProbeView) {
-        // 배치 도중에 상태를 건드리면 SwiftUI 가 같은 판을 다시 그린다. 한 차례 미룬다.
+    private func apply(around view: ProbeView) {
+        // 배치 도중에 스크롤 뷰를 건드리면 그 판이 어긋난다. 한 차례 미룬다.
         DispatchQueue.main.async {
             guard let window = view.window,
                   // 신호등 단추의 부모가 제목 줄 뷰다. 도구 막대까지 품고 있어서
-                  // 높이는 여기서 정확히 나온다. 다만 이 뷰는 콘텐츠 뷰와 다른 가지에 있어서
-                  // 좌표를 직접 변환하면 안 된다 — 조용히 0 이 나온다.
-                  let titleBar = window.standardWindowButton(.closeButton)?.superview
+                  // 필요한 높이가 여기서 정확히 나온다.
+                  let titleBar = window.standardWindowButton(.closeButton)?.superview,
+                  let scroll = sidebarScrollView(near: view)
             else { return }
 
-            let titleBarHeight = titleBar.frame.height
+            let wanted = titleBar.frame.height
 
-            // 창 좌표로 옮겨 놓고 높이끼리만 비교한다. macOS 는 y 가 위로 자란다.
-            // 창 꼭대기에서 제목 줄 높이만큼 내려온 지점이 사이드바가 시작해도 되는 곳이다.
-            let myTop = view.convert(view.bounds, to: nil).maxY
-            let allowedTop = window.frame.height - titleBarHeight
-
-            let overlap = max(0, myTop - allowedTop)
-
-            // macOS 26 부터 도구 막대는 콘텐츠 **위에 떠서** 그려진다.
-            // 그래서 창은 "가려진 것 없음"이라고 답한다 — AppKit 기준으로는 그게 맞다.
-            // 콘텐츠가 그 밑으로 흐르는 게 의도이고, 대신 스크롤 뷰가 콘텐츠 인셋을 받아
-            // 첫 줄을 밀어내야 한다. 사이드바 목록에는 그 인셋이 들어오지 않는다.
-            //
-            // 재서는 잡을 수 없는 종류다. 창의 좌표는 전부 정상이라고 말하는데
-            // 눈에만 가려 보인다. 그래서 이 버전대에서는 제목 줄 높이를 바닥값으로 깐다.
-            let floatingToolbar = ProcessInfo.processInfo.isOperatingSystemAtLeast(
-                OperatingSystemVersion(majorVersion: 26, minorVersion: 0, patchVersion: 0)
-            )
-
-            // 보정은 제목 줄 높이를 넘을 수 없다. 이 못이 없으면 계산이 어긋났을 때
-            // 목록이 통째로 화면 밖으로 밀려나 사이드바가 텅 빈 것처럼 보인다.
-            let measured = min(max(overlap, floatingToolbar ? titleBarHeight : 0), titleBarHeight)
-
-            // 이 보정은 눈으로만 확인할 수 있어서, 빗나갔을 때 원인을 좁힐 방법이 필요하다.
-            // 켤 때만 숫자를 흘린다: CHAFF_LAYOUT_DEBUG=1 Chaff.app/Contents/MacOS/Chaff
             if ProcessInfo.processInfo.environment["CHAFF_LAYOUT_DEBUG"] != nil {
-                let line = "[layout] 창 높이 \(window.frame.height)"
-                    + " / 제목 줄 높이 \(titleBarHeight)"
-                    + " / 사이드바 위 \(myTop)"
-                    + " / 시작해도 되는 높이 \(allowedTop)"
-                    + " / 겹침 \(overlap)"
-                    + " / 떠 있는 도구 막대 \(floatingToolbar)"
-                    + " → 보정 \(measured)\n"
+                let line = "[layout] 제목 줄 \(wanted)"
+                    + " / 지금 인셋 \(scroll.contentInsets.top)"
+                    + " / 자동조정 \(scroll.automaticallyAdjustsContentInsets)\n"
                 FileHandle.standardError.write(Data(line.utf8))
             }
 
-            // 소수점 떨림으로 다시 그리지 않게 한다.
-            if abs(measured - hidden) > 0.5 { hidden = measured }
+            // 이미 맞으면 손대지 않는다. 매번 건드리면 사용자가 스크롤한 위치를 빼앗는다.
+            guard abs(scroll.contentInsets.top - wanted) > 0.5 else { return }
+
+            scroll.automaticallyAdjustsContentInsets = false
+            scroll.contentInsets = NSEdgeInsets(top: wanted, left: 0, bottom: 0, right: 0)
+
+            // 인셋만 바꾸면 보이는 위치는 그대로다. 새로 생긴 위쪽까지 한 번 되감아야
+            // 첫 줄이 실제로 내려온다.
+            scroll.contentView.scroll(to: NSPoint(x: 0, y: -wanted))
+            scroll.reflectScrolledClipView(scroll.contentView)
         }
+    }
+
+    /// 사이드바 목록의 스크롤 뷰를 찾는다.
+    ///
+    /// 이 뷰는 사이드바 칸의 배경으로 놓이므로, 조상을 한 단계씩 올라가며 그 아래에서
+    /// 스크롤 뷰를 찾으면 가장 먼저 걸리는 것이 목록이다. 오른쪽 상세 칸까지 올라가기
+    /// 전에 멈추므로 엉뚱한 스크롤 뷰를 잡지 않는다.
+    private func sidebarScrollView(near view: NSView) -> NSScrollView? {
+        var ancestor = view.superview
+        while let current = ancestor {
+            if let found = firstScrollView(in: current) { return found }
+            ancestor = current.superview
+        }
+        return nil
+    }
+
+    private func firstScrollView(in view: NSView) -> NSScrollView? {
+        for subview in view.subviews {
+            if let scroll = subview as? NSScrollView { return scroll }
+            if let found = firstScrollView(in: subview) { return found }
+        }
+        return nil
     }
 
     /// 창에 붙을 때와 배치가 바뀔 때마다 알려준다.
