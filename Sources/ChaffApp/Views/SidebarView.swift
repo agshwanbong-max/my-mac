@@ -187,23 +187,30 @@ private struct TitleBarProbe: NSViewRepresentable {
         // 배치 도중에 상태를 건드리면 SwiftUI 가 같은 판을 다시 그린다. 한 차례 미룬다.
         DispatchQueue.main.async {
             guard let window = view.window,
-                  let content = window.contentView,
-                  // 신호등 단추의 부모가 제목 줄 뷰다. 도구 막대까지 품고 있다.
+                  // 신호등 단추의 부모가 제목 줄 뷰다. 도구 막대까지 품고 있어서
+                  // 높이는 여기서 정확히 나온다. 다만 이 뷰는 콘텐츠 뷰와 다른 가지에 있어서
+                  // 좌표를 직접 변환하면 안 된다 — 조용히 0 이 나온다.
                   let titleBar = window.standardWindowButton(.closeButton)?.superview
             else { return }
 
-            // 같은 자 위에 올려놓고 잰다. macOS 는 y 가 위로 자라므로
-            // 제목 줄의 아래 모서리(minY)가 사이드바가 시작해도 되는 높이다.
-            let titleBarBottom = titleBar.convert(titleBar.bounds, to: content).minY
-            let myTop = view.convert(view.bounds, to: content).maxY
-            let measured = max(0, myTop - titleBarBottom)
+            let titleBarHeight = titleBar.frame.height
+
+            // 창 좌표로 옮겨 놓고 높이끼리만 비교한다. macOS 는 y 가 위로 자란다.
+            // 창 꼭대기에서 제목 줄 높이만큼 내려온 지점이 사이드바가 시작해도 되는 곳이다.
+            let myTop = view.convert(view.bounds, to: nil).maxY
+            let allowedTop = window.frame.height - titleBarHeight
+
+            // 보정은 제목 줄 높이를 넘을 수 없다. 이 못이 없으면 계산이 어긋났을 때
+            // 목록이 통째로 화면 밖으로 밀려나 사이드바가 텅 빈 것처럼 보인다.
+            let measured = min(max(0, myTop - allowedTop), titleBarHeight)
 
             // 이 보정은 눈으로만 확인할 수 있어서, 빗나갔을 때 원인을 좁힐 방법이 필요하다.
             // 켤 때만 숫자를 흘린다: CHAFF_LAYOUT_DEBUG=1 Chaff.app/Contents/MacOS/Chaff
             if ProcessInfo.processInfo.environment["CHAFF_LAYOUT_DEBUG"] != nil {
-                let line = "[layout] 제목 줄 높이 \(titleBar.frame.height)"
-                    + " / 제목 줄 아래 \(titleBarBottom)"
+                let line = "[layout] 창 높이 \(window.frame.height)"
+                    + " / 제목 줄 높이 \(titleBarHeight)"
                     + " / 사이드바 위 \(myTop)"
+                    + " / 시작해도 되는 높이 \(allowedTop)"
                     + " → 가려짐 \(measured)\n"
                 FileHandle.standardError.write(Data(line.utf8))
             }
